@@ -6,17 +6,17 @@ Lektion 2 - 6.-februar
 ###################### Emne 2 -- What Is Artificial Intelligence, Machine Learning, and Data Science Anyway?
 ################################################################
 
-AJ Goldstein does a good job of describing the Data Science process:
+*** AJ Goldstein does a good job of describing the Data Science process:
 Goldstein, AJ. “Deconstructing Data Science: Breaking The Complex Craft Into It’s Simplest Parts”
 
 
-– Zhu, Yangyong, and Yun Xiong. “Defining data science.” arXiv preprint arXiv:1501.05039 (2015). <https://arxiv.org/abs/1501.05039>
+*** Zhu, Yangyong, and Yun Xiong. “Defining data science.” arXiv preprint arXiv:1501.05039 (2015). <https://arxiv.org/abs/1501.05039>
 
 Data Science is an application of scientific methods and principles to data processing. - Henrik Strøm
 
 
 
-Tayo, Benjamin Obi. “Problem Framing: The Most Difficult Stage of a Machine Learning Project Workflow”
+*** Tayo, Benjamin Obi. “Problem Framing: The Most Difficult Stage of a Machine Learning Project Workflow”
 
 
 ********************* ASSIGNMENT 1:
@@ -37,8 +37,8 @@ Reflect on the framing of the problem in the first paper.
 
 Almost all practical applications of artificial intelligence has been found in machine learning, and especially in two areas of supervised machine learning: classification and regression.
 
-Note
-*** Read the paper Ng, Andrew. “What artificial intelligence can and can’t do right now.” Harvard Business Review 9.11 (2016).
+Note: Read the paper
+*** Ng, Andrew. “What artificial intelligence can and can’t do right now.” Harvard Business Review 9.11 (2016).
 
 What is the point that Andrew Ng makes?
 Does this align with your perceptions?
@@ -67,7 +67,7 @@ Reading List
 ###################### Emne 3 -- Finding and using references
 ################################################################
 
-Nunamaker Jr, Jay F., Minder Chen, and Titus DM Purdin. “Systems development in information systems research.” Journal of management information systems 7.3 (1990): 89-106.
+*** Nunamaker Jr, Jay F., Minder Chen, and Titus DM Purdin. “Systems development in information systems research.” Journal of management information systems 7.3 (1990): 89-106.
 
 
 #####################################################################
@@ -118,7 +118,7 @@ Lecture 4 - - Supervised learning - Loss and cost functions 2 af 3 - 20. februar
 
 Yann LeCun et al. offers a very good introduction to deep learning:
 
-**** LeCun, Yann, Yoshua Bengio, and Geoffrey Hinton. “Deep learning.” nature 521.7553 (2015): 436-444.
+*** LeCun, Yann, Yoshua Bengio, and Geoffrey Hinton. “Deep learning.” nature 521.7553 (2015): 436-444.
 
 Note
 
