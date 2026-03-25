@@ -1,0 +1,262 @@
+
+Lektion 2 - 6.-februar 
+-- emner 2,3,4,5,6 (https://kea-aai-2026-1-da1461.gitlab.io/lecture02.html)
+
+#####################################################################
+###################### Emne 2 -- What Is Artificial Intelligence, Machine Learning, and Data Science Anyway?
+################################################################
+
+AJ Goldstein does a good job of describing the Data Science process:
+Goldstein, AJ. “Deconstructing Data Science: Breaking The Complex Craft Into It’s Simplest Parts”
+
+
+– Zhu, Yangyong, and Yun Xiong. “Defining data science.” arXiv preprint arXiv:1501.05039 (2015). <https://arxiv.org/abs/1501.05039>
+
+Data Science is an application of scientific methods and principles to data processing. - Henrik Strøm
+
+
+
+Tayo, Benjamin Obi. “Problem Framing: The Most Difficult Stage of a Machine Learning Project Workflow”
+
+
+********************* ASSIGNMENT 1:
+
+Read these two papers in the given order.
+
+*** Rajpurkar, Pranav, et al. “Chexnet: Radiologist-level pneumonia detection on chest x-rays with deep learning.” arXiv preprint arXiv:1711.05225 (2017).
+
+*** Strøm, Henrik, Steven Albury, and Lene Tolstrup Sørensen. “Machine Learning Performance Metrics and Diagnostic Context in Radiology.” 2018 11th CMI International Conference: Prospects and Challenges Towards Developing a Digital Economy within the EU. IEEE, 2018.
+
+Reflect on the framing of the problem in the first paper.
+
+******************
+
+
+
+******************** Vigtigt paper: Ng, Andrew.
+
+Almost all practical applications of artificial intelligence has been found in machine learning, and especially in two areas of supervised machine learning: classification and regression.
+
+Note
+*** Read the paper Ng, Andrew. “What artificial intelligence can and can’t do right now.” Harvard Business Review 9.11 (2016).
+
+What is the point that Andrew Ng makes?
+Does this align with your perceptions?
+
+********************
+
+
+
+**************************** lecture 2 - reading list:
+
+Reading List
+*** Strøm, Henrik. “Essay - Expert Perceptions of Artificial Intelligence” 2017. (course materials folder in repo)
+
+*** Tayo, Benjamin Obi. “Problem Framing: The Most Difficult Stage of a Machine Learning Project Workflow”
+
+*** Goldstein, AJ. “Deconstructing Data Science: Breaking The Complex Craft Into It’s Simplest Parts”
+
+*** Zhu, Yangyong, and Yun Xiong. “Defining data science.” arXiv preprint arXiv:1501.05039 (2015). <https://arxiv.org/abs/1501.05039>
+
+*** Tayo, Benjamin Obi. “Problem Framing: The Most Difficult Stage of a Machine Learning Project Workflow”
+
+******************************** 
+
+
+#####################################################################
+###################### Emne 3 -- Finding and using references
+################################################################
+
+Nunamaker Jr, Jay F., Minder Chen, and Titus DM Purdin. “Systems development in information systems research.” Journal of management information systems 7.3 (1990): 89-106.
+
+
+#####################################################################
+###################### Emne 4 -- Data Types
+################################################################
+
+
+#####################################################################
+###################### Emne 5 -- visualizing  Data
+################################################################
+
+
+#####################################################################
+###################### Emne 6 -- Why do we care about statistics?
+################################################################
+
+A good explanation of the difference between descriptive and inferential statistics is given here:
+
+*** Taylor, Courtney. “The Difference Between Descriptive and Inferential Statistics”
+
+You can find a lot more information on statistics and probability in the book below. The book is not required reading, but you can use it for look up when you do projects.
+
+*** Downey, Allen B. “Think Stats - Probability and Statistics for Programmers, 2nd Edition”
+
+   NOTE! er ikke downloaded. gratisk links her:
+   https://allendowney.github.io/ThinkStats/
+   https://greenteapress.com/wp/think-stats-3e/
+   https://github.com/AllenDowney/ThinkStats/tree/v3
+
+
+
+
+Lecture 3 - - Supervised learning 1 af 3 - 13. februar
+-- emne 9 (https://kea-aai-2026-1-da1461.gitlab.io/lecture02.html)
+
+
+#####################################################################
+###################### Emne 9 -- Classification and Regression
+################################################################
+
+
+Lecture 4 - - Supervised learning - Loss and cost functions 2 af 3 - 20. februar
+-- emne 9 (https://kea-aai-2026-1-da1461.gitlab.io/lecture02.html)
+
+#####################################################################
+###################### Emne 10 -- Predictive Models
+################################################################
+
+Yann LeCun et al. offers a very good introduction to deep learning:
+
+**** LeCun, Yann, Yoshua Bengio, and Geoffrey Hinton. “Deep learning.” nature 521.7553 (2015): 436-444.
+
+Note
+
+Read the Deep Learning article by LeCun et al.
+
+A more involved article goes into back-propagation on a deeper level (not required reading):
+
+*** LeCun, Yann A., et al. “Efficient backprop.” Neural networks: Tricks of the trade. Springer, Berlin, Heidelberg, 2012. 9-48.
+
+
+Activation functions play a crucial role in deep neural networks’ ability to approximate non-linear functions. This is described in the not-so-easy-to-read paper below by Leshno et al. Don’t worry though, you only have to remember the title!
+
+*** Leshno, Moshe, et al. “Multilayer feedforward networks with a nonpolynomial activation function can approximate any function.” Neural networks 6.6 (1993): 861-867.
+
+Note
+
+Give the article by Leshno et al. a quick read. You don’t have to understand every detail, but you must be familiar with the article and its conclusion.
+
+Performance measures for classification problems is a bit more tricky.
+
+Please read the paper:
+
+*** Sokolova, Marina, Nathalie Japkowicz, and Stan Szpakowicz. “Beyond accuracy, F-score and ROC: a family of discriminant measures for performance evaluation.” Australasian joint conference on artificial intelligence. Springer, Berlin, Heidelberg, 2006.
+
+As you can tell from the Sokolova paper, choosing the wrong performance measure can even lead you to the wrong conclusion, so this is a crucial topic.
+
+
+
+
+Lecture 5 - - Supervised learning - Deep Neural Networks 3 af 3 - 27. februar
+-- emne 15 (https://kea-aai-2026-1-da1461.gitlab.io/lecture15.html)
+
+#####################################################################
+###################### Emne 15 -- Deep Neural Networks
+################################################################
+
+
+#####################################################################
+###################### Emne 16 -- Convolutional Neural Networks
+################################################################
+
+
+
+Lecture 6 - - Decision Trees and Random Forest - 6. Marts
+-- emne 17 (  https://kea-aai-2026-1-da1461.gitlab.io/lecture17.html  )
+
+#####################################################################
+###################### Emne 17 -- tree based algorithms, or more specifically Decision Trees and Random Forests.
+################################################################
+
+
+Lecture 7 -- Wokshop - 13. materials
+
+
+Lecture 8 -- Unsupervised Learning - Clustering -1 of 2 - 20. Marts
+-- emne 12,13 (  https://kea-aai-2026-1-da1461.gitlab.io/lecture12.html  )
+
+#####################################################################
+###################### Emne 12 -- Dimensionality Reduction
+################################################################
+
+#####################################################################
+###################### Emne 13 -- Cluster Analysis
+################################################################
+
+K-Means is a clustering algorithm, that means, it can split a training set 𝑋 into 𝐾 clusters, or as Pena et al. puts it, “the fundamental data clustering problem may be defined as grouping similar objects together”.
+
+*** Pena, José M., Jose Antonio Lozano, and Pedro Larranaga. “An empirical comparison of four initialization methods for the k-means algorithm.” Pattern recognition letters 20.10 (1999): 1027-1040.
+
+The K-Means algorithm is widely used and is considered a very well performing algorithm.
+
+Here is a more easy-to-understand explanation of K-Means: K-Means Clustering: From A-Z
+
+*** Azika Amelia  K-Means Clustering: From A to Z  Sep 27, 2018  
+
+The idea here is not to give an exhaustive list, but to explore the idea that many different distance measures exist, and each have their own applications.
+
+Note
+
+When you are studying an field such as artificial intelligence, you will often find yourself faced with sub-fields that seems like a whole new area of study. You will never be able to cover all these sub-fields, but knowing that they exist will allow you to explore them when needed.
+
+To learn more read this: https://towardsdatascience.com/9-distance-measures-in-data-science-918109d069fa
+
+*** Terence Shin: Introducing Distance Correlation, a Superior Correlation Metric.
+
+
+
+
+Lecture 9 -- Unsupervised Learning - ANomaly Detection 2 of 2 - 27. Marts
+-- emne 14 (  https://kea-aai-2026-1-da1461.gitlab.io/lecture13.html  )
+
+#####################################################################
+###################### Emne 14 -- Anomaly Detection
+################################################################
+
+
+
+Lecture 10 -- Generative AI - 10. April
+-- emne 22 (  https://kea-aai-2026-1-da1461.gitlab.io/lecture14.html  )
+
+#####################################################################
+###################### Emne 22 -- Discriminative vs. generative AI
+################################################################
+
+In this lecture we will look at one of the most important achievements in artificial intelligence in recent years: Large Language Models.
+
+A tidal wave was launched when this paper was published in 2017: Attention Is All You Need
+
+*** Ashish Vaswani:  AttentionIsAllYouNeed 
+
+
+
+
+Lecture 11 -- Metaheuristic Search - 17. April
+-- emne 20 (  https://kea-aai-2026-1-da1461.gitlab.io/lecture20.html  )
+
+#####################################################################
+###################### Emne 20 -- Genetic Models
+################################################################
+
+
+
+
+
+
+##################### UdenForPensum ###################################
+
+#####################################################################
+###################### Emne 7 -- Hands-On Machine Learning with Scikit-Learn and TensorFlow.
+################################################################
+
+
+*** Géron, Aurélien. “Hands-On Machine Learning with Scikit-Learn and TensorFlow.” 2017. Chapter 2.
+
+
+
+
+
+
+
+
