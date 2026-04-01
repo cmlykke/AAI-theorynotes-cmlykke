@@ -29,7 +29,7 @@ Géron, Aurélien. Hands-On Machine Learning with Scikit-Learn and PyTorch: Conc
 
 
 
-## What model is typically used for "Analyzing images of products on a production line to automatically classify them"
+## What model should be used for "Analyzing images of products on a production line to automatically classify them"
 ###
 This is image classification, typically performed using convolutional neural networks (CNNs; see Chapter 12) or vision transformers (see Chapter 16).
 #### geron1
@@ -37,7 +37,7 @@ This is image classification, typically performed using convolutional neural net
 (p. 33). O'Reilly Media. Kindle Edition. "
 
 
-## What model is typically used for "Detecting tumors in brain scans"
+## What model should be used for "Detecting tumors in brain scans"
 ### This is semantic image segmentation,
 where each pixel in the image is classified (as we want to determine the exact location and shape of tumors), typically using convolutional neural networks (CNN)s or vision transformers.
 #### geron1
@@ -45,20 +45,239 @@ where each pixel in the image is classified (as we want to determine the exact l
  (p. 33). O'Reilly Media. Kindle Edition.
 
 
-## What model is typically used for "Automatically classifying news articles"
+## What model should be used for "Automatically classifying news articles"
 ### This is natural language processing (NLP), and more specifically text classification, which can be tackled using recurrent neural networks (RNNs) and CNNs, but transformers work even better (see Chapter 15).
 #### geron1
 ######
 (pp. 33-34). O'Reilly Media. Kindle Edition.
 
 
-## What model is typically used for "Automatically flagging offensive comments on discussion forums"
+## What model should be used for "Automatically flagging offensive comments on discussion forums"
 ###
 This is also text classification, using the same NLP tools.
 (This is natural language processing (NLP), and more specifically text classification, which can be tackled using recurrent neural networks (RNNs) and CNNs, but transformers work even better (see Chapter 15).)
 #### geron1
 ######
 (pp. 33-34). O'Reilly Media. Kindle Edition.
+
+
+## What model should be used for "Summarizing long documents automatically"
+### This is a branch of NLP called text summarization, again using the same tools.
+(This is natural language processing (NLP), and more specifically text classification, which can be tackled using recurrent neural networks (RNNs) and CNNs, but transformers work even better (see Chapter 15).)
+######
+(p. 34). O'Reilly Media. Kindle Edition.
+
+## What model should be used for "Estimating a person’s genetic risk for a given disease by analyzing a very long DNA sequence"
+###
+Such a task requires discovering spread out patterns across very long sequences, which is where state space models (SSMs) particularly shine (see “State-Space Models (SSMs)” at https://homl.info).
+#### geron1
+######
+(p. 34). O'Reilly Media. Kindle Edition.
+
+
+## What model should be used for "Creating a chatbot or a personal assistant"
+### This involves many NLP components, including natural language understanding (NLU) and question-answering modules.
+#### geron1
+######
+(p. 34). O'Reilly Media. Kindle Edition.
+
+
+## What model should be used for "Forecasting your company’s revenue next year, based on many performance metrics"
+###
+This is a regression task (i.e., predicting values) that may be tackled using any regression model, such as a linear regression or polynomial regression model (see Chapter 4), a regression support vector machine (see the online appendix on SVMs at https://homl.info), a regression random forest (see Chapter 6), or an artificial neural network (see Chapter 9). If you want to take into account sequences of past performance metrics, you may want to use RNNs, CNNs, or transformers (see Chapters 13 to 15).
+#### geron1
+######
+(p. 34). O'Reilly Media. Kindle Edition.
+
+
+
+
+## What model should be used for "Recommending a product that a client may be interested in, based on past purchases"
+###
+This is a recommender system. One approach is to feed past purchases (and other information about the client) to an artificial neural network (see Chapter 9), and get it to output the most likely next purchase. This neural net would typically be trained on past sequences of purchases across all clients.
+#### geron1
+######
+(p. 34). O'Reilly Media. Kindle Edition.
+
+
+## What model should be used for "Building an intelligent bot for a game"
+###
+This is often tackled using reinforcement learning (RL; see Chapter 19), which is a branch of machine learning that trains agents (such as bots) to pick the actions that will maximize their rewards over time (e.g., a bot may get a reward every time the player loses some life points), within a given environment (such as the game). The famous AlphaGo program that beat the world champion at the game of Go was built using RL.
+#### geron1
+###### (p. 36). O'Reilly Media. Kindle Edition.
+
+## Name the 3 basic types of machine learning systems, based on how they learn.
+###
+1: How they are guided during training (supervised, unsupervised, semi-supervised, self-supervised, and others)
+2: Whether or not they can learn incrementally on the fly (online versus batch learning)
+3: Whether they work by simply comparing new data points to known data points, or instead by detecting patterns in the training data and building a predictive model, much like scientists do (instance-based versus model-based learning)
+#### geron1
+#####
+These criteria are not exclusive; you can combine them in any way you like. For example, a state-of-the-art spam filter may learn on the fly using a deep neural network model trained using human-provided examples of spam and ham; this makes it an online, model-based, supervised learning system.
+###### (p. 36). O'Reilly Media. Kindle Edition.
+
+
+
+## what is supervised learning
+### Supervised learning In supervised learning, the training set you feed to the algorithm includes the desired solutions, called labels (Figure 1-5).
+#### geron1
+#####
+A typical supervised learning task is classification. The spam filter is a good example of this: it is trained with many example emails along with their class (spam or ham), and it must learn how to classify new emails. Another typical task is to predict a target numeric value, such as the price of a car, given a set of features (mileage, age, brand, etc.). This sort of task is called regression (Figure 1-6).⁠1 To train the system, you need to give it many examples of cars, including both their features and their targets (i.e., their prices).
+Note that some regression models can be used for classification as well, and vice versa. For example, logistic regression is commonly used for classification, as it can output a value that corresponds to the probability of belonging to a given class (e.g., 20% chance of being spam).
+###### (p. 37). O'Reilly Media. Kindle Edition.
+
+
+
+## What is "target" and "label"
+###
+The words target and label are generally treated as synonyms in supervised learning, but target is more common in regression tasks and label is more common in classification tasks. Moreover, features are sometimes called predictors or attributes. These terms may refer to individual samples (e.g., “this car’s mileage feature is equal to 15,000”) or to all samples (e.g., “the mileage feature is strongly correlated with price”).
+#### geron1
+###### (p. 39). O'Reilly Media. Kindle Edition.
+
+
+## what is unsupervised learning
+### Unsupervised learning In unsupervised learning, as you might guess, the training data is unlabeled. The system tries to learn without a teacher.
+#### geron1
+#####
+For example, say you have a lot of data about your blog’s visitors. You may want to run a clustering algorithm to try to detect groups of similar visitors (Figure 1-7). The features may include the user’s age group, their region, their interests, the duration of their sessions, and so on. At no point do you tell the algorithm which group a visitor belongs to: it finds those connections without your help. For example, it might notice that 40% of your visitors are teenagers who love comic books and generally read your blog after school, while 20% are adults who enjoy sci-fi and who visit during the weekends. If you use a hierarchical clustering algorithm, it may also subdivide each group into smaller groups. This may help you target your posts for each group.
+###### (p. 39). O'Reilly Media. Kindle Edition.
+
+
+
+## What is "dimensionality reduction" and "feature extraction"
+###
+A related task is dimensionality reduction, in which the goal is to simplify the data without losing too much information. One way to do this is to merge several correlated features into one. For example, a car’s mileage may be strongly correlated with its age, so the dimensionality reduction algorithm will merge them into one feature that represents the car’s wear and tear. This is called feature extraction.
+#### geron1
+#####
+It is often a good idea to try to reduce the number of dimensions in your training data using a dimensionality reduction algorithm before you feed it to another machine learning algorithm (such as a supervised learning algorithm). It will run much faster, the data will take up less disk and memory space, and in some cases it may also perform better.
+###### (p. 40). O'Reilly Media. Kindle Edition.
+
+
+
+## what is Anomaly detection
+###
+Yet another important unsupervised task is anomaly detection—for example, detecting unusual credit card transactions to prevent fraud, catching manufacturing defects, or automatically removing outliers from a dataset before feeding it to another learning algorithm. The system is shown mostly normal instances during training, so it learns to recognize them; then, when it sees a new instance, it can tell whether it looks like a normal one or whether it is likely an anomaly (see Figure 1-9).
+#### geron1
+#####
+The features may include distance from home, time of day, day of the week, amount withdrawn, merchant category, transaction frequency, etc. A very similar task is novelty detection: it aims to detect new instances that look different from all instances in the training set. This requires having a very “clean” training set, devoid of any instance that you would like the algorithm to detect. For example, if you have thousands of pictures of dogs, and 1% of these pictures represent Chihuahuas, then a novelty detection algorithm should not treat new pictures of Chihuahuas as novelties. On the other hand, anomaly detection algorithms may consider these dogs as so rare and so different from other dogs that they would likely classify them as anomalies (no offense to Chihuahuas).
+###### (p. 41). O'Reilly Media. Kindle Edition.
+
+
+## what is associated rule learning
+###
+Finally, another common unsupervised task is association rule learning, in which the goal is to dig into large amounts of data and discover interesting relations between attributes. For example, suppose you own a supermarket. Running an association rule on your sales logs may reveal that people who purchase barbecue sauce and potato chips also tend to buy steak. Thus, you may want to place these items close to one another.
+#### geron1
+###### (p. 42). O'Reilly Media. Kindle Edition.
+
+
+
+## what is semi-supervised learning
+###
+Semi-supervised learning Since labeling data is usually time-consuming and costly, you will often have plenty of unlabeled instances, and few labeled instances. Some algorithms can deal with data that’s partially labeled. This is called semi-supervised learning (Figure 1-10).
+#### geron1
+#####
+Some photo-hosting services, such as Google Photos, are good examples of this. Once you upload all your family photos to the service, it automatically recognizes that the same person A shows up in photos 1, 5, and 11, while another person B shows up in photos 2, 5, and 7. This is the unsupervised part of the algorithm (clustering). Now all the system needs is for you to tell it who these people are. Just add one label per person⁠3 and it is able to name everyone in every photo, which is useful for searching photos.
+Most semi-supervised learning algorithms are combinations of unsupervised and supervised algorithms. For example, a clustering algorithm may be used to group similar instances together, and then
+every unlabeled instance can be labeled with the most common label in its cluster. Once the whole dataset is labeled, it is possible to use any supervised learning algorithm.
+###### (p. 43). O'Reilly Media. Kindle Edition.
+
+
+## what is Self-supervised learning
+###
+Self-supervised learning Another approach to machine learning involves actually generating a fully labeled dataset from a fully unlabeled one. Again, once the whole dataset is labeled, any supervised learning algorithm can be used. This approach is called self-supervised learning.
+#### geron1
+#####
+For example, if you have a large dataset of unlabeled images, you can randomly mask a small part of each image and then train a model to recover the original image (Figure 1-11). During training, the masked images are used as the inputs to the model, and the original images are used as the labels.
+The resulting model may be quite useful in itself—for example, to repair damaged images or to erase unwanted objects from pictures. But more often than not, a model trained using self-supervised learning is not the final goal. You’ll usually want to tweak and fine-tune the model for a slightly different task—one that you actually care about.......
+###### (p. 44). O'Reilly Media. Kindle Edition.
+
+
+
+## what is Tansfer learning
+###
+Transferring knowledge from one task to another is called transfer learning, and it’s one of the most important techniques in machine learning today, especially when using deep neural networks (i.e., neural networks composed of many layers of neurons). We will discuss this in detail in Part II.
+#### geron1
+#####
+As we will see in Chapter 15, large language models (LLMs) are trained in a very similar way, by masking random words in a huge text corpus and training the model to predict the missing words. This large pretrained model can then be fine-tuned for various applications, from sentiment analysis to chatbots. Some people consider self-supervised learning to be a part of unsupervised learning, since it deals with fully unlabeled datasets. But self-supervised learning uses (generated) labels during training, so in that regard it’s closer to supervised learning. And the term “unsupervised learning” is generally used when dealing with tasks like clustering, dimensionality reduction, or anomaly detection, whereas self-supervised learning focuses on the same tasks as supervised learning: mainly classification and regression. In short, it’s best to treat self-supervised learning as its own category.
+######  (p. 45). O'Reilly Media. Kindle Edition.
+
+
+## What is Reinforcement learning
+###
+Reinforcement learning is a very different beast. The learning system, called an agent in this context, can observe the environment, select and perform actions, and get rewards in return (or penalties in the form of negative rewards, as shown in Figure 1-12). It must then learn by itself what is the best strategy, called a policy, to get the most reward over time. A policy defines what action the agent should choose when it is in a given situation.
+#### geron1
+###### (p. 46). O'Reilly Media. Kindle Edition.
+
+
+## Batch learning vs. online learning
+###
+Another criterion used to classify machine learning systems is whether the system can learn incrementally from a stream of incoming data. For example, random forests (see Chapter 6) can only be trained from scratch on the full dataset—this is called batch learning—while other models can be trained one batch of data at a time, for example, using gradient descent (see Chapter 4)—this is called online learning.
+#### geron1
+###### (p. 48). O'Reilly Media. Kindle Edition.
+
+
+## What is Batch learning
+###
+In batch learning, the system must be trained using all the available data. This will generally take a lot of time and computing resources, so it is typically done offline. First the system is trained, and then it is launched into production and runs without learning anymore; it just applies what it has learned. This is called offline learning.
+#### geron1
+#####
+Unfortunately, a model’s performance tends to decay slowly over time, simply because the world continues to evolve while the model remains unchanged. This phenomenon is often called data drift (or model rot). The solution is to regularly retrain the model on up-to-date data. How often you need to do that depends on the use case: if the model classifies pictures of cats and dogs, its performance will decay very slowly, but if the model deals with fast-evolving systems, for example making predictions on the financial market, then it is likely to decay quite fast.
+Even a model trained to classify pictures of cats and dogs may need to be retrained regularly, not because cats and dogs will mutate overnight, but because cameras keep changing, along with image formats, sharpness, brightness, and size ratios. Moreover, people may love different breeds next year, or they may decide to dress their pets with tiny hats—who knows?
+######  (p. 48). O'Reilly Media. Kindle Edition. See page 48 - 50
+
+
+
+
+## What is online learning
+### In online learning, you train the system incrementally by feeding it data instances sequentially, either individually or in small groups called mini-batches. Each learning step is fast and cheap, so the system can learn about new data on the fly, as it arrives (see Figure 1-13). The most common online algorithm by far is gradient descent, but there are a few others.
+#### geron1
+#####
+Online learning is useful for systems that need to adapt to change extremely rapidly (e.g., to detect new patterns in the stock market). It is also a good option if you have limited computing resources; for example, if the model is trained on a mobile device. Most importantly, online learning algorithms can be used to train models on huge datasets that cannot fit in one machine’s memory (this is called out-of-core learning). The algorithm loads part of the data, runs a training step on that data, and repeats the process until it has run on all of the data (see Figure 1-14).
+###### (p. 50). O'Reilly Media. Kindle Edition.
+
+
+## what is learning rate
+### One important parameter of online learning systems is how fast they should adapt to changing data: this is called the learning rate. If you set a high learning rate, then your system will rapidly adapt to new data, but it will also tend to quickly forget the old data: this is called catastrophic forgetting (or catastrophic interference). You don’t want a spam filter to flag only the latest kinds of spam it was shown! Conversely, if you set a low learning rate, the system will have more inertia; that is, it will learn more slowly, but it will also be less sensitive to noise in the new data or to sequences of nonrepresentative data points (outliers).
+#### geron1
+#####
+Out-of-core learning is usually done offline (i.e., not on the live system), so online learning can be a confusing name. Think of it as incremental learning. Moreover, mini-batches are often just called “batches”, so batch learning is also a confusing name. Think of it as learning from scratch on the full dataset.
+###### (pp. 52). O'Reilly Media. Kindle Edition.
+
+
+
+
+## Instance-Based Versus Model-Based Learning
+###
+Instead of just flagging emails that are identical to known spam emails, your spam filter could be programmed to also flag emails that are very similar to known spam emails. This requires a measure of similarity between two emails. A (very basic) similarity measure between two emails could be to count the number of words they have in common. The system would flag an email as spam if it has many words in common with a known spam email. This is called instance-based learning: the system learns the examples by heart, then generalizes to new cases by using a similarity measure to compare them to the learned examples (or a subset of them). For example, in Figure 1-15 the new instance would be classified as a triangle because the majority of the most similar instances belong to that class. Instance-based learning often shines with small datasets, especially if the data keeps changing, but it does not scale very well: it requires deploying a whole copy of the training set to production; making predictions requires searching for similar instances, which can be quite slow; and it doesn’t work well with high-dimensional data such as images.
+#### geron1
+#####
+Another way to generalize from a set of examples is to build a model of these examples and then use that model to make predictions. This is called model-based learning (Figure 1-16).
+.......
+There does seem to be a trend here! Although the data is noisy (i.e., partly random), it looks like life satisfaction goes up more or less linearly as the country’s GDP per capita increases. So you decide to model life satisfaction as a linear function of GDP per capita (you assume that any deviation from that line is just random noise). This step is called model selection: you selected a linear model of life satisfaction with just one attribute, GDP per capita (Equation 1-1).
+###### (p. 54-57). O'Reilly Media. Kindle Edition.
+
+
+
+## What is a performance measure
+###
+Before you can use your model, you need to define the parameter values θ0 and θ1. How can you know which values will make your model perform best? To answer this question, you need to specify a performance measure. You can either define a utility function (or fitness function) that measures how good your model is, or you can define a cost function (a.k.a., loss function) that measures how bad it is. For linear regression problems, people typically use a cost function that measures the distance between the linear model’s predictions and the training examples; the objective is to minimize this distance.
+This is where the linear regression algorithm comes in: you feed it your training examples, and it finds the parameters that make the linear model fit best to your data. This is called training the model. In our case, the algorithm finds that the optimal parameter values are θ0 = 3.75 and θ1 = 6.78 × 10–5.
+Now the model fits the training data as closely as possible (for a linear model), as you can see in Figure 1-19.
+You are finally ready to run the model to make predictions. For example, say you want to know how happy Puerto Ricans are, and the OECD data does not have the answer. Fortunately, you can use your model to make a good prediction: you look up Puerto Rico’s GDP per capita, find $33,442, and then apply your model and find that life satisfaction is likely to be somewhere around 3.75 + 33,442 × 6.78 × 10–5 = 6.02. To whet your appetite, Example 1-1 shows the Python code that loads the data, separates the inputs X from the labels y, creates a scatterplot for visualization, and then trains a linear model and makes a prediction.⁠5
+#### geron1
+#####
+Warning Confusingly, the word “model” can refer to a type of model (e.g., linear regression), to a fully specified model architecture (e.g., linear regression with one input and one output), or to the final trained model ready to be used for predictions (e.g., linear regression with one input and one output, using θ0 = 3.75 and θ1 = 6.78 × 10–5). Model selection consists in choosing the type of model and fully specifying its architecture. Training a model means running an algorithm to find the model parameters that will make it best fit the training data, and hopefully make good predictions on new data.
+Note
+If you had used an instance-based learning algorithm instead, you would have found that Poland has the closest GDP per capita to that of Puerto Rico ($32,238), and since the OECD data tells us that Poles’ life satisfaction is 6.1, you would have predicted a life satisfaction of 6.1 as well for Puerto Rico. If you zoom out a bit and look at the next two closest countries, you will find Portugal with a life satisfaction of 5.4, and Estonia with a life satisfaction of 5.7. Averaging these three values, you get 5.73, which is a bit below your model-based prediction. This simple algorithm is called k-nearest neighbors regression (in this example, k = 3). Replacing the linear regression model with k-nearest neighbors regression in the previous code is as easy as replacing these lines: from sklearn.linear_model import LinearRegression
+model = LinearRegression() with these two: from sklearn.neighbors import KNeighborsRegressor
+model = KNeighborsRegressor(n_neighbors=3)
+###### (pp. 57-61). O'Reilly Media. Kindle Edition.
+If all went well, your model will make good predictions. If not, you may need to use more attributes (employment rate, health, air pollution, etc.), get more or better-quality training data, or perhaps select a more powerful model (e.g., a polynomial regression model).
+In summary: You studied the data. You selected a model. You trained it on the training data (i.e., the learning algorithm searched for the model parameter values that minimize a cost function). Finally, you applied the model to make predictions on new cases (this is called inference), hoping that this model will generalize well.
+
+
+
+
 
 
 
@@ -68,4 +287,5 @@ This is also text classification, using the same NLP tools.
 
 //// geron1
 Géron, Aurélien. Hands-On Machine Learning with Scikit-Learn and PyTorch: Concepts, Tools, and Techniques to Build Intelligent Systems. O'Reilly Media. Kindle Edition., Chapter 1
+naaet til side 62, location 813 (sidste sektion skal gennemlaeses)
 
