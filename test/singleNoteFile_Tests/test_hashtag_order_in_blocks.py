@@ -32,6 +32,11 @@ class TestHashtagOrderInBlocks(unittest.TestCase):
                 # Blank lines are allowed and don't affect hash sequence
                 continue
             
+            # Rule: Once a line starting with four //// is encountered, the rules of this test
+            # should not take effect for the rest of the file.
+            if line_stripped.startswith("////"):
+                break
+            
             # Each line should start with 1 to 6 # symbols
             match = re.match(r"^(#+)", line_stripped)
             self.assertIsNotNone(match, f"Line {i+1} does not start with # symbols: '{line_stripped}'")

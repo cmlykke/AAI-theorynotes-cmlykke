@@ -52,9 +52,24 @@ class TestTagMatchTagReference(unittest.TestCase):
                 if has_content:
                     references_with_content.add(ref_tag)
 
-        # 3. Assert that each tag has a matching reference with content
         for tag in tags_defined:
             self.assertIn(tag, references_with_content, f"Tag '#### {tag}' does not have a matching '//// {tag}' with non-empty content following it.")
+
+    def test_no_hashtags_after_slashes(self):
+        with open(self.file_path, "r", encoding="utf-8") as f:
+            lines = [line.strip() for line in f.readlines()]
+
+        slashes_found = False
+        for i, line in enumerate(lines):
+            if not line:
+                continue
+            
+            if line.startswith("////"):
+                slashes_found = True
+                continue
+            
+            if slashes_found:
+                self.assertFalse(line.startswith("#"), f"Line {i+1} starts with '#' after a '////' line was encountered: '{line}'")
 
 if __name__ == "__main__":
     unittest.main()
