@@ -6,13 +6,64 @@
 ###### Secondary info (optional).\n" +
 
 
+
 ## What is machine learning
 ### [Machine learning is the] field of study that gives computers the ability to learn without being explicitly programmed.
 #### geron1
+######
+—Arthur Samuel, 1959
+Géron, Aurélien. Hands-On Machine Learning with Scikit-Learn and PyTorch: Concepts, Tools, and Techniques to Build Intelligent Systems (p. 27). O'Reilly Media. Kindle Edition.
+
+
+
 
 ## What kind of problems are great for machine learning:
 ###
-1:
+1: Problems for which existing solutions require a lot of work and maintenance, such as long lists of rules (a machine learning model can often simplify code and perform better than the traditional approach)
+2: Complex problems for which using a traditional approach yields no good solution (the best machine learning techniques can perhaps find a solution)
+3: Fluctuating environments (a machine learning system can easily be retrained on new data, always keeping it up to date)
+4: Getting insights about complex problems and large amounts of data
+#### geron1
+######
+ (p. 33). O'Reilly Media. Kindle Edition.
+
+
+
+## What model is typically used for "Analyzing images of products on a production line to automatically classify them"
+###
+This is image classification, typically performed using convolutional neural networks (CNNs; see Chapter 12) or vision transformers (see Chapter 16).
+#### geron1
+######
+(p. 33). O'Reilly Media. Kindle Edition. "
+
+
+## What model is typically used for "Detecting tumors in brain scans"
+### This is semantic image segmentation,
+where each pixel in the image is classified (as we want to determine the exact location and shape of tumors), typically using convolutional neural networks (CNN)s or vision transformers.
+#### geron1
+######
+ (p. 33). O'Reilly Media. Kindle Edition.
+
+
+## What model is typically used for "Automatically classifying news articles"
+### This is natural language processing (NLP), and more specifically text classification, which can be tackled using recurrent neural networks (RNNs) and CNNs, but transformers work even better (see Chapter 15).
+#### geron1
+######
+(pp. 33-34). O'Reilly Media. Kindle Edition.
+
+
+## What model is typically used for "Automatically flagging offensive comments on discussion forums"
+###
+This is also text classification, using the same NLP tools.
+(This is natural language processing (NLP), and more specifically text classification, which can be tackled using recurrent neural networks (RNNs) and CNNs, but transformers work even better (see Chapter 15).)
+#### geron1
+######
+(pp. 33-34). O'Reilly Media. Kindle Edition.
+
+
+
+
+
 
 
 //// geron1
