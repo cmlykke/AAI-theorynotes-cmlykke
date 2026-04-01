@@ -1,0 +1,20 @@
+#  Card title (optional). Example: '# My Card Title'\n" +
+## Front side (required). Everything after '##' is part of the front.\n" +
+### Back side (required).\n" +
+#### Tags (optional, space-separated). Example: '#### tag1 tag2'\n" +
+##### Primary info (optional).\n" +
+###### Secondary info (optional).\n" +
+
+#  Card title (optional). Example: '# My Card Title'\n" +
+## Front side (required). Everything after '##' is part of the front.\n" +
+### Back side (required).\n" +
+#### Tags (optional, space-separated). Example: '#### tag1 tag2'\n" +
+##### Primary info (optional).\n" +
+###### Secondary info (optional).\n" +
+
+## Front side (required). Everything after '##' is part of the front.\n" +
+### Back side (required).\n" +
+
+## Front side (required). Everything after '##' is part of the front.\n" +
+### Back side (required).\n" +
+###### Secondary info (optional).\n" +
