@@ -1,1 +1,11 @@
-Classification
+Classification - Jeg vil her gennemgaa de dele af mine papers der omhandler
+classification (se noterne). jeg start med Rajpurkar et al. (2017) (0202D_Rajpurkar et al 2017).
+
+
+
+Opgave til i dag.
+goer decision tree paenere, og upload kode og png'er
+til faelles onedrive.
+
+
+
