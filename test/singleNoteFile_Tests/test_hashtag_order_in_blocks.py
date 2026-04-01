@@ -2,11 +2,11 @@ import unittest
 import os
 import re
 
-class TestHashtagOrderInBLocks_test(unittest.TestCase):
+class TestHashtagOrderInBlocks(unittest.TestCase):
     def setUp(self):
         # Set the path to the file to be tested.
         # Assuming the test is run from the project root.
-        self.file_path = "singleNoteFIle.txt"
+        self.file_path = "singleNoteFile.txt"
         self.assertTrue(os.path.exists(self.file_path), f"File {self.file_path} not found.")
 
     def test_file_content_constraints(self):
