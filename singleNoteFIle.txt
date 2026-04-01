@@ -13,5 +13,5 @@
 
 
 //// geron1
-Géron, Aurélien. Hands-On Machine Learning with Scikit-Learn and PyTorch: Concepts, Tools, and Techniques to Build Intelligent Systems (p. 27). O'Reilly Media. Kindle Edition.
+Géron, Aurélien. Hands-On Machine Learning with Scikit-Learn and PyTorch: Concepts, Tools, and Techniques to Build Intelligent Systems. O'Reilly Media. Kindle Edition., Chapter 1
 
