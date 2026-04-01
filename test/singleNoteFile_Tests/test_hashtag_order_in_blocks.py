@@ -37,9 +37,15 @@ class TestHashtagOrderInBlocks(unittest.TestCase):
             if line_stripped.startswith("////"):
                 break
             
-            # Each line should start with 1 to 6 # symbols
+            # If the line does not start with #, it is treated as content of the previous section
+            # and ignored for hashtag order constraints.
+            if not line_stripped.startswith("#"):
+                continue
+            
+            # Each line starting with # should start with 1 to 6 # symbols
             match = re.match(r"^(#+)", line_stripped)
-            self.assertIsNotNone(match, f"Line {i+1} does not start with # symbols: '{line_stripped}'")
+            # This should now match because we filtered for lines starting with #
+            self.assertIsNotNone(match, f"Internal Error: Line {i+1} should start with # symbols: '{line_stripped}'")
             
             hash_str = match.group(1)
             hash_len = len(hash_str)

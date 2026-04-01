@@ -10,6 +10,9 @@
 ### [Machine learning is the] field of study that gives computers the ability to learn without being explicitly programmed.
 #### geron1
 
+## What kind of problems are great for machine learning:
+###
+1:
 
 
 //// geron1

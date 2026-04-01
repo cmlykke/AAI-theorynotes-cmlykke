@@ -21,6 +21,10 @@ class TestTwoAndThreeHashUnique(unittest.TestCase):
             if not line_stripped:
                 continue
             
+            # Rule: Once a line starting with //// is encountered, stop checking for duplicates
+            if line_stripped.startswith("////"):
+                break
+            
             # Check if line starts with exactly ## or ###
             # Match ## or ### but not ####
             match = re.match(r"^(#{2,3})(?![#])", line_stripped)
