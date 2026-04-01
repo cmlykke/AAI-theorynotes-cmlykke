@@ -1,20 +1,14 @@
 #  Card title (optional). Example: '# My Card Title'\n" +
 ## front1
 ### back1
-#### Tags (optional, space-separated). Example: '#### tag1 tag2'\n" +
+#### Tags (optional, space-separated). Example: '#### tag1 tag2'\n"
 ##### Primary info (optional).\n" +
 ###### Secondary info (optional).\n" +
 
-#  Card title (optional). Example: '# My Card Title'\n" +
-## front2
-### back2
-#### Tags (optional, space-separated). Example: '#### tag1 tag2'\n" +
-##### Primary info (optional).\n" +
-###### Secondary info (optional).\n" +
 
-## front3
-### back3
 
-## front4
-### back4
-###### Secondary info (optional).\n" +
+
+
+
+
+
