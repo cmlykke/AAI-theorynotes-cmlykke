@@ -266,7 +266,6 @@ Now the model fits the training data as closely as possible (for a linear model)
 You are finally ready to run the model to make predictions. For example, say you want to know how happy Puerto Ricans are, and the OECD data does not have the answer. Fortunately, you can use your model to make a good prediction: you look up Puerto Rico’s GDP per capita, find $33,442, and then apply your model and find that life satisfaction is likely to be somewhere around 3.75 + 33,442 × 6.78 × 10–5 = 6.02. To whet your appetite, Example 1-1 shows the Python code that loads the data, separates the inputs X from the labels y, creates a scatterplot for visualization, and then trains a linear model and makes a prediction.⁠5
 #### geron1
 #####
-Warning Confusingly, the word “model” can refer to a type of model (e.g., linear regression), to a fully specified model architecture (e.g., linear regression with one input and one output), or to the final trained model ready to be used for predictions (e.g., linear regression with one input and one output, using θ0 = 3.75 and θ1 = 6.78 × 10–5). Model selection consists in choosing the type of model and fully specifying its architecture. Training a model means running an algorithm to find the model parameters that will make it best fit the training data, and hopefully make good predictions on new data.
 Note
 If you had used an instance-based learning algorithm instead, you would have found that Poland has the closest GDP per capita to that of Puerto Rico ($32,238), and since the OECD data tells us that Poles’ life satisfaction is 6.1, you would have predicted a life satisfaction of 6.1 as well for Puerto Rico. If you zoom out a bit and look at the next two closest countries, you will find Portugal with a life satisfaction of 5.4, and Estonia with a life satisfaction of 5.7. Averaging these three values, you get 5.73, which is a bit below your model-based prediction. This simple algorithm is called k-nearest neighbors regression (in this example, k = 3). Replacing the linear regression model with k-nearest neighbors regression in the previous code is as easy as replacing these lines: from sklearn.linear_model import LinearRegression
 model = LinearRegression() with these two: from sklearn.neighbors import KNeighborsRegressor
@@ -275,6 +274,11 @@ model = KNeighborsRegressor(n_neighbors=3)
 If all went well, your model will make good predictions. If not, you may need to use more attributes (employment rate, health, air pollution, etc.), get more or better-quality training data, or perhaps select a more powerful model (e.g., a polynomial regression model).
 In summary: You studied the data. You selected a model. You trained it on the training data (i.e., the learning algorithm searched for the model parameter values that minimize a cost function). Finally, you applied the model to make predictions on new cases (this is called inference), hoping that this model will generalize well.
 
+## what is a model
+###
+Warning Confusingly, the word “model” can refer to a type of model (e.g., linear regression), to a fully specified model architecture (e.g., linear regression with one input and one output), or to the final trained model ready to be used for predictions (e.g., linear regression with one input and one output, using θ0 = 3.75 and θ1 = 6.78 × 10–5). Model selection consists in choosing the type of model and fully specifying its architecture. Training a model means running an algorithm to find the model parameters that will make it best fit the training data, and hopefully make good predictions on new data.
+#### geron1
+###### (pp. 57-61). O'Reilly Media. Kindle Edition.
 
 
 
