@@ -280,14 +280,91 @@ Warning Confusingly, the word “model” can refer to a type of model (e.g., li
 #### geron1
 ###### (pp. 57-61). O'Reilly Media. Kindle Edition.
 
+## give examples of bad training data
+###
+1: Nonrepresentative Training Data -
+if a sample is too small, you will have sampling noise (norepresentative data as a result of chance).
+nonrepresentative data as a result of chance), but even very large samples can be nonrepresentative if the sampling method is flawed. This is called sampling bias.
+2: Poor-Quality Data
+If some instances are clearly outliers, it may help to simply discard them or try to fix the errors manually.
+If some instances are missing a few features (e.g., 5% of your customers did not specify their age), you must decide whether you want to ignore this attribute altogether, ignore these instances, fill in the missing values (e.g., with the median age), or train one model with the feature and one model without it.
+3: Irrelevant Features
+ones. A critical part of the success of a machine learning project is coming up with a good set of features to train on. This process, called feature engineering, involves the following steps: Feature selection (selecting the most useful features to train on among existing features) Feature extraction (combining existing features to produce a more useful one⁠—as we saw earlier, dimensionality reduction algorithms can help) Creating new features by gathering new data
+#### geron1
+###### (p. 66-70). O'Reilly Media. Kindle Edition.
+
+
+## give examples of bad algoritms
+###
+1: Overfitting the Training Data
+Say you are visiting a foreign country and the taxi driver rips you off. You might be tempted to say that all taxi drivers in that country are thieves. Overgeneralizing is something that we humans do all too often, and unfortunately machines can fall into the same trap if we are not careful. In machine learning this is called overfitting: it means that the model performs well on the training data, but it does not generalize well.
+2: Underfitting the Training Data
+As you might guess, underfitting is the opposite of overfitting: it occurs when your model is too simple to learn the underlying structure of the data.
+3. Deployment Issues
+for example, the model may be too complex to maintain, or too large to fit in memory, or too slow, or it may not scale properly, it may have security vulnerabilities, it may become outdated if you don’t update it often enough, etc.
+#### geron1
+#####
+Warning
+Overfitting happens when the model is too complex relative to the amount and noisiness of the training data, so it starts to learn random patterns in the training data. Here are possible solutions: Simplify the model by selecting one with fewer parameters (e.g., a linear model rather than a high-degree polynomial model), by reducing the number of attributes in the training data, or by constraining the model. Gather more training data. Reduce the noise in the training data (e.g., fix data errors and remove outliers).
+Constraining a model to make it simpler and reduce the risk of overfitting is called regularization.
+######
+The amount of regularization to apply during learning can be controlled by a hyperparameter. A hyperparameter is a parameter of a learning algorithm (not of the model). As such, it is not affected by the learning algorithm itself; it must be set prior to training and remains constant during training. If you set the regularization hyperparameter to a very large value, you will get an almost flat model (a slope close to zero); the learning algorithm will almost certainly not overfit the training data, but it will be less likely to find a good solution. Tuning hyperparameters is an important part of building a machine learning system (you will see a detailed example in the next chapter).
+(pp. 73-74). O'Reilly Media. Kindle Edition.
+
+
+
+## what is a generalization error
+###
+split your data into two sets: the training set and the test set. As these names imply, you train your model using the training set, and you test it using the test set. The error rate on new cases is called the generalization error (or out-of-sample error), and by evaluating your model on the test set, you get an estimate of this error. This value tells you how well your model will perform on instances it has never seen before. If the training error is low (i.e., your model makes few mistakes on the training set) but the generalization error is high, it means that your model is overfitting the training data.
+#### geron1
+######  (p. 76). O'Reilly Media. Kindle Edition.
+#######
+Tip: It is common to use 80% of the data for training and hold out 20% for testing. However, this depends on the size of the dataset: if it contains 10 million instances, then holding out 1% means your test set will contain 100,000 instances, probably more than enough to get a good estimate of the generalization error.
+
+## why do you use a validation set?
+###
+Now suppose that the linear model generalizes better, but you want to apply some regularization to avoid overfitting. The question is, how do you choose the value of the regularization hyperparameter? One option is to train 100 different models using 100 different values for this hyperparameter. Suppose you find the best hyperparameter value that produces a model with the lowest generalization error⁠—say, just 5% error. You launch this model into production, but unfortunately it does not perform as well as expected and produces 15% errors. What just happened? The problem is that you measured the generalization error multiple times on the test set, and you adapted the model and hyperparameters to produce the best model for that particular set. This means the model is unlikely to perform as well on new data.
+A common solution to this problem is called holdout validation (Figure 1-25): you simply hold out part of the training set to evaluate several candidate models and select the best one. The new held-out set is called the validation set
+#### geron1
+#####
+A common solution to this problem is called holdout validation (Figure 1-25): you simply hold out part of the training set to evaluate several candidate models and select the best one. The new held-out set is called the validation set (or the development set, or dev set). More specifically, you train multiple models with various hyperparameters on the reduced training set (i.e., the full training set minus the validation set), and you select the model that performs best on the validation set. After this holdout validation process, you train the best model on the full training set (including the validation set), and this gives you the final model. Lastly, you evaluate this final model on the test set to get an estimate of the generalization error.
+###### (pp. 77-78). O'Reilly Media. Kindle Edition.
+cross-validation:
+This solution usually works quite well. However, if the validation set is too small, then the model evaluations will be imprecise: you may end up selecting a suboptimal model by mistake. Conversely, if the validation set is too large, then the remaining training set will be much smaller than the full training set. Why is this bad? Well, since the final model will be trained on the full training set, it is not ideal to compare candidate models trained on a much smaller training set. It would be like selecting the fastest sprinter to participate in a marathon. One way to solve this problem is to perform repeated "cross-validation", using many small validation sets. ---Each model is evaluated once per validation set--- after it is trained on the rest of the data. By averaging out all the evaluations of a model, you get a much more accurate measure of its performance. There is a drawback, however: the training time is multiplied by the number of validation sets.
+
+
+
+
+## How would you define machine learning?
+### Machine learning (ML) is the field of computer science and artificial intelligence where we build systems that automatically improve their performance on a task through experience (data), without being explicitly programmed with fixed rules for every possible situation.
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+## Can you name four types of applications where it shines?
+###
+1. Computer Vision (Image and Video Understanding)
+2. Natural Language Processing (NLP) & Understanding Human Language
+3. Recommendation Systems & Personalization
+4. Predictive Analytics & Forecasting
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+## What is a labeled training set?
+###
+A labeled training set is a collection of data examples where each input (example) has been paired with the correct output (also called the label, target, or ground truth).
+It is the fundamental building block of supervised learning, which is one of the most common and powerful types of machine learning.
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
 
 
 
 
 
 
-
-
+//// chapterquestions
+Questions at the end of each Geron chapter.
 
 //// geron1
 Géron, Aurélien. Hands-On Machine Learning with Scikit-Learn and PyTorch: Concepts, Tools, and Techniques to Build Intelligent Systems. O'Reilly Media. Kindle Edition., Chapter 1
