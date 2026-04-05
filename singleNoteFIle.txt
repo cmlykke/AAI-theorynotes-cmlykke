@@ -358,6 +358,425 @@ It is the fundamental building block of supervised learning, which is one of the
 ###### (p. 82). O'Reilly Media. Kindle Edition.
 
 
+## What are the two most common supervised tasks?
+###
+1. Classification
+What it is: Predicting a discrete category or class label for a given input.
+Goal: Assign each input to one (or sometimes multiple) predefined categories.
+Output type: Categorical (e.g., yes/no, spam/not spam, class 1/2/3, dog/cat/bird).
+Common subtypes:
+Binary classification (two classes)
+Multi-class classification (more than two classes)
+Multi-label classification (multiple labels per example)
+Popular algorithms: Logistic Regression, Decision Trees, Random Forests, Support Vector Machines (SVM), Neural Networks.
+Real-world examples:
+Spam detection (email is spam or not spam)
+Image classification (is this a cat, dog, or bird?)
+Medical diagnosis (does the patient have disease X or not?)
+2. Regression
+What it is: Predicting a continuous numerical value for a given input.
+Goal: Estimate a real number rather than a category.
+Output type: Continuous (e.g., price, temperature, age, sales amount).
+Popular algorithms: Linear Regression, Ridge Regression, Decision Trees / Random Forests, Neural Networks.
+Real-world examples:
+House price prediction (predict the selling price in dollars)
+Stock price forecasting
+Demand forecasting (how many units will sell next month?)
+Predicting a student’s exam score based on study hours
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+
+
+## Can you name four common unsupervised tasks?
+###
+1. Clustering
+What it is: Grouping similar data points together without any predefined labels.
+How it works: The algorithm discovers natural groupings (clusters) based on similarity or distance between data points.
+Popular algorithms: K-means, Hierarchical clustering, DBSCAN.
+Real-world examples:
+Customer segmentation (grouping shoppers by buying behavior)
+Grouping news articles by topic
+2. Dimensionality Reduction
+What it is: Reducing the number of features (variables) in a dataset while preserving as much important information as possible.
+How it works: The algorithm finds the most meaningful patterns or combinations of features and compresses the data into fewer dimensions.
+Popular algorithms: Principal Component Analysis (PCA), t-SNE, UMAP, Autoencoders.
+Real-world examples:
+Visualizing high-dimensional data in 2D or 3D plots
+Speeding up other algorithms by removing noise and redundant features
+Compressing images or genetic data
+3. Anomaly Detection (also called Outlier Detection)
+What it is: Identifying rare or unusual data points that differ significantly from the “normal” majority.
+How it works: The model learns what “normal” looks like from the data, then flags anything that deviates strongly.
+Popular methods: Isolation Forest, One-Class SVM, Autoencoders (reconstruction error).
+Real-world examples:
+Fraud detection in credit card transactions
+4. Association Rule Learning (or Market Basket Analysis)
+What it is: Discovering interesting relationships or rules between variables, often in the form of “if A, then B” (e.g., people who buy X also tend to buy Y).
+How it works: The algorithm scans large transaction datasets and finds frequent co-occurrences and strong associations.
+Popular algorithms: Apriori, FP-Growth.
+Real-world examples:
+Retail: “Customers who buy bread also buy butter” → store layout and promotions
+Recommendation systems (complementary products)
+Analyzing website clickstream data
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+## What type of algorithm would you use to allow a robot to walk in various unknown terrains?
+###
+Reinforcement Learning (RL) — specifically Deep Reinforcement Learning (Deep RL).
+Why Not the Other Types?
+Supervised Learning → Needs thousands of labeled “correct gait for this exact terrain” examples — impossible for unknown terrains.
+Unsupervised Learning → Can discover patterns (e.g., cluster terrain types), but doesn’t teach the robot how to act to stay upright and move forward.
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+
+## What type of algorithm would you use to segment your customers into multiple groups?
+###
+Unsupervised learning — specifically Clustering — is the type of algorithm you would use to segment your customers into multiple groups.
+Customer segmentation is a classic unsupervised task because you usually don’t have predefined “correct” labels telling you which group each customer belongs to.
+The algorithm automatically discovers natural groupings based on similarity in customer behavior, demographics, preferences, or purchasing patterns.
+#### geron1 chapterquestions
+#####
+Most Common Algorithms for Customer Segmentation
+1: K-Means. = Large datasets, spherical clusters
+2: Hierarchical Clustering. = Smaller datasets, when you want a dendrogram
+3: DBSCAN = Irregular shapes, noise/outliers
+4: Gaussian Mixture Models (GMM) = Probabilistic assignment
+5: HDBSCAN = Modern, robust
+###### (p. 82). O'Reilly Media. Kindle Edition.
+Most Common Algorithms for Customer Segmentation.
+
+
+
+## Would you frame the problem of spam detection as a supervised learning problem or an unsupervised learning problem?
+###
+Spam detection is a classic classification task:
+You have emails (the input).
+You want to predict a discrete label: “spam” or “not spam” (sometimes “ham”)
+In supervised learning, the model learns the mapping from input → label using a labeled training set.
+For every email in the training data, humans (or reliable rules) have already provided the correct answer: “this is spam” or “this is not spam”.
+The algorithm then learns patterns that distinguish spam from legitimate emails (e.g., certain words, sender patterns, links, formatting, etc.) so it can predict the label for new, unseen emails.
+Why not unsupervised?
+Unsupervised learning has no labels. It would try to discover natural groups in the emails (e.g., clustering similar emails together). While you might end up with one cluster that looks like spam and another that looks like normal mail, you would still need to manually inspect the clusters and assign the “spam” label afterward. This is less accurate, harder to evaluate, and much slower to improve compared to supervised learning.
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+
+## What is an online learning system?
+###
+An online learning system is a machine learning system that learns continuously and incrementally as new data arrives, one example (or small batch) at a time, instead of being trained once on a fixed dataset.
+Simple Definition
+Online learning = the model updates itself in real time every time it sees new data, rather than waiting to be retrained offline on the entire dataset.
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+## What is out-of-core learning?
+### Out-of-core learning (also called external memory learning or disk-based learning) is a machine learning approach designed to handle datasets that are too large to fit entirely into a computer's RAM (main memory).
+Instead of loading the entire dataset into memory at once, the algorithm reads and processes the data in smaller chunks (batches or mini-batches) from disk (hard drive or SSD), updates the model incrementally, and discards the processed chunk before loading the next one.
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+## What type of algorithm relies on a similarity measure to make predictions?
+###
+Instance-based learning (also called memory-based learning or lazy learning) is the type of algorithm that relies on a similarity measure to make predictions.
+Why "Instance-Based"?
+Instead of learning a fixed model (like a neural network or decision tree) during training, these algorithms store the training data (the instances) in memory.
+When a new prediction is needed, they compare the new example to all (or many) stored instances using a similarity measure (or distance metric) and base the prediction directly on the most similar ones.
+They are called lazy because they do almost no work during the "training" phase — they just store the data. All the computation happens at prediction time.
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+Most Common Example: k-Nearest Neighbors (k-NN)
+k-NN is the classic and most widely used instance-based algorithm.
+
+
+## What is the difference between a model parameter and a model hyperparameter?
+###
+1: Model parameters are the internal variables that the learning algorithm learns automatically from the training data during the training process.
+They are fitted by the model.
+They define what the model has learned.
+After training, these values are what the model uses to make predictions.
+Examples:
+Weights and biases in a neural network or linear regression
+Coefficients in logistic regression
+Split points and leaf values in a decision tree
+Cluster centroids in K-Means (for unsupervised)
+Support vectors in SVM
+2: 
+Hyperparameters are the configuration settings that you (the developer) choose before training begins. They control how the learning algorithm learns, but they are not learned from the data.
+They are set manually or tuned via validation.
+They influence the model's structure, learning behavior, and capacity.
+They are external to the model itself.
+Examples:
+Learning rate in gradient descent
+Number of neighbors k in k-Nearest Neighbors (k-NN)
+Number of clusters K in K-Means
+Depth of a decision tree or number of trees in a Random Forest
+Number of layers and neurons in a neural network
+Regularization strength (e.g., lambda in Ridge regression)
+Batch size, number of epochs
+Key point: Hyperparameters are chosen by humans (or optimized through techniques like grid search, random search, or Bayesian optimization).
+Key point: Parameters are learned — the algorithm adjusts them to minimize error on the labeled training set.
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+
+## What do model-based algorithms search for? What is the most common strategy they use to succeed? How do they make predictions?
+###
+Excellent question! Here's a clear, structured answer that builds directly on our conversation (especially the contrast with instance-based / lazy learning like k-NN).
+1. What do model-based algorithms search for?
+Model-based algorithms search for a compact, generalized model that best captures the underlying patterns in the training data.
+Instead of storing all the raw training examples (like instance-based methods do), they try to compress the knowledge from the data into a smaller set of learned parameters.
+They are looking for the best function (or mapping) f(x) → y that explains the relationship between inputs and outputs.
+The “model” is essentially this learned function + its internal parameters.
+Goal: Find a model that fits the training data well and generalizes to new, unseen data (avoiding underfitting and overfitting).
+The most common strategy they use is Empirical Risk Minimization (ERM) combined with optimization (usually via gradient descent or its variants).
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+## Can you name four of the main challenges in machine learning?
+###
+1: Overfitting vs. Underfitting (The Generalization Problem)
+Description: The model performs very well on the training data but poorly on new, unseen data (overfitting), or it performs poorly even on the training data (underfitting).
+Why it's hard: Models can easily memorize noise or irrelevant patterns instead of learning the true underlying relationship.
+Common causes: Too complex a model (too many parameters), too little data, or noisy labels.
+How we fight it: Regularization, cross-validation, more data, simpler models, or early stopping.
+2: Data Quality and Quantity
+Description: Machine learning is extremely data-hungry, but real-world data is often insufficient, dirty, biased, incomplete, or imbalanced.
+Key issues:
+Not enough labeled data (especially for supervised learning)
+Class imbalance (e.g., 99% non-spam vs. 1% spam)
+Noisy or incorrect labels
+Biased data that leads to unfair models
+Impact: Even the best algorithms fail if the data is poor.
+3: Concept Drift / Non-Stationary Data
+Description: The statistical properties of the target variable or input features change over time, so the model that worked yesterday stops working today.
+Examples:
+Spam detection: spammers constantly evolve their tactics
+Customer behavior: preferences shift due to trends or economic changes
+Robot walking: terrain or wear-and-tear changes
+Why difficult: Most traditional training assumes the data distribution stays the same (i.i.d. assumption).
+4: Scalability and Computational Cost
+Description: Training and deploying modern models (especially deep learning) requires enormous amounts of data, compute power, memory, and energy.
+Challenges include:
+Out-of-core learning for massive datasets
+Long training times (weeks on clusters of GPUs)
+High inference cost in production
+Difficulty running models on edge devices (phones, robots)
+Related issues: Hyperparameter tuning at scale and efficient distributed training.
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+
+## If your model performs great on the training data but generalizes poorly to new instances, what is happening? Can you name three possible solutions?
+###
+This is a classic case of overfitting.
+The model has memorized the training data (including noise, quirks, and irrelevant patterns) instead of learning the true underlying patterns. As a result:
+It achieves very high accuracy / low error on the training set.
+It performs poorly on new, unseen data (validation or test set).
+In other words, the model has low bias but very high variance — it fits the training data too closely and fails to generalize.
+#### geron1 chapterquestions
+#####
+1: Get More Training Data (often the most effective)
+More diverse and representative data helps the model learn the real signal instead of noise.
+Techniques: Collect additional labeled examples, use data augmentation (especially useful in computer vision and NLP), or generate synthetic data.
+Why it works: With enough data, even complex models are forced to generalize rather than memorize.
+2: Regularization
+Add a penalty to the loss function that discourages overly complex models.
+Common types:
+L1 / L2 regularization (adds penalty on large weights)
+Dropout (randomly turns off neurons during training in neural networks)
+Early stopping (stop training when validation performance stops improving)
+Why it works: It constrains the model’s capacity so it cannot fit every detail in the training set.
+3: Simplify the Model (Reduce Model Complexity)
+Use a less powerful model with fewer parameters or lower capacity.
+Examples:
+Reduce the depth or number of neurons in a neural network
+Use a shallower decision tree or prune it
+Switch from a complex ensemble to a simpler linear model
+Reduce the value of k in k-NN or increase regularization strength
+Why it works: A simpler model has lower variance and is less likely to overfit.
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+
+## What is a test set, and why would you want to use it?
+###
+A test set is a portion of your dataset that is kept completely separate from the training process and is only used after the model is fully trained to evaluate its final performance.
+Training set: Data the model sees and learns from (used to adjust parameters).
+Validation set (optional): Data used during development to tune hyperparameters and monitor overfitting.
+Test set: The final, untouched “exam” data that the model has never seen before.
+The test set should be treated like real-world new data that arrives after deployment.
+#### geron1 chapterquestions
+#####
+Here’s why the test set is essential:
+1:Unbiased Estimate of Real-World Performance
+The test set gives you the most honest measure of how well your model will perform on new, unseen instances.
+Training accuracy can be misleading (especially if the model is overfitting).
+2: Detect Overfitting
+If your model does great on the training data but poorly on the test set → clear sign of overfitting (exactly the problem we discussed earlier).
+3: Compare Models Fairly
+You can reliably compare different algorithms, architectures, or hyperparameter settings using the test set as the final judge.
+4: Avoid Data Leakage
+By never using the test set during training or hyperparameter tuning, you prevent the model from indirectly “seeing” the test data, which would give overly optimistic results.
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+## What is the purpose of a validation set?
+###
+The purpose of a validation set is to provide an unbiased estimate of model performance during development, so you can make good decisions about the model without touching the test set.
+While the test set is reserved strictly for the final evaluation (like a final exam), the validation set is used during the training and tuning phase as a temporary checkpoint.
+Its main purposes are:
+1: Monitor for Overfitting
+You compare performance on the training set vs. the validation set after each epoch (or iteration).
+2: Hyperparameter Tuning
+You try different values for hyperparameters (learning rate, number of layers, tree depth, value of k in k-NN, regularization strength, etc.) and choose the combination that performs best on the validation set.
+3: Model Selection
+When comparing different algorithms or architectures (e.g., neural network vs. random forest vs. logistic regression), the validation set helps you pick the best one before the final test.
+4: Guide Training Decisions
+Decide whether to add more data, apply stronger regularization, simplify the model, or change the architecture.
+Detect issues like underfitting early.
+#### geron1 chapterquestions
+###### (p. 82). O'Reilly Media. Kindle Edition.
+Typical split: 70–80% training, 10–15% validation, 10–15% test.
+The validation set should be representative of the real data (same distribution as test set).
+In cross-validation (especially with small datasets), you rotate the validation portions so every part of the data gets used for validation at some point.
+Once you finish tuning and pick your final model, you train it on the combined training + validation data, then evaluate only once on the test set.
+
+
+## What is the train-dev set, when do you need it, and how do you use it?
+###
+The train-dev set (also called training-development set) is a separate subset of data taken from the same distribution as the training set. It is used specifically to diagnose overfitting (high variance) when the training set and the regular development/validation set (dev set) come from different distributions.
+In modern machine learning (especially deep learning), data often comes from different sources:
+Training data might come from one source (e.g., older data, synthetic data, or data collected in one region).
+The dev set (used for hyperparameter tuning and model selection) might come from a slightly different distribution (e.g., newer data, real user data, or data from another country).
+When distributions differ, a large gap between training error and dev error could be caused by either:
+Overfitting to the training data, or
+Distribution shift (data mismatch) between training and dev.
+The train-dev set helps you separate these two problems.
+#### geron1 chapterquestions
+#####
+When Do You Need a Train-Dev Set?
+You need it mainly in these situations:
+Your training data and dev/test data come from different distributions (common in real-world projects).
+You want to clearly diagnose whether poor dev-set performance is due to overfitting (model memorizes training data) or data mismatch (the model hasn't seen this kind of data before).
+You are working on large-scale or production systems where distribution shift is likely (e.g., spam detection, recommendation systems, autonomous driving, speech recognition).
+If your training, dev, and test sets all come from the exact same distribution, you usually don’t need a separate train-dev set — a regular validation/dev set is enough.
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+## What can go wrong if you tune hyperparameters using the test set?
+###
+It leads to overly optimistic results and a model that performs much worse in the real world than you expect.
+What Goes Wrong: "Test Set Overfitting" (or "Information Leakage")
+When you use the test set to tune hyperparameters (learning rate, number of layers, tree depth, value of k in k-NN, regularization strength, etc.), the following happens:
+The model indirectly "sees" the test set during development.
+Your hyperparameter choices become optimized specifically for the test set, not for truly new data.
+The test set stops being an unbiased measure of generalization — it turns into just another validation set.
+As a result, the final performance numbers you report (accuracy, F1-score, etc.) are inflated and misleading.
+#### geron1 chapterquestions
+#####
+Real-World Consequences
+You deploy the model thinking it achieves 95% accuracy, but in production it drops to 82%.
+You believe your model is state-of-the-art, but it’s actually average or below average.
+Scientific papers or project reports become irreproducible or dishonest.
+You waste time and resources because your diagnosis of the model’s strengths and weaknesses is wrong.
+This problem is sometimes called “cheating on the final exam” — you peeked at the answers while studying, so your score no longer reflects real knowledge.
+###### (p. 82). O'Reilly Media. Kindle Edition.
+
+
+
+## Evaluating a classifier - Performance measures
+###
+1: Cross-validation: A good way to evaluate a model is to use cross-validation, just as you did in Chapter 2. Let’s use the cross_val_score() function to evaluate our SGDClassifier model, using k-fold cross-validation with three folds. Remember that k-fold cross-validation means splitting the training set into k folds (in this case, three), then training the model k times, holding out a different fold each time for evaluation (see Chapter 2):
+....That’s right, it has over 90% accuracy! This is simply because only about 10% of the images are 5s, so if you always guess that an image is not a 5, you will be right about 90% of the time. Beats Nostradamus. This demonstrates why accuracy is generally not the preferred performance measure for classifiers, especially when you are dealing with skewed datasets (i.e., when some classes are much more frequent than others). A much better way to evaluate the performance of a classifier is to look at the confusion matrix (CM).
+2: Confusion Matrices:
+The general idea of a confusion matrix is to count the number of times instances of class A are classified as class B, for all A/B pairs. For example, to know the number of times the classifier confused images of 8s with 0s, you would look at row #8, column #0 of the confusion matrix. To compute the confusion matrix, you first need to have a set of predictions so that they can be compared to the actual targets. You could make predictions on the test set, but it’s best to keep that untouched for now (remember that you want to use the test set only at the very end of your project, once you have a classifier that you are ready to launch). Instead, you can use the cross_val_predict() function:
+....
+3: precison: precison = (True positives) / (True positives + False positives)
+(Of everything my model claimed was positive, how many truly were?)
+The confusion matrix gives you a lot of information, but sometimes you may prefer a more concise metric. An interesting one to look at is the accuracy of the positive predictions; this is called the precision of the classifier (Equation 3-1).
+...
+4: recall: recall = (True Positives) / (True positives + False negatives).
+(“Out of all the things that were positive, how many did my model catch?”)
+Now consider a model that only makes positive predictions when it’s extremely confident. Let’s push this to the extreme and suppose that it always makes negative predictions, except for a single positive prediction on the instance it’s most confident about. If this one prediction is correct, then the classifier has 100% precision (precision = 1/1 = 100%). Obviously, such a classifier would not be very useful, since it would ignore all but one positive instance. For this reason, precision is typically used along with another metric named recall, also called sensitivity or the true positive rate (TPR): this is the ratio of positive instances that are correctly detected by the classifier (Equation 3-2).
+5: F1: 2 * precision * recall / (precision + recall)
+(The harmonic mean of precision and recall)
+(Take their average, but penalize imbalance)
+It is often convenient to combine precision and recall into a single metric called the F1 score, especially when you need a single metric to compare two classifiers. The F1 score is the harmonic mean of precision and recall (Equation 3-3). Whereas the regular mean treats all values equally, the harmonic mean gives much more weight to low values. As a result, the classifier will only get a high F1 score if both recall and precision are high.
+#### geron3
+#####
+The F1 score favors classifiers that have similar precision and recall. This is not always what you want: in some contexts you mostly care about precision, and in other contexts you really care about recall. For example, if you trained a classifier to detect videos that are safe for kids, you would probably prefer a classifier that rejects many good videos (low recall) but keeps only safe ones (high precision), rather than a classifier that has a much higher recall but lets a few really bad videos show up in your product (in such cases, you may even want to add a human pipeline to check the classifier’s video selection). On the other hand, suppose you train a classifier to detect shoplifters in surveillance images: it is probably fine if your classifier only has 30% precision as long as it has 99% recall.
+###### ( (p. 204). O'Reilly Media. Kindle Edition.
+
+
+
+## Evaulating binary classifier: The ROC Curve
+###
+The receiver operating characteristic (ROC) curve is another common tool used with binary classifiers. It is very similar to the precision/recall curve, but instead of plotting precision versus recall, the ROC curve plots the true positive rate (another name for recall) against the false positive rate (FPR). The FPR (also called the fall-out) is the ratio of negative instances that are incorrectly classified as positive. It is equal to 1 – the true negative rate (TNR), which is the ratio of negative instances that are correctly classified as negative. The TNR is also called specificity. Hence, the ROC curve plots sensitivity (recall) versus 1 – specificity. To plot the ROC curve, you first use the roc_curve() function to compute the TPR and FPR for various threshold values:....
+#### geron3
+#####
+Then you can plot the FPR against the TPR using Matplotlib. The following code produces the plot in Figure 3-7. To find the point that corresponds to 90% precision, we need to look for the index of the desired threshold. Since thresholds are listed in decreasing order in this case, we use <= instead of >= on the first line:
+....
+Once again there is a trade-off: the higher the recall (TPR), the more false positives (FPR) the classifier produces. The dotted line represents the ROC curve of a purely random classifier; a good classifier stays as far away from that line as possible (toward the top-left corner). One way to compare classifiers is to measure the area under the curve (AUC). A perfect classifier will have a ROC AUC equal to 1, whereas a purely random classifier will have a ROC AUC equal to 0.5. Scikit-Learn provides a function to estimate the ROC AUC:....
+###### (pp. 211-212). O'Reilly Media. Kindle Edition.
+TIP:
+Since the ROC curve is so similar to the precision/recall (PR) curve, you may wonder how to decide which one to use. As a rule of thumb, you should prefer the PR curve whenever the positive class is rare or when you care more about the false positives than the false negatives. Otherwise, use the ROC curve. For example, looking at the previous ROC curve (and the ROC AUC score), you may think that the classifier is really good. But this is mostly because there are few positives (5s) compared to the negatives (non-5s). In contrast, the PR curve makes it clear that the classifier has room for improvement: the curve could really be closer to the top-right corner (see Figure 3-6 again).
+
+
+
+## What models should you use for multiclass clasifiers?
+###
+Whereas binary classifiers distinguish between two classes, multiclass classifiers (also called multinomial classifiers) can distinguish between more than two classes. Some Scikit-Learn classifiers (e.g., LogisticRegression, RandomForestClassifier, and GaussianNB) are capable of handling multiple classes natively. Others are strictly binary classifiers (e.g., SGDClassifier and SVC).
+#### geron3
+#####
+1. Logistic Regression
+Definition:
+A linear classification model that predicts the probability of a data point belonging to a particular class using the logistic (sigmoid) function.
+Used for:
+Binary and multiclass classification problems. It is simple, fast, highly interpretable, and serves as a strong baseline model. Commonly used in medical diagnosis, spam detection, and customer churn prediction.
+2. Random Forest Classifier
+Definition:
+An ensemble learning method that builds multiple decision trees during training and outputs the class that is the mode (most common) of the individual trees’ predictions.
+Used for:
+A wide variety of classification tasks. It is robust, handles non-linear relationships well, resists overfitting better than single decision trees, and works effectively with both numerical and categorical data. Popular in finance, healthcare, and recommendation systems.
+3. Gaussian Naive Bayes (GaussianNB)
+Definition:
+A probabilistic classifier based on Bayes’ theorem that assumes features follow a Gaussian (normal) distribution and are conditionally independent given the class.
+Used for:
+Quick and efficient classification, especially when the dataset is relatively small or when features are continuous and approximately normally distributed. Frequently used in text classification, spam filtering, and sentiment analysis.
+4. SGDClassifier (Stochastic Gradient Descent Classifier)
+Definition:
+A linear classifier that uses stochastic gradient descent to minimize a loss function (such as hinge loss or log loss) by iteratively updating model parameters using small batches of data.
+Used for:
+Large-scale and online learning problems. It is very fast and memory-efficient, making it suitable for massive datasets that don’t fit in memory. Often used for text classification and when training speed is critical.
+5. SVC (Support Vector Classifier)
+Definition:
+A powerful classifier that finds the optimal hyperplane that best separates classes in the feature space. It can use kernel tricks (linear, RBF, polynomial, etc.) to handle non-linear data.
+Used for:
+Complex classification problems where clear margins between classes are important. It performs well on medium-sized datasets and is effective in high-dimensional spaces. Commonly used in image classification, bioinformatics, and handwriting recognition.
+######  (p. 218). O'Reilly Media. Kindle Edition.
+Quick summary of when to choose each:
+LogisticRegression → Simple, interpretable baseline
+RandomForestClassifier → High accuracy, robust, less tuning needed
+GaussianNB → Very fast, good with small data or probabilistic output
+SGDClassifier → Extremely large datasets, online learning
+SVC → High performance on medium data, especially with kernels
+
+
+
+
+
 
 
 
@@ -365,7 +784,22 @@ It is the fundamental building block of supervised learning, which is one of the
 //// chapterquestions
 Questions at the end of each Geron chapter.
 
+//// geron4
+Part one - The fundamentals of machine learning(chapter 1-8)
+Chapter 4. Training Models  (p. 239+)
+
+
+//// geron3
+Part one - The fundamentals of machine learning(chapter 1-8)
+Chapter 3. Classification
+
+//// geron2
+Part one - The fundamentals of machine learning(chapter 1-8)
+Chapter 2. End-to-End Machine Learning Project
+
 //// geron1
-Géron, Aurélien. Hands-On Machine Learning with Scikit-Learn and PyTorch: Concepts, Tools, and Techniques to Build Intelligent Systems. O'Reilly Media. Kindle Edition., Chapter 1
-naaet til side 62, location 813 (sidste sektion skal gennemlaeses)
+Géron, Aurélien. Hands-On Machine Learning with Scikit-Learn and PyTorch: Concepts, Tools, and Techniques to Build Intelligent Systems. O'Reilly Media. Kindle Edition.,
+Part one - The fundamentals of machine learning(chapter 1-8)
+Chapter 1 - The machine learning landscape
+
 
