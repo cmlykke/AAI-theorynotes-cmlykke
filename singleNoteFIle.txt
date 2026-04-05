@@ -834,6 +834,57 @@ Best for: Large-scale real-world problems, online learning, or when you’re alr
 
 
 
+## Gradient descent and cost function
+###
+AI:
+Core Idea of Gradient Descent
+Gradient Descent is a general-purpose optimization algorithm used to minimize a cost function (also called loss function or error function).
+It works by iteratively tweaking the model's parameters (usually denoted by the vector θ — theta).
+The goal is to find the values of θ that make the cost function as small as possible.
+How it works (the intuition):
+Imagine you're lost in foggy mountains and can only feel the slope under your feet.
+Gradient descent does the same: at every step, it measures the local gradient (slope) of the cost function with respect to each parameter in θ.
+It then moves in the direction of the steepest descent (downhill) to reduce the cost.
+You start with random initialization (θ is filled with random values), then repeatedly take small steps until the algorithm converges (reaches a point where the gradient is zero or nearly zero, meaning you've found a minimum).
+Key Hyperparameter: Learning Rate
+The learning rate (often denoted η — eta) controls the size of the steps the algorithm takes.
+Too small learning rate: The algorithm converges very slowly (takes many iterations).
+Too large learning rate: The algorithm can overshoot the minimum, bounce around, or even diverge (get worse and worse).
+Choosing a good learning rate is crucial.
+Challenges with Gradient Descent
+Real cost functions are often not perfect bowls. They can have:
+Local minima — points that look like a minimum locally but are not the best overall.
+Plateaus (flat regions) — where the gradient is very small, so progress is extremely slow.
+Ridges, holes, and irregular terrain — making convergence difficult.
+Because of these, where you start (random initialization) matters a lot. You might get stuck in a local minimum instead of reaching the global minimum (the absolute best solution).
+Convex Cost Functions (Very Important Concept)
+A cost function is convex if:
+Any line segment drawn between two points on the curve never goes below the curve.
+In simple terms: the function has a bowl-like shape with no local minima, only one global minimum.
+#### geron4
+#####
+When the cost function is convex (and continuous, with no sudden jumps in slope):
+Gradient descent is guaranteed to eventually reach the global minimum (as long as the learning rate isn’t too large and you run it long enough).
+Example mentioned: The Mean Squared Error (MSE) cost function used in Linear Regression is convex. This is why gradient descent works very reliably for linear regression.
+Effect of Feature Scaling
+Even with a convex cost function, the shape of the "bowl" can be problematic:
+If features have very different scales (e.g., one feature ranges from 0–1, another from 0–1000), the cost function becomes a long, narrow, elongated bowl.
+In this case, gradient descent can take a zigzag path and converge much more slowly.
+Solution (implied): It is highly recommended to scale the features (e.g., using standardization or normalization) so they all have similar ranges. This makes the cost function more symmetric and helps gradient descent converge faster.
+Summary of Main Terminology.
+Cost Function / Loss Function: The function we want to minimize (measures how bad the model’s predictions are).
+Parameters (θ): The values the algorithm learns (weights and bias in linear regression, for example).
+Gradient: The vector of partial derivatives of the cost function w.r.t. each parameter. It tells you the direction and steepness of the slope.
+Learning Rate (η): Controls step size.
+Convergence: When the algorithm stops improving significantly (reaches a minimum).
+Global Minimum: The absolute lowest point of the cost function.
+Local Minimum: A minimum that is not the global one.
+Convex Function: A cost function with only one global minimum (no local minima).
+Random Initialization: Starting with random parameter values.
+######
+ (p. 253). O'Reilly Media. Kindle Edition.
+
+
 
 
 
@@ -857,5 +908,3 @@ Chapter 2. End-to-End Machine Learning Project
 Géron, Aurélien. Hands-On Machine Learning with Scikit-Learn and PyTorch: Concepts, Tools, and Techniques to Build Intelligent Systems. O'Reilly Media. Kindle Edition.,
 Part one - The fundamentals of machine learning(chapter 1-8)
 Chapter 1 - The machine learning landscape
-
-
