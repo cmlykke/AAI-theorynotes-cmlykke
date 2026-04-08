@@ -695,6 +695,18 @@ This problem is sometimes called “cheating on the final exam” — you peeked
 ###### (p. 82). O'Reilly Media. Kindle Edition.
 
 
+## What is grid search
+###
+One option would be to fiddle with the hyperparameters manually, until you find a great combination of hyperparameter values. This would be very tedious work, and you may not have time to explore many combinations. Instead, you can use Scikit-Learn’s GridSearchCV class to search for you. All you need to do is tell it which hyperparameters you want it to experiment with and what values to try out, and it will use cross-validation to evaluate all the possible combinations of hyperparameter values. For example, the following code searches for the best combination of hyperparameter values for the RandomForestRegressor:
+#### geron2
+#####
+AI: Grid search is a technique that uses a grid of hyperparameter values to search for the best model configuration.
+It works by trying all possible combinations of hyperparameter values and selecting the one that performs the best.
+The grid is specified by a list of hyperparameter values to try.
+The grid search algorithm iterates through all possible combinations and selects the one that performs the best.
+###### (p. 171). O'Reilly Media. Kindle Edition.
+
+
 
 ## Evaluating a classifier - Performance measures
 ###
@@ -815,7 +827,7 @@ Cons:
 A bit slower than a perfect normal equation on tiny, well-behaved data.
 Still struggles with truly massive datasets (millions of rows + thousands of features) due to memory and computation cost of the decomposition.
 Best for: Most practical “medium-sized” datasets in statistics/ML, especially when data might have correlated features. Safer and more reliable than raw normal equation.
-3. Gradient Descent (and variants like SGD, mini-batch GD)
+3. Gradient Descent (and variants like stochastic gradient descent (SGD), mini-batch GD)
 How it works:
 Start with random weights → repeatedly take small steps in the direction that reduces the error (following the gradient/slope of the cost function). Iterative process.
 Pros:
@@ -883,6 +895,17 @@ Convex Function: A cost function with only one global minimum (no local minima).
 Random Initialization: Starting with random parameter values.
 ######
  (p. 253). O'Reilly Media. Kindle Edition.
+
+
+## What is Stochastic gradient descent
+###
+Stochastic Gradient Descent The main problem with batch gradient descent is the fact that it uses the whole training set to compute the gradients at every step, which makes it very slow when the training set is large. At the opposite extreme, stochastic gradient descent picks a random instance in the training set at every step and computes the gradients based only on that single instance. Obviously, working on a single instance at a time makes the algorithm much faster because it has very little data to manipulate at every iteration. It also makes it possible to train on huge training sets, since only one instance needs to be in memory at each iteration (stochastic GD can be implemented as an out-of-core algorithm; see Chapter 1). On the other hand, due to its stochastic (i.e., random) nature, this algorithm is much less regular than batch gradient descent: instead of gently decreasing until it reaches the minimum, the cost function will bounce up and down, decreasing only on average. Over time it will end up very close to the minimum, but once it gets there it will continue to bounce around, never settling down (see Figure 4-9). Once the algorithm stops, the final parameter values will be good, but not optimal.
+#### geron4
+#####
+Therefore, randomness is good to escape from local optima, but bad because it means that the algorithm can never settle at the minimum. One solution to this dilemma is to gradually reduce the learning rate. The steps start out large (which helps make quick progress and escape local minima), then get smaller and smaller, allowing the algorithm to settle at the global minimum. This process is akin to simulated annealing, an algorithm inspired by the process in metallurgy of annealing, where molten metal is slowly cooled down. The function that determines the learning rate at each iteration is called the learning schedule. If the learning rate is reduced too quickly, you may get stuck in a local minimum, or even end up frozen halfway to the minimum. If the learning rate is reduced too slowly, you may jump around the minimum for a long time and end up with a suboptimal solution if you halt training too early.
+###### (pp. 258-259). O'Reilly Media. Kindle Edition.
+
+
 
 
 
