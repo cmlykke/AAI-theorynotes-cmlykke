@@ -907,6 +907,358 @@ Therefore, randomness is good to escape from local optima, but bad because it me
 
 
 
+## way to tell if a model is overfitted or underfitted
+###
+In Chapter 2 you used cross-validation to get an estimate of a model’s generalization performance. If a model performs well on the training data but generalizes poorly according to the cross-validation metrics, then your model is overfitting. If it performs poorly on both, then it is underfitting. This is one way to tell when a model is too simple or too complex. Another way to tell is to look at the learning curves, which are plots of the model’s training error and validation error as a function of the training iteration: just evaluate the model at regular intervals during training on both the training set and the validation set, and plot the results. If the model cannot be trained incrementally (i.e., if it does not support partial_fit() or warm_start), then you must train it several times on gradually larger subsets of the training set.
+#### geron4
+###### (pp. 270-271). O'Reilly Media. Kindle Edition.
+
+
+## The Bias/Variance trade-off
+###
+An important theoretical result of statistics and machine learning is the fact that a model’s generalization error can be expressed as the sum of three very different errors:
+1: Bias:  This part of the generalization error is due to wrong assumptions, such as assuming that the data is linear when it is actually quadratic. A high-bias model is most likely to underfit the training data.⁠6
+2: Variance:  This part is due to the model’s excessive sensitivity to small variations in the training data. A model with many degrees of freedom (such as a high-degree polynomial model) is likely to have high variance and thus overfit the training data.
+3: Irreducible error:  This part is due to the noisiness of the data itself. The only way to reduce this part of the error is to clean up the data (e.g., fix the data sources, such as broken sensors, or detect and remove outliers). Increasing a model’s complexity will typically increase its variance and reduce its bias. Conversely, reducing a model’s complexity (or increasing regularization) increases its bias and reduces its variance (see Figure 4-17). This is why it is called a trade-off.
+#### geron4
+######  (p. 275). O'Reilly Media. Kindle Edition.
+
+
+## ways to improved an overfitted model
+###
+-- One way to improve an overfitting model is to feed it more training data until the validation error gets close enough to the training error.
+-- Regularization:
+As you saw in Chapters 1 and 2, a good way to reduce overfitting is to regularize the model (i.e., to constrain it): the fewer degrees of freedom it has, the harder it will be for it to overfit the data. A simple way to regularize a polynomial model is to reduce the number of polynomial degrees.
+#### geron4
+#####
+What about linear models? Can we regularize them too? You may wonder why we may want to do that: aren’t linear models constrained enough already? Well, linear regression makes a few assumptions,
+including the fact that the true relationship between the inputs and the outputs is linear, the noise has zero mean, constant variance, and is independent of the inputs, plus the input matrix has full rank, meaning that the inputs are not colinear⁠7 and there at least as many samples as parameters. In practice, some assumptions don’t hold perfectly. For example, some inputs may be close to colinear, which makes linear regression numerically unstable, meaning that very small differences in the training set can have a big impact on the trained model. Regularization can stabilize linear models and make them more accurate. So how can we regularize a linear model? This is usually done by constraining its weights. In this section, we will discuss ridge regression, lasso regression, and elastic net regression, which implement three different ways to do that.
+###### (pp. 276-277). O'Reilly Media. Kindle Edition.
+
+
+## Ridge regression:
+###
+Ridge regression (also called Tikhonov regularization) is a regularized version of linear regression: a regularization term equal to (ALpha/m ZIGMA-n-i=i Omega-i-^2) is added to the MSE. This forces the learning algorithm to not only fit the data but also keep the model weights as small as possible. This constraint makes the model less flexible, preventing it from stretching itself too much to fit every data point: this reduces the risk of overfitting. Note that the regularization term should only be added to the cost function during training. Once the model is trained, you want to use the unregularized MSE (or the RMSE) to evaluate the model’s performance....
+#### geron4
+#####
+Warning It is important to scale the data (e.g., using a StandardScaler) before performing ridge regression, as it is sensitive to the scale of the input features. This is true of most regularized models.
+--- Tip The RidgeCV class also performs ridge regression, but it automatically tunes hyperparameters using cross-validation. It’s roughly equivalent to using GridSearchCV, but it’s optimized for ridge regression and runs much faster. Several other estimators (mostly linear) also have efficient CV variants, such as LassoCV and ElasticNetCV.
+###### (p. 277-280). O'Reilly Media. Kindle Edition.
+(svær sektion at forstå - meget matematik føler jeg)
+
+
+## Logidtic regression
+###
+As discussed in Chapter 1, some regression algorithms can be used for classification (and vice versa). Logistic regression (also called logit regression) is commonly used to estimate the probability that an instance belongs to a particular class (e.g., what is the probability that this email is spam?). If the estimated probability is greater than a given threshold (typically 50%), then the model predicts that the instance belongs to that class (called the positive class, labeled “1”), and otherwise it predicts that it does not (i.e., it belongs to the negative class, labeled “0”). This makes it a binary classifier.
+...Estimating Probabilities So how does logistic regression work? Just like a linear regression model, a logistic regression model computes a weighted sum of the input features (plus a bias term), but instead of outputting the result directly like the linear regression model does, it outputs the logistic of this result (see Equation 4-14).
+...The logistic—denoted σ(·)—is a sigmoid function (i.e., S-shaped) that outputs a number between 0 and 1. It is defined as shown in Equation 4-15 and Figure 4-22.
+#### geron4
+#####
+Training and Cost Function: Now you know how a logistic regression model estimates probabilities and makes predictions. But how is it trained? The objective of training is to set the parameter vector θ so that the model estimates high probabilities for positive instances (y = 1) and low probabilities for negative instances (y = 0). This idea is captured by the cost function shown in Equation 4-17 for a single training instance x.
+....This cost function makes sense because –log(t) grows very large when t approaches 0, so the cost will be large if the model estimates a probability close to 0 for a positive instance, and it will also be large if the model estimates a probability close to 1 for a negative instance. On the other hand, –log(t) is close to 0 when t is close to 1, so the cost will be close to 0 if the estimated probability is close to 0 for a negative instance or close to 1 for a positive instance, which is precisely what we want. The cost function over the whole training set is the average cost over all training instances. It can be written in a single expression called the log loss, shown in Equation 4-18.
+...
+###### (p. 289+293). O'Reilly Media. Kindle Edition.
+(meget svær og matematisk sektion.)
+The bad news is that there is no known closed-form equation to compute the value of θ that minimizes this cost function (there is no equivalent of the normal equation). But the good news is that this cost function is convex, so gradient descent (or any other optimization algorithm) is guaranteed to find the global minimum (if the learning rate is not too large and you wait long enough). The partial derivatives of the cost function with regard to the jth model parameter θj are given by Equation 4-19.
+
+
+## Which linear regression training algorithm can you use if you have a training set with millions of features?
+###
+AI:
+Stochastic Gradient Descent (SGD) or Mini-batch Gradient Descent (and Batch Gradient Descent if the full training set fits in memory).
+These gradient-descent variants scale well with a very large number of features n (millions), because each step’s computational cost is linear in n (and does not require loading the entire dataset into memory for SGD or mini-batch). You can train the model iteratively by updating the parameters θ after computing gradients on one instance (SGD) or a small random batch of instances (mini-batch).
+You cannot use the Normal Equation (closed-form solution) or Singular Value Decomposition (SVD) for the same problem. Both require forming and inverting (or decomposing) an n × n matrix, which is O(n²) to O(n³) in time and memory—completely infeasible for millions of features.
+In practice (as noted in Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow, Chapter 4), SGD and mini-batch GD are the preferred choices when both the number of features and the number of training instances are huge.
+#### geron4 chapterquestions
+###### (p. 303). O'Reilly Media. Kindle Edition.
+
+
+## Suppose the features in your training set have very different scales. Which algorithms might suffer from this, and how? What can you do about it?
+###
+AI:
+Gradient Descent (including its variants like Batch GD, Stochastic GD, and Mini-batch GD) is the main algorithm that suffers significantly when features have very different scales.
+...
+Why Gradient Descent Suffers:
+The cost function (e.g., Mean Squared Error in linear regression) becomes elongated or "bowl-shaped" with very narrow valleys in one direction and wide in others.
+Gradient updates become imbalanced: features with larger scales produce much larger partial derivatives, so the algorithm takes zig-zagging or overly large steps along those axes.
+Result: much slower convergence (it can take far more iterations to reach the minimum), potential instability, or difficulty finding the global optimum efficiently. In extreme cases, a poor learning rate choice can cause divergence.
+This issue appears in any model trained with gradient descent, such as:
+Linear/Logistic Regression (when using GD instead of the Normal Equation),
+Neural networks,
+Support Vector Machines (when using gradient-based solvers)
+#### geron4 chapterquestions
+#####
+Algorithms That Generally Do NOT Suffer (or Suffer Much Less)
+1:
+Normal Equation or SVD for linear regression: These are closed-form solutions and are invariant to feature scaling (though scaling can still help numerically in practice).
+2:Tree-based models (Decision Trees, Random Forests, Gradient Boosting): They make splits based on thresholds and are scale-invariant.
+3:
+Regularized linear models (Ridge, Lasso) when solved with the closed-form method: They can still benefit from scaling for numerical stability, especially with regularization penalties.
+----
+What Can You Do About It? (Feature Scaling)
+Scale (or standardize) the features before training so they all have roughly the same range/scale. Two common techniques from Géron's book:
+Min-max scaling (Normalization)
+Rescales values to [0, 1]:
+$  x' = \frac{x - \min(x)}{\max(x) - \min(x)}  $
+Use sklearn.preprocessing.MinMaxScaler. Good when you know bounds or want bounded features.
+Standardization (Z-score normalization) — often preferred for gradient descent
+Centers features around 0 with unit variance:
+$  x' = \frac{x - \mu}{\sigma}  $ (mean μ = 0, std σ = 1 after scaling)
+Use sklearn.preprocessing.StandardScaler. Less sensitive to outliers than min-max.
+Recommendation: Use standardization for most gradient-descent-based models (including linear regression with SGD). Apply it consistently to training, validation, and test sets (fit the scaler only on the training set).
+###### (p. 303). O'Reilly Media. Kindle Edition.
+Practical Tip (from the book)
+When using Gradient Descent, ensure all features have a similar scale—or it will take much longer to converge. Feature scaling is usually done in a preprocessing pipeline (e.g., with sklearn.pipeline.Pipeline).
+In short: Gradient Descent slows down dramatically with unscaled features due to distorted cost contours. Fix it by standardizing or normalizing the input features. Tree-based or closed-form methods are largely unaffected.
+
+
+## Can gradient descent get stuck in a local minimum when training a logistic regression model?
+###
+No, gradient descent cannot get stuck in a local minimum when training a logistic regression model.
+Why Not?
+The cost function for logistic regression (also called the log-loss or cross-entropy loss) is convex. A convex function has only one global minimum—no local minima exist (except the global one itself).
+---
+Gradient descent (Batch, Stochastic, or Mini-batch) is therefore guaranteed to converge to the global minimum, provided:
+The learning rate is not too large (otherwise it may diverge or oscillate).
+You run it long enough.
+---
+This property holds because logistic regression is a linear model (the decision boundary is linear in the feature space). The combination of the linear predictor with the logistic (sigmoid) function produces a convex optimization problem.
+#### geron4 chapterquestions
+#####
+Contrast with Other Models
+
+In non-convex problems (e.g., training deep neural networks), the cost surface has many local minima, saddle points, and plateaus. Gradient descent can get stuck in poor local minima there.
+For linear regression (with MSE loss), the cost function is also convex, so the same guarantee applies.
+Practical Notes from Géron’s Book (Chapter 4)
+This is one of the end-of-chapter questions. The key takeaway is that the convexity of the logistic regression cost function eliminates the risk of local minima that you might worry about in more complex models. Feature scaling still helps a lot for faster convergence (as discussed in the previous question), but it is not needed to avoid local minima.
+In short:
+Logistic regression + Gradient Descent = safe from local minima thanks to convexity. You only need to worry about choosing a reasonable learning rate and (optionally) scaling features for efficiency.
+###### (p. 303). O'Reilly Media. Kindle Edition.
+
+
+
+
+## Do all gradient descent algorithms lead to the same model, provided you let them run long enough?
+###
+AI: No, not all gradient descent algorithms will lead to exactly the same model, even if you let them run for a very long time—though they will usually produce very similar models when the problem is convex (as is the case for linear and logistic regression).
+Detailed Explanation (from Géron’s book, Chapter 4)
+Batch Gradient Descent (BGD):
+With a fixed (well-chosen) learning rate and a convex cost function, it will eventually converge to the exact global optimum. If you run it long enough, it stops at essentially the same parameter values every time (assuming the same initialization and no numerical issues).
+Stochastic Gradient Descent (SGD) and Mini-batch Gradient Descent:
+These algorithms are stochastic (they use randomness—random instance or random batch selection at each step).
+Even on a convex problem, they never truly converge to a single point if the learning rate stays constant. Instead, they keep bouncing around the global optimum.
+After a very long time, the parameters will fluctuate in a small region around the optimal solution. Different random seeds or different runs will therefore produce slightly different final models.
+#### geron4 chapterquestions
+#####
+How to Make SGD / Mini-batch GD Reach a Similar Final Model
+To get closer to true convergence (and more consistent results across runs):
+Gradually reduce the learning rate over time (learning rate scheduling, e.g., learning_rate = learning_rate0 / (1 + t) or using schedulers in scikit-learn).
+With a properly decaying learning rate, both SGD and mini-batch GD can get arbitrarily close to the global optimum, just like Batch GD.
+###### (p. 303). O'Reilly Media. Kindle Edition.
+
+
+
+## Suppose you use batch gradient descent and you plot the validation error at every epoch. If you notice that the validation error consistently goes up, what is likely going on? How can you fix this?
+###
+The model is likely diverging due to a learning rate that is too high.
+What Is Happening?
+---In Batch Gradient Descent, the entire training set is used to compute the gradient at each step (epoch). If the learning rate (η) is too large, the algorithm takes overly big steps in parameter space. Instead of descending toward the minimum of the cost function, it can overshoot it repeatedly — or even move farther away — causing the training error (and validation error) to increase at every epoch.
+This is a classic sign of divergence rather than convergence.
+---How to Diagnose It Precisely
+Plot both training error and validation error per epoch:
+If both are going up → almost certainly the learning rate is too high (the updates are destabilizing the optimization).
+If training error is decreasing (or stable) while validation error is increasing → this points to overfitting instead (the model is memorizing the training data but failing to generalize).
+#### geron4 chapterquestions
+#####
+How to Fix It
+---Lower the learning rate (the most common and direct fix).
+Try dividing it by 10 (e.g., from 0.1 → 0.01, or 0.01 → 0.001) and retrain from scratch.
+You can also use a learning rate schedule that starts higher and decreases over time.
+---If lowering the learning rate still doesn’t help or makes convergence too slow:
+Add feature scaling (standardization with StandardScaler is usually best for GD) — unscaled features with very different ranges make a good learning rate hard to choose.
+Try a more sophisticated optimizer (e.g., with momentum) if you’re implementing it manually.
+---If the training error is not increasing (i.e., overfitting case):
+Add regularization (e.g., Ridge or Lasso for linear models).
+Use early stopping: stop training when validation error starts rising.
+Reduce model complexity or gather more training data.
+###### (p. 303). O'Reilly Media. Kindle Edition.
+Practical Tip from Géron’s Book (Chapter 4)
+This question appears right after the discussion of Batch Gradient Descent. The book emphasizes that a too-large learning rate is the usual culprit when validation error keeps rising with Batch GD. Always monitor both training and validation curves together — they tell you whether you’re facing divergence, overfitting, or a healthy training process.
+In short:
+Likely cause: Learning rate too high → model diverging.
+Quick fix: Reduce the learning rate significantly and retrain.
+Check the training error curve to distinguish divergence from overfitting.
+
+## Is it a good idea to stop mini-batch gradient descent immediately when the validation error goes up?
+###
+No, it is not a good idea to stop mini-batch gradient descent immediately when the validation error goes up.
+Why Not?
+Mini-batch Gradient Descent (and Stochastic GD) is noisy by nature. Each update is computed on a small random subset of the training data, so the validation error curve is erratic—it fluctuates up and down even while the model is overall making progress toward the optimum. A single increase in validation error may simply be due to a “bad” mini-batch, not because the model has started overfitting or reached the best possible point.
+If you stop at the first upward tick, you risk halting training too early, before the algorithm has had a chance to find a better solution nearby.
+---
+Recommended Approach (Early Stopping with Patience)
+Instead of stopping immediately, use a more robust early stopping strategy:
+---Continue training even after the validation error increases.
+Keep track of the best validation error seen so far (and save the corresponding model parameters).
+Stop only if the validation error has not improved for a certain number of epochs (or mini-batch steps) — this “patience” value is a hyperparameter (e.g., 10 or 50 epochs).
+At the end, revert to the model parameters that achieved the lowest validation error.
+---This way you tolerate the natural jitter of mini-batch GD while still preventing overfitting and excessive training time.
+#### geron4 chapterquestions
+#####
+Comparison with Batch Gradient Descent
+---With Batch GD, the validation error is much smoother. If it consistently goes up, it usually signals divergence (learning rate too high) or the start of overfitting. Stopping or lowering the learning rate is more straightforward.
+Mini-batch GD’s randomness makes immediate stopping unreliable.
+###### (p. 303). O'Reilly Media. Kindle Edition.
+Practical Tips from Géron’s Book (Chapter 4)
+This question directly follows the discussion of the three gradient descent variants. The book highlights that neither Stochastic nor Mini-batch GD is guaranteed to make steady progress at every step (unlike Batch GD). The standard solution is the early-stopping technique described above, often combined with a learning rate schedule for even better results.
+In short:
+Don’t stop immediately — the noise in mini-batch GD makes a single upward movement in validation error untrustworthy.
+Use early stopping with patience and revert to the best model instead. This gives the algorithm room to continue improving while still guarding against overfitting.
+
+## Which gradient descent algorithm (among those we discussed) will reach the vicinity of the optimal solution the fastest? Which will actually converge? How can you make the others converge as well?
+###
+Stochastic Gradient Descent (SGD) will reach the vicinity of the optimal solution the fastest.
+---
+Batch Gradient Descent will actually converge (to the global minimum, assuming the cost function is convex—like MSE for linear regression—and the learning rate is small enough).
+---
+Mini-batch Gradient Descent is in between (faster than batch but slower than pure SGD to get near the optimum, and it doesn’t fully converge with a fixed learning rate).
+---
+To make SGD and mini-batch Gradient Descent converge (instead of just bouncing around the optimum forever), use a learning rate schedule that gradually decreases the learning rate over time. Start with a relatively large learning rate so the algorithm can move quickly at first, then reduce it so the steps become small enough for the algorithm to settle at the minimum.
+(This is exactly the context in Aurélien Géron’s Hands-On Machine Learning (the section on gradient descent for linear regression, Chapter 4): the three algorithms compared are Batch GD, Stochastic GD, and Mini-batch GD.)
+#### geron4 chapterquestions
+###### (p. 303). O'Reilly Media. Kindle Edition.
+
+
+## Suppose you are using polynomial regression. You plot the learning curves and you notice that there is a large gap between the training error and the validation error. What is happening? What are three ways to solve this?
+###
+The model is overfitting the training set (high variance). The training error is low because the high-degree polynomial is very flexible and fits the training data almost perfectly (it can even wiggle to pass near every point). However, it generalizes poorly, so the validation error stays high, creating a large gap between the two curves.
+#### geron4 chapterquestions
+#####
+Three ways to solve this (i.e., reduce overfitting):
+1: Reduce the model’s complexity — lower the polynomial degree (or, more generally, reduce the number of degrees of freedom). A simpler model cannot memorize the training data as easily and will usually generalize better.
+2: Gather more training data — adding instances makes it harder for the model to overfit; the learning curves will show the training and validation errors getting closer as the training set size increases.
+3: Add regularization (e.g., switch to Ridge or Lasso regression instead of plain linear regression on the polynomial features). A regularization term penalizes large weights, constraining the model and preventing it from fitting the noise in the training set. You can control the strength of regularization with the hyperparameter α (higher α → stronger regularization → less overfitting).
+---
+These are exactly the remedies Géron presents right after showing the learning-curve plot for a high-degree polynomial regression model.
+###### (p. 303). O'Reilly Media. Kindle Edition.
+
+
+##
+Suppose you are using ridge regression and you notice that the training error and the validation error are almost equal and fairly high. Would you say that the model suffers from high bias or high variance? Should you increase the regularization hyperparameter α or reduce it?
+###
+The model suffers from high bias (underfitting).
+Both the training error and the validation error are high and almost equal. This is the classic sign of a model that is too simple to capture the underlying patterns in the data — it has high bias and low variance. The gap between training and validation error is small because the model is not overfitting; it is simply not powerful enough.
+#### geron4 chapterquestions
+#####
+What to do with the regularization hyperparameter α in Ridge regression:
+You should reduce α (or set it to a very small value, close to 0).
+---
+A large α imposes a strong penalty on the model’s weights, which shrinks them toward zero and makes the model simpler → increases bias, reduces variance.
+Reducing α relaxes the regularization, allowing the model to fit the training data better → decreases bias (training error goes down) while potentially increasing variance a bit. Since the validation error is currently almost as high as the training error, this is exactly what you need.
+---
+In short:
+---
+High bias + small gap → reduce α (less regularization).
+(For reference: if you had a large gap with low training error, you would increase α to fight overfitting.)
+---
+This matches the diagnosis Géron explains with the learning curves in the regularization section of Chapter 4.
+###### (p. 303). O'Reilly Media. Kindle Edition.
+
+
+
+##
+Why would you want to use:
+A: Ridge regression instead of plain linear regression (i.e., without any regularization)?
+B: Lasso instead of ridge regression?
+C: Elastic net instead of lasso regression?
+###
+A: Why use Ridge regression instead of plain linear regression (no regularization)?
+You would use Ridge when:
+Your model suffers from overfitting (high variance), especially when there are many features or when features are highly correlated (multicollinearity).
+You want to constrain the model’s weights to prevent them from becoming too large, which improves generalization.
+Plain linear regression (ordinary least squares) has no regularization, so it can produce very large coefficients that make the model sensitive to small changes in the training data.
+Ridge adds an L2 penalty (α × Σ w_i²) to the cost function. This forces the weights to be smaller (but never exactly zero), which reduces variance with only a small increase in bias.
+Result: better performance on unseen data in most practical cases, especially when the number of features is large or when features are correlated.
+#### geron4 chapterquestions
+#####
+B: Why use Lasso instead of Ridge regression?
+You would prefer Lasso when:
+You want automatic feature selection — Lasso can completely eliminate (set to exactly zero) the weights of the least useful features.
+You suspect that only a small subset of your features are actually important (sparse model).
+---
+Lasso uses an L1 penalty (α × Σ |w_i|). Because of the absolute value, the optimization process tends to drive some coefficients all the way to zero.
+Advantages over Ridge:
+---
+Produces sparser models (fewer non-zero weights).
+Easier to interpret (only the selected features remain).
+Works well when you have many irrelevant features.
+---
+Limitation of Lasso: It can behave badly when features are strongly correlated — it tends to pick one feature arbitrarily and set the others to zero.
+###### (p. 303). O'Reilly Media. Kindle Edition.
+C: Why use Elastic Net instead of Lasso regression?
+You should generally prefer Elastic Net over pure Lasso when:
+---
+Your dataset has groups of strongly correlated features (Lasso’s main weakness).
+You want the benefits of both L1 and L2 regularization: sparsity + stability.
+---
+Elastic Net mixes both penalties:
+---
+L1 term (like Lasso) → encourages sparsity (some coefficients go to zero).
+L2 term (like Ridge) → encourages grouping of correlated features and stabilizes the selection.
+---
+Rule of thumb from Géron:
+Always prefer Elastic Net over pure Lasso.
+Plain Ridge is usually a good default.
+Use Lasso or Elastic Net only when you expect (or want) many features to have exactly zero coefficients.
+---
+Summary (quick reference):
+Plain Linear → baseline, no regularization.
+Ridge → good default when you need regularization but want all features kept.
+Lasso → when you want automatic feature selection (but beware of correlated features).
+Elastic Net → best of both worlds; usually preferred over Lasso.
+These distinctions are exactly what Géron explains in the regularization section of Chapter 4.
+
+
+
+## Suppose you want to classify pictures as outdoor/indoor and daytime/nighttime. Should you implement two logistic regression classifiers or one softmax regression classifier?
+###
+You should implement two separate logistic regression classifiers.
+Why two logistic regressions (not one softmax)?
+---
+The two classification tasks are independent:
+Outdoor vs Indoor (binary)
+Daytime vs Nighttime (binary)
+---
+A picture can belong to any combination of the two attributes:
+Outdoor + Daytime
+Outdoor + Nighttime
+Indoor + Daytime
+Indoor + Nighttime
+---
+This is a multi-output classification problem (also called multi-label in a broad sense here), not a single mutually exclusive multi-class problem.
+#### geron4 chapterquestions
+#####
+Softmax regression (multinomial logistic regression) is designed for problems where there is exactly one correct class out of several mutually exclusive classes. It forces the probabilities to sum to 1 across all classes. If you tried to combine both tasks into one softmax with 4 classes (Outdoor-Day, Outdoor-Night, Indoor-Day, Indoor-Night), you would be forcing the model to choose only one combination, which is incorrect — and you would lose the ability to predict, for example, “this indoor scene could be either day or night” with proper independent probabilities.
+###### (p. 303). O'Reilly Media. Kindle Edition.
+Recommended approach (as explained by Géron):
+Train two independent binary logistic regression classifiers:
+---
+One classifier for Outdoor vs Indoor
+One classifier for Daytime vs Nighttime
+---
+Each classifier outputs its own probability (using the logistic/sigmoid function).
+You can then combine the predictions freely:
+---
+Probability(outdoor) + Probability(indoor) = 1
+Probability(daytime) + Probability(nighttime) = 1
+---
+This gives you all four combinations with independent probabilities, which is exactly what you need.
+When would you use softmax instead?
+Only if the tasks were mutually exclusive and you had to choose exactly one class (e.g., classifying an image into one of: “outdoor daytime”, “outdoor nighttime”, “indoor daytime”, “indoor nighttime” as a single 4-class problem with no overlap allowed). That is not the case here.
+Bottom line:
+For this problem → two separate logistic regression classifiers is the correct and simpler solution. Softmax would be inappropriate because the classes are not mutually exclusive.
+(This matches Géron’s discussion on logistic regression vs softmax regression in the classification chapter.)
+
 
 
 
@@ -917,7 +1269,6 @@ Questions at the end of each Geron chapter.
 //// geron4
 Part one - The fundamentals of machine learning(chapter 1-8)
 Chapter 4. Training Models  (p. 239+)
-
 
 //// geron3
 Part one - The fundamentals of machine learning(chapter 1-8)
