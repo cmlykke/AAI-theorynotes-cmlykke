@@ -1260,8 +1260,59 @@ For this problem → two separate logistic regression classifiers is the correct
 (This matches Géron’s discussion on logistic regression vs softmax regression in the classification chapter.)
 
 
+## De 4 datatyper:
+###
+1. Kategori: non-parametric (betyder ikke numerisk)
+1A: ingen raekkefoelge == nominel data == har kun en ikke-numeriske labels (har kun ID’er)
+1B: raekkefoelge          == ordinal data == vi kan sige at “ID 1” er stoerre end “ID 2”
+2. Kategori: Parametriske: (betyder numerisk)
+2A:  Interval data    === numeriske vaerdier med lige afstand imellem.
+2B: ratio data == numeriske vaerdier med lige afstand imellem OG HAR OGSAA et naturligt 0.
+(naturligt nul betyder at man har fravaer af noget, Kelvin skalaen har naturligt 0.)
+#### chrnoter
+#####
+Hoejde over havets overflade er Interval-data, da "havets overflade" er et arbitraert nul-punkt.
+Et dataset af Cenlcius temperatures, er ofte brugt som det klassiske interval data eksempel fordi 10-C ikke er det dobbelte af 5-C, men hvis man konvertere det til kelvin, kan man betragte det som ratio data.
+Et dataset af menneske hoejde ratio data, fordi hoejde har absolut 0. Det faktum at intet menneske kan have 0 i hoejde er irrelevant.
+######
+Undervisning (prmiaert 2026-02-13 - uge3)
 
 
+## Centralitets mål - for de fire datatyper
+###
+--- nominel data: vi kan kun bruge “Mode”, fordi der ikke er en raekkefoelge
+--- ordinel data:   her kan vi bruge Mode eller Median == fordi vi ikke kan dele I to.
+--- Interval data:  (man bruge Mode, men ikke rigtigt)   vi kan godt bruge median.   (man kan ikke rigtigt bruge “Mean”).
+--- ratio data:      (man bruge Mode, men ikke rigtigt) vi kan godt bruge median. Herudover kan vi ogsaa bruge “Mean”.
+--- Hvorfor kan man ikke rigtigt snakke om “Mode”?
+Problemet er om det data man har er “continous” eller diskret.
+#### chrnoter
+#####
+AI:
+Nominal (Categories only= no order): Mode only ==
+You can only identify the most frequent category. Mean and median have no meaning.
+(Nominal data has no order and is always discrete, so the only appropriate measure of centrality is the mode)
+---
+Ordinal (Ordered categories =ranks): Median (preferred) and  == You can talk about "middle" position, but not equal distances, so mean is usually inappropriate.
+(Ordinal data has a natural order, which allows us to use the median as the preferred measure, and because it is always discrete we can also use the mode.)
+---
+Interval (Numeric with equal intervals, no true zero): Mean, Median, [and Mode***] == Differences are meaningful (e.g., temperature in °C), so the arithmetic mean works.
+(Interval data has equal intervals between values but no true zero, so we can use both the mean and the median; the mode is only practical when the data is discrete or binned.)
+---
+Ratio (Numeric with equal intervals + true zero):
+Mean, Median [and Mode***].
+(Ratio data has equal intervals and a true absolute zero, so we can freely use the mean and the median, while the mode is only useful when the data is discrete.)
+######
+Undervisning (prmiaert 2026-02-13 - uge3)
+Mode == what apears most frequently.
+***Mode is mostly used with discrete data (eg. number of cars, dice rolls), not with continuous data (eg.height, weight, temperature, time, blood pressure.) -- but can be used with Continuous data that is not normally distributed, has outliers, or small sample size.
+---
+
+
+
+
+//// chrnoter
+Chr. Lykke Personal notes
 
 //// chapterquestions
 Questions at the end of each Geron chapter.
