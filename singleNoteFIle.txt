@@ -4,7 +4,7 @@
 #### Tags (optional, space-separated). Example: '#### tag1 tag2'\n"
 ##### Primary info (optional).\n" +
 ###### Secondary info (optional).\n" +
-
+I lukas noter: lige blevet faerdig med AAI-13-02-26
 
 
 ## What is machine learning
@@ -1262,13 +1262,13 @@ For this problem → two separate logistic regression classifiers is the correct
 
 ## De 4 datatyper:
 ###
-1. Kategori: non-parametric (betyder ikke numerisk)
+1. Kategori: non-parametric (Simple names or labels)
 1A: ingen raekkefoelge == nominel data == har kun en ikke-numeriske labels (har kun ID’er)
-1B: raekkefoelge          == ordinal data == vi kan sige at “ID 1” er stoerre end “ID 2”
+1B: raekkefoelge          == ordinal data == vi kan sige at “ID 1” er stoerre end “ID 2” (labels in specific order)
 2. Kategori: Parametriske: (betyder numerisk)
-2A:  Interval data    === numeriske vaerdier med lige afstand imellem.
+2A:  Interval data    === numeriske vaerdier med lige afstand imellem. (Numeric data with even interval)
 2B: ratio data == numeriske vaerdier med lige afstand imellem OG HAR OGSAA et naturligt 0.
-(naturligt nul betyder at man har fravaer af noget, Kelvin skalaen har naturligt 0.)
+(naturligt nul betyder at man har fravaer af noget, Kelvin skalaen har naturligt 0.) (Numeric data with even interval and true zero)
 #### chrnoter
 #####
 Hoejde over havets overflade er Interval-data, da "havets overflade" er et arbitraert nul-punkt.
@@ -1309,7 +1309,113 @@ Mode == what apears most frequently.
 ---
 
 
+## Struktureret vs. Ustruktureret data
+### Struktureret: Individuelle og uafhængige features
+--- Ustruktureret: ...
+AI:
+Struktureret data vs. ustruktureret data i Machine Learning
+Her er en klar oversigt over, hvad der kendetegner de to typer data, og hvordan de adskiller sig inden for ML:
+1. Struktureret data
+Definition: Data, der er organiseret i et foruddefineret, fast format – typisk som tabeller med rækker og kolonner.
+Kendetegn:
+Har en klar skema (schema): hver kolonne har en fast datatype (tal, tekst, dato, kategorier osv.).
+Let at lagre i databaser (SQL, Excel, CSV, Pandas DataFrame).
+Kan direkte bruges som features (input-variabler) i modeller.
+Lav volumen pr. datapunkt, men ofte meget høj præcision og konsistens.
+---
+Eksempler:
+Kundedata (alder, køn, indkomst, købshistorik)
+Salgsdata i en database
+Sensor-målinger (temperatur, tryk, hastighed) i en tabel
+---
+I Machine Learning:
+Velegnet til traditionelle ML-algoritmer (f.eks. lineær regression, decision trees, random forest, XGBoost, SVM).
+Kræver minimal preprocessing (normalisering, encoding af kategorier).
+Modeller trænes hurtigt og er lette at tolke.
+#### lucasnoter
+#####
+Ai:
+2. Ustruktureret data:
+Definition: Data uden foruddefineret format eller organisation – "rå" data i sin naturlige form.
+Kendetegn:
+Ingen fast struktur – indholdet kan variere vildt i længde, format og layout.
+Svært at lagre og søge i traditionelle databaser.
+Høj volumen og høj kompleksitet.
+Kræver avanceret feature extraction eller deep learning for at blive brugbar.
+---
+Eksempler:
+Tekst (e-mails, sociale medier, nyhedsartikler)
+Billeder og video
+Lyd (tale, musik)
+PDF-dokumenter, e-mails med vedhæftede filer, logs
+---
+I Machine Learning:
+Bruges primært med deep learning og foundation models (f.eks. CNN til billeder, Transformer/NLP-modeller til tekst, RNN/LSTM eller nyere audio-modeller).
+Kræver ofte store mængder data og kraftig beregning (GPU/TPU).
+Modeller er typisk mere komplekse, sværere at tolke (black-box) og har brug for store datasæt for at opnå god præcision.
+######
+Lucas noter
 
+
+## Letter: X, n, m, Y
+###
+X: table of training data
+n: the features of X (input dimensions, variables) per sample (the columns)
+m: The number of training samples (examples, observations) of X (the rows)
+Y: The target / label values.
+Often Y (capital) for the full matrix/vector of labels corresponding to the training set.
+Sometimes y (lowercase) when it's a vector.
+For multi-class or structured outputs, it can be a matrix.
+#### lucasnoter
+#####
+AI: What is The target / label values:
+In machine learning (especially supervised learning), the target (also called the label, output, dependent variable, or response variable) is the value we want the model to predict.
+Simple Explanation
+---
+X (features / inputs): The information we give to the model (e.g., house size, number of rooms, location, etc.).
+Y (or y): The correct answer / outcome we want the model to learn to predict (e.g., house price, whether the email is spam or not, whether a patient has a disease, etc.).
+---
+The training data consists of many pairs:
+(X, Y) → the model learns the mapping from X → Y.
+During training, the model sees both the features (X) and the true targets/labels (Y).
+After training, we give the model new X (without Y) and ask it to predict Ŷ (the estimated target).
+Why "Target / Label"?
+---
+Target — the variable we are targeting or trying to predict.
+Label — especially common in classification tasks, where Y is a category or "label" (e.g., "cat", "dog", "spam", "malignant").
+In regression tasks, people more often say "target" because Y is a continuous number (e.g., price = 245,000).
+---
+Examples
+---
+House price prediction (Regression)
+X: square footage, number of bedrooms, location
+Y (target/label): actual sale price of the house (e.g., $320,000)
+---
+Spam detection (Classification)
+X: email text, sender, subject, etc.
+Y (label): "spam" or "not spam" (or 1 or 0)
+---
+Image classification
+X: pixel values of the image
+Y (label): "cat", "dog", "car", etc.
+---
+Notation in Academic / Course Settings
+---
+Y (capital) — often the full matrix or vector of all targets for the training set.
+y (lowercase) — sometimes used for a single example or the vector.
+Individual example: y⁽ⁱ⁾ = the target for the i-th training sample.
+In deep learning (Andrew Ng style): Y is often a matrix of shape (1 × m) or (n_y × m), where m = number of samples.
+######
+lukas noter AAI-13-02-26
+
+
+
+
+
+
+
+//// lucasnoter
+Lucas personline noter
 
 //// chrnoter
 Chr. Lykke Personal notes
