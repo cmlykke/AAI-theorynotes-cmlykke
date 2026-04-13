@@ -1410,9 +1410,162 @@ lukas noter AAI-13-02-26
 
 
 
+## All Models Are Wrong
+###
+--- All models are wrong, but some are usefull
+--- Modeller sigter ikke efter 100% accuracy og perfection.
+Vi laver generaliseringer, saa de daekker de fleste usecases...for vi kan ikke forudse alt.
+--- Memorization: som modeller husker deres traeningsdata bliver de daarligere til at lave generel inference.
+#### lucasnoter
+######
+lukas noter AAI-20-02-26
+
+
+## deep Neural networks - 1/5 - basics
+###
+--- a perceptron gets input (numbers) -> the input gets multiplied by a weight (a number that says "how important is this input") (if w is positive = boost signal, w is negative = weaken signal) -> the sum of the weighted inputs is added to a bias (b) (a constant tweak, like a baseline opinion) -> the sum is passed through a non-linear activation function (eg. sigmoid, Tanh or ReLU) (this deides whether the peceptron "fires" == passes on a signal or not) -> many layers of this is what the model consists of.
+#### ainotes
+#####
+activation function example: ReLU (Rectified Linear Unit) = (just outputs the sum if positive, else 0 (Why it's popular today: Very fast to compute, helps the network train quickly, and rarely causes the "vanishing gradient" problem in deep layers.)).
+---
+Sigmoid = Takes any number and squashes it smoothly into a value between 0 and 1.
+Very negative input → almost 0 (neuron stays quiet).
+Very positive input → almost 1 (neuron fires strongly).
+At 0 → exactly 0.5.
+(Main issues:
+It can cause vanishing gradients (the signal for learning becomes extremely small in deep networks).
+Outputs are always positive (not centered around zero), which can slow down learning a bit.)
+---
+Tanh (Hyperbolic Tangent) = What it does in simple terms:
+Similar to sigmoid, but squashes the input into a value between -1 and 1.
+Very negative → almost -1.
+Very positive → almost 1.
+At 0 → exactly 0.
+(Compared to sigmoid: Better because it's zero-centered (outputs can be negative), which often makes training easier.
+Still suffers from vanishing gradients in very deep networks.)
+######
+ainotes supplement til lukas noter AAI-20-02-26
+
+
+## deep Neural networks - 2/5 - how it "thinks"
+### Forward Propagation:
+Data flows forward through the network, left to right:
+---
+1: Input numbers go into the first hidden layer.
+2: Each neuron does its weighted sum + bias + activation.
+3: Outputs become inputs to the next layer.
+4: Repeat until the output layer spits out a prediction.
+---
+It's all just matrix multiplications (super fast on GPUs) plus those activations. No magic—just lots of simple math happening in parallel.
+#### ainotes
+######
+ainotes supplement til lukas noter AAI-20-02-26
+
+
+## deep Neural networks - 3/5 - how it "learns"
+### Training with Backpropagation:
+At the start, all weights and biases are random—so the network is terrible at first.
+Training is like teaching a kid with practice tests:
+1: Feed it tons of labeled examples (input + correct answer).
+2: It makes a guess (forward pass).
+3: Compare guess to truth using a loss function (e.g., "how wrong was it?"—mean squared error for numbers, cross-entropy for categories).
+4: Backpropagation (the genius part): Use calculus (chain rule) to figure out exactly how much each weight contributed to the error. It works backward through the layers.
+5: Gradient descent (optimizer): Tweak every weight a tiny bit in the direction that reduces the error...
+#### ainotes
+#####
+Repeat this millions of times (epochs) over the data. Over time, weights adjust automatically to minimize loss. The network "learns" patterns without being explicitly programmed.
+That's it! The whole thing is just optimization: find the best weights so predictions match reality as closely as possible.
+######
+ainotes supplement til lukas noter AAI-20-02-26
+Why Does This Work So Well?
+---
+1: Scale: Billions of parameters (weights) let it capture insanely complex patterns.
+2: Data + compute: Modern GPUs + huge datasets (thanks to the internet) make training feasible.
+3: Hierarchical features: Depth lets it build complexity layer by layer (edges → shapes → objects → scenes).
 
 
 
+
+## deep Neural networks - 4/5 - vanishing gradient problem
+###
+What is a "gradient"?
+Remember how the network learns?
+During training, we calculate the error (loss), then use backpropagation to figure out how much each weight should change to reduce that error.
+The "gradient" is basically the direction and size of the change we need to make to each weight.
+It tells the optimizer: "Change this weight by this much to get better."
+If the gradient is big → the weight changes a lot (big learning step).
+If the gradient is tiny → the weight barely changes.
+---
+What is the Vanishing Gradient Problem?
+In very deep networks (many hidden layers), when we use activation functions like sigmoid or tanh, the gradients become extremely small (they "vanish") as they travel backward from the output layer to the early layers.
+By the time the signal reaches the first few layers, the gradient is almost zero.
+This means:
+The early layers (which learn the most basic and important features) almost stop learning.
+The network trains very slowly or gets stuck.
+#### ainotes
+#####
+Why does this happen? (Super simple version)
+It comes from the derivative (slope) of the activation function.
+Look at sigmoid again:
+When the input to sigmoid is very large positive or very negative, the curve becomes almost flat.
+A flat curve = very small slope (derivative close to 0).
+During backpropagation, we multiply many of these tiny derivatives together (one from each layer).
+Multiplying lots of small numbers → the result becomes tiny very quickly.
+######
+AI supplement til  lukas noter AAI-20-02-26
+Why is the vanishing gradient bad?
+Early layers learn nothing useful → the whole network performs poorly.
+Training takes forever or never really improves.
+Deep networks (which are supposed to be powerful) become almost useless with sigmoid/tanh.
+This is exactly why ReLU became so popular:
+Its derivative is either 1 (when positive) or 0.
+When it's 1, the gradient passes through without getting smaller.
+So gradients don't vanish easily in deep networks.
+
+
+## deep Neural networks - 5/5 - advantages of Sigmoid, Tahn, ReLU, Leaky Relu
+###
+Sigmoid: Pros: 1: Outputs nice 0–1 range (easy to interpret as probability)
+2: Smooth curve. Cons: 1: Severe vanishing gradient problem
+2: Not zero-centered (all outputs positive)
+3: Slow (uses exponential).
+Shines: Output layer only for binary yes/no classification (e.g. “is this spam?” or “is this a cat?”).
+Outdated? Yes for hidden layers (almost never used there today)
+---
+Tanh: Pros: 1: Zero-centered (−1 to +1) → often trains a bit faster than sigmoid
+2: Smoother gradients than sigmoid in the middle.
+Cons: 1: Still suffers from vanishing gradient (especially in deep nets)
+2: More expensive to compute than ReLU.
+Cons: 1: Still suffers from vanishing gradient (especially in deep nets).
+2: More expensive to compute than ReLU.
+Shines: Older/smaller networks or some recurrent networks (RNNs/LSTMs) where zero-centering helps.
+Outdated? Mostly yes — largely replaced by ReLU variants.
+---
+ReLU: Pros: 1: Extremely fast (just max(0, z))
+2: No vanishing gradient on positive side
+3: Creates sparse activations (helps prevent overfitting)
+4: Trains very quickly.
+Cons: 1: Dying ReLU problem (neurons can permanently die and output 0).
+2: Not zero-centered.
+Shines: Hidden layers in almost every modern deep network (CNNs, Transformers, MLPs, etc.) — this is the default choice.
+Outdated? No — still the most popular by far.
+---
+Leaky ReLU: Pros: 1: Fixes the dying ReLU problem (small negative slope, usually 0.01).
+2: Still very fast.
+3: Better gradient flow for negative values.
+Cons: 1: Slightly slower than plain ReLU (tiny extra multiplication).
+2: Has a hyperparameter (the leak rate) that needs choosing.
+Shines: When you notice too many dead neurons with plain ReLU (deeper networks or tricky datasets).
+Outdated? No — still very commonly used as a drop-in improvement.
+#### ainotes
+######
+AI supplement til  lukas noter AAI-20-02-26
+
+
+
+
+//// ainotes
+TIl nogle problemer har jeg ingen fornuftige noter. her spoerger jeg AI.
 
 //// lucasnoter
 Lucas personline noter
