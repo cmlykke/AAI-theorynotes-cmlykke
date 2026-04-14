@@ -4,7 +4,7 @@
 #### Tags (optional, space-separated). Example: '#### tag1 tag2'\n"
 ##### Primary info (optional).\n" +
 ###### Secondary info (optional).\n" +
-I lukas noter: lige blevet faerdig med AAI-13-02-26
+I lukas noter: jeg skal til AAI-06-03-26
 
 
 ## What is machine learning
@@ -732,6 +732,34 @@ The F1 score favors classifiers that have similar precision and recall. This is 
 ###### ( (p. 204). O'Reilly Media. Kindle Edition.
 
 
+## what is a confusion matrix ? (in classification)
+###
+A confusion matrix is one of the best tools to evaluate a classification model (especially when classes are imbalanced).
+Simple Definition:
+"""It shows exactly how your model's predictions compare to the actual labels by counting the outcomes in a table."""
+Binary Classification (the easiest case):
+Imagine a spam detector (Positive = spam, Negative = not spam):
+Imagine an MNIST dataset (tal fra 0 til 9):
+Confusion matrix bliver saa en 10x10 table med disse vaerdier:
+X-aksen: de rigtige tal
+Y-aksen: de forventede tal
+Diagonal = correct predictions.
+Off-diagonal = mistakes (confusions)
+#### ainotes
+#####
+Example (tiny version for digits 0, 1, 8):
+Predicted
+           0    1    8
+Actual 0  950   2    1
+       1   3  980    0
+       8   12   5  850
+Forklaring:
+- 0 korrekt klassificeret som 0 == 950.
+- 1el.8 classificaret som 0 == 3 / 12.
+- 1 korrekt klassificeret som 1 == 980.
+- 10el.8 klassificeret som 1 == 2 / 5.
+###### ( (p. 204). O'Reilly Media. Kindle Edition.
+
 
 ## Evaulating binary classifier: The ROC Curve
 ###
@@ -863,7 +891,7 @@ The learning rate (often denoted η — eta) controls the size of the steps the 
 Too small learning rate: The algorithm converges very slowly (takes many iterations).
 Too large learning rate: The algorithm can overshoot the minimum, bounce around, or even diverge (get worse and worse).
 Choosing a good learning rate is crucial.
-Challenges with Gradient Descent
+Challenges with Gradient Descent:
 Real cost functions are often not perfect bowls. They can have:
 Local minima — points that look like a minimum locally but are not the best overall.
 Plateaus (flat regions) — where the gradient is very small, so progress is extremely slow.
@@ -1560,6 +1588,152 @@ Outdated? No — still very commonly used as a drop-in improvement.
 #### ainotes
 ######
 AI supplement til  lukas noter AAI-20-02-26
+
+
+## What is a cost function? (in linear regression)
+###
+A cost function (also called loss function or error function) is a mathematical function that measures how wrong your model's predictions are.
+1: It takes your model's predictions and compares them to the actual correct answers (the true values).
+2: It outputs a single number: the higher the number, the worse your model is performing.
+3: The goal in training a model is almost always to minimize this cost function — i.e., make this error number as small as possible.
+Think of it like a score for your model:
+Low cost = good model (predictions are close to reality)
+High cost = bad model (predictions are far off)
+#### ainotes
+#####
+Most common costfunction example: Mean squared error:
+For linear regression (the first model most people learn), the cost function is usually Mean Squared Error.
+1: For every single data point, subtract your prediction from the actual result.
+(Example: You predicted a 7, but the reality was a 10. The difference is 3.)
+2: Take each difference from Step 1 and multiply it by itself (square it). This turns any negative numbers positive and makes big mistakes "taste" much worse than small ones.
+(Example: 3x3 = 9)
+3: Add all those squared numbers together into one big total.
+4:Divide that total by the number of data points (
+) you started with.
+###### Ai noter.
+1: Quantifies Prediction Error: MSE calculates the average squared distance between observed values (
+) and predicted values (
+) on the regression line.
+2: Penalizes Large Errors: Because it squares the errors (residuals), MSE gives higher weight to large outliers than to small errors. A large error will significantly increase the MSE, signaling a poor fit.
+3: Eliminates Negative Differences: By squaring errors, it ensures that positive and negative differences between actual and predicted values do not cancel each other out.
+4: Optimizes Model Parameters: In linear regression (specifically Ordinary Least Squares), the model is built by minimizing the MSE, which adjusts the slope and intercept to bring the line closest to the data.
+5: Ensures Differentiability: MSE is easy to use for mathematical optimization (calculus) to find the gradient and converge on the best parameters.
+
+
+## What are performance metrics? (for binary classification)
+###
+Consider the Confusion Matrix categories:
+TP, TN, FP, FN.
+1: Accuracy: (TP + TN) / (TP + TN + FP + FN).
+(What it measures: Overall proportion of correct predictions (both positive and negative) out of all predictions.
+Best for: Balanced datasets where both classes are equally important.
+Limitations: Misleading on imbalanced data (e.g., 99% negative class → a model predicting “negative” always gets ~99% accuracy but is useless).)
+2: Precision: TP / (TP + FP) (What it measures: Of all instances the model predicted as positive, how many were actually positive?
+Intuition: “How precise/reliable are the positive predictions?”
+Use when: False positives are costly (e.g., spam detection — you don’t want to mark important emails as spam).)
+3: Recall / Sensitivity: TP / (TP + FN) (What it measures: Of all actual positive instances, how many did the model correctly identify?
+Intuition: “How many of the real positives did we catch?”
+Use when: False negatives are costly (e.g., disease screening — you don’t want to miss sick patients).
+Note: Recall and sensitivity are the same thing.)
+4: Specificity: TN / (TN + FP) (What it measures: Of all actual negative instances, how many did the model correctly identify?
+Intuition: The counterpart to recall for the negative class (“How good is the model at avoiding false alarms on negatives?”).
+Common in: Medical diagnostics (e.g., correctly ruling out disease in healthy people).)
+4: F1-score: (harmonic mean of precision and recall)
+F1 = 2 * (precision * recall) / (precision + recall)
+(What it measures: Balances precision and recall into one score. It penalizes extreme imbalances between the two.
+Best for: Imbalanced datasets when you care about both false positives and false negatives.)
+#### ainotes
+##### Quick Guidance on Choosing Metrics:
+1: Balanced data + equal error cost → Accuracy or MCC.
+2: Minimize false positives → High Precision (or F0.5).
+3: Minimize false negatives → High Recall/Sensitivity (or F2).
+4: Need a single balanced score → F1-score.
+5: Imbalanced data → Prefer F1, MCC, PR-AUC, or Balanced Accuracy over plain accuracy.
+6: Probabilistic outputs / threshold tuning → ROC-AUC or PR-AUC.
+---
+These metrics are all interconnected, and no single one tells the full story — always look at several together (and ideally the confusion matrix itself). For multi-class problems, most of these can be averaged (macro, micro, or weighted) across classes.
+
+
+
+## What are performance metrics? (for regression problems)
+###
+(where the target variable is continuous, like predicting house prices, temperature, or sales).
+Unlike classification metrics (which focus on correct/incorrect labels), regression metrics measure how close the predicted values are to the actual values — usually by quantifying the error (difference) between them.
+Here’s a clear summary of the most important and commonly used regression metrics:
+1: Mean Absolute Error (MAE): (What it measures: Average absolute difference between actual (y) and predicted (ŷ) values.
+Interpretation: The average error in the same unit as the target (e.g., dollars, degrees).
+Strengths: Easy to interpret, robust to outliers (treats all errors linearly).
+Use when: You want a straightforward, interpretable error measure and outliers are not extremely problematic.)
+2: Mean Squared Error (MSE): (What it measures: Average of the squared differences.
+Strengths: Differentiable (good for optimization), heavily penalizes large errors.
+Weaknesses: Sensitive to outliers; units are squared (harder to interpret).
+Common use: As a loss function during training.)
+3: Root Mean Squared Error (RMSE) (What it measures: Square root of MSE — brings the error back to the original unit of the target.
+Strengths: More interpretable than MSE; still penalizes large errors more than MAE.
+Very popular in practice because it balances interpretability and sensitivity to big mistakes.)
+...Others
+#### ainotes
+
+
+
+## The purpose of a validation set
+###
+1: Training set
+(Purpose: Learn the model parameters (weights),
+Can we look multiple times: Yes (many epochs),
+Used for decisions? Yes (directly trains the model),
+Exposure to the model: Fully seen)
+2: Validation Set (Purpose: Tune hyperparameters, compare model versions, detect overfitting/underfitting, early stopping,
+Can we look multiple times: Yes (during development),
+Used for decisions? Yes (model selection & tuning),
+Exposure to the model: Indirectly seen).
+3: Training set: (Purpose: Final, unbiased evaluation of the chosen model,
+Can we look multiple times: No – only once at the very end,
+Used for decisions? No (no changes allowed),
+Exposure to the model: Never seen before).
+#### ainotes
+
+
+## Flowchart steps to fix a bad model:
+###
+Training error high? => Bigger model / Train longer / different model.
+Validation error high? => Tune hyperparameters / Regularization / More data / different model
+Test error high? => More data, Synth. data, different model.
+#### ainotes
+#####
+
+
+
+## What is Regularization?
+###
+Regularization is a set of techniques used in machine learning to prevent overfitting and improve a model's ability to generalize to new data.
+It works by adding a penalty to the model's loss function during training. This penalty discourages the model from becoming too complex (e.g., having extremely large weights), which forces it to learn simpler, more robust patterns instead of memorizing noise in the training data.
+#### ainotes
+#####
+Why Do We Use Regularization When Validation Error Is High?
+When your validation error is high while training error is low, it is a classic sign of overfitting.
+The model is performing well on the data it has seen (training set), but poorly on unseen data (validation set).
+Regularization helps in this situation by:
+---
+Reducing model complexity
+Preventing the model from fitting noise and random fluctuations in the training data
+Making the model more stable and generalizable
+Often lowering the validation error (while possibly slightly increasing the training error)
+---
+In short:
+High validation error + low training error → Overfitting → Apply regularization
+######
+Most Common Types of Regularization
+---
+TypeHow it worksCommon Use Cases
+1: L1 (Lasso): Adds absolute value of weights to lossFeature selection (can zero out weights)
+2: L2 (Ridge): Adds squared weights to loss (most common)General overfitting prevention
+3: Elastic Net: Combines L1 + L2When you have many correlated features
+4: Dropout: Randomly drops neurons during trainingNeural networks
+5: Early Stopping: Stops training when validation error starts risingAll types of models
+
+
+
 
 
 
