@@ -710,7 +710,7 @@ The grid search algorithm iterates through all possible combinations and selects
 
 ## Evaluating a classifier - Performance measures
 ###
-1: Cross-validation: A good way to evaluate a model is to use cross-validation, just as you did in Chapter 2. Let’s use the cross_val_score() function to evaluate our SGDClassifier model, using k-fold cross-validation with three folds. Remember that k-fold cross-validation means splitting the training set into k folds (in this case, three), then training the model k times, holding out a different fold each time for evaluation (see Chapter 2):
+1: Cross-validation: A good way to evaluate a model is to use cross-validation, just as you did in Chapter 2. Let’s use the cross_val_score() function to evaluate our SGDClassifier model (Stochastic Gradient Descent), using k-fold cross-validation with three folds. Remember that k-fold cross-validation means splitting the training set into k folds (in this case, three), then training the model k times, holding out a different fold each time for evaluation (see Chapter 2):
 ....That’s right, it has over 90% accuracy! This is simply because only about 10% of the images are 5s, so if you always guess that an image is not a 5, you will be right about 90% of the time. Beats Nostradamus. This demonstrates why accuracy is generally not the preferred performance measure for classifiers, especially when you are dealing with skewed datasets (i.e., when some classes are much more frequent than others). A much better way to evaluate the performance of a classifier is to look at the confusion matrix (CM).
 2: Confusion Matrices:
 The general idea of a confusion matrix is to count the number of times instances of class A are classified as class B, for all A/B pairs. For example, to know the number of times the classifier confused images of 8s with 0s, you would look at row #8, column #0 of the confusion matrix. To compute the confusion matrix, you first need to have a set of predictions so that they can be compared to the actual targets. You could make predictions on the test set, but it’s best to keep that untouched for now (remember that you want to use the test set only at the very end of your project, once you have a classifier that you are ready to launch). Instead, you can use the cross_val_predict() function:
@@ -777,7 +777,7 @@ Since the ROC curve is so similar to the precision/recall (PR) curve, you may wo
 
 ## What models should you use for multiclass clasifiers?
 ###
-Whereas binary classifiers distinguish between two classes, multiclass classifiers (also called multinomial classifiers) can distinguish between more than two classes. Some Scikit-Learn classifiers (e.g., LogisticRegression, RandomForestClassifier, and GaussianNB) are capable of handling multiple classes natively. Others are strictly binary classifiers (e.g., SGDClassifier and SVC).
+Whereas binary classifiers distinguish between two classes, multiclass classifiers (also called multinomial classifiers) can distinguish between more than two classes. Some Scikit-Learn classifiers (e.g., LogisticRegression, RandomForestClassifier, and GaussianNB) are capable of handling multiple classes natively. Others are strictly binary classifiers (e.g., SGDClassifier (Stochanstic gradient descent) and SVC (Support Vector Classification)).
 #### geron3
 #####
 1. Logistic Regression
@@ -1434,7 +1434,7 @@ y (lowercase) — sometimes used for a single example or the vector.
 Individual example: y⁽ⁱ⁾ = the target for the i-th training sample.
 In deep learning (Andrew Ng style): Y is often a matrix of shape (1 × m) or (n_y × m), where m = number of samples.
 ######
-lukas noter AAI-13-02-26
+lukas noter AAI-13-02-26 + lukas noter AAI-06-03-26
 
 
 
@@ -1732,7 +1732,369 @@ TypeHow it worksCommon Use Cases
 4: Dropout: Randomly drops neurons during trainingNeural networks
 5: Early Stopping: Stops training when validation error starts risingAll types of models
 
+## difference between a model and an optimizer
+###
+1: A model is the actual mathematical structure that makes predictions.
+2: Think of it as the "brain" or the "recipe" of your machine learning system.
+3: The model is what you are training. It decides the form of the final function that maps inputs → classes.
+4: The model is what you end up with.
+The optimizer is how you improve it during training.
+---
+Models:
+1: It contains parameters (weights and biases) that are learned from data.
+2: It defines how the input is transformed into an output (prediction).
+3: You can directly use it to predict: model.predict(new_data)
+---
+Common models:
+1: LogisticRegression → A linear model + sigmoid function
+2: RandomForestClassifier → Many decision trees voting together
+3: SVC → Finds the best separating hyperplane (with optional kernel)
+4: GaussianNB → Uses probability rules based on Bayes’ theorem
+5: Neural Network (MLPClassifier) → Layers of neurons with weights
+#### ainotes
+##### What is an optimizer?:
+An optimizer is the training algorithm that tells the model how to update its parameters during training so that it makes fewer mistakes.
+It is not the model itself — it is the "coach" or "learning rule" that adjusts the weights.
+1: It looks at the loss (error) and the gradient (direction to improve).
+2: It decides how much and in which direction to change each weight.
+---
+Common optimizers:
+1: SGD (Stochastic Gradient Descent) — the basic, classic one
+2: Adam — the most popular modern one (adaptive, faster)
+3: AdamW, RMSProp, Lion, etc.
+######
 
+
+
+
+## What is the difference between the optimizers Adam and SGD (Stochastic gradient descent?)
+###
+They are both optimizers — algorithms that adjust the parameters (weights) of your model during training so that the loss function (the “error”) gets smaller and smaller.
+---
+They are the two most common ways to actually train neural networks, logistic regression, etc. Almost every modern model (image classifiers, language models, recommendation systems…) uses one of them (or a close variant).
+---
+1A: SGD: What it is:
+Classic gradient descent is slow because it looks at the entire training dataset before making one update.
+SGD is the “stochastic” (random) version: instead of the whole dataset, it uses one random training example (or a small mini-batch of 32–256 examples) to estimate the gradient. This makes each update noisy, but extremely fast.
+1B: SGD: Where it is used:
+1: Training almost any neural network (CNNs, RNNs, Transformers, etc.)
+2: Linear models, logistic regression, support vector machines
+3: Large-scale problems (millions or billions of examples)
+1C: SGD: Why people use it:
+1: Scales to huge datasets (you don’t need to load everything into memory at once)
+2: The noise actually helps: it can jump out of bad local minima and often leads to better generalization
+3: Very simple and computationally cheap per update
+1D: SGD: Downsides:
+1: Needs careful tuning of the learning rate $  \eta  $
+2: Can oscillate and converge slowly
+3: Often combined with momentum (SGD + momentum) to smooth out the noisy updates
+#### lucasnoter
+#####
+Adam (Adaptive Moment Estimation):
+2A: Adam: What it is:
+Adam is a more sophisticated optimizer that builds on SGD. It automatically adapts the learning rate for each individual parameter using information from past gradients.
+---
+It keeps track of two things for every weight:
+1: The first moment (like momentum — average of past gradients)
+2: The second moment (like RMSProp — average of squared gradients, which tells how much the gradient has been changing)
+---
+Then it divides the update by the square root of the second moment → each parameter gets its own “personalized” learning rate.
+2B: Adam: Where it is used:
+1: Default optimizer in PyTorch and TensorFlow for almost everything (especially deep learning)
+2: Computer vision (ResNet, EfficientNet)
+3: Natural language processing (BERT, GPT-style models)
+4: Generative models, reinforcement learning, etc.
+5: Any situation with sparse gradients (e.g. embeddings, text data) or very noisy loss landscapes
+2C: Adam: Why people love Adam:
+1: Much faster convergence in the beginning
+2: Far less sensitive to the choice of learning rate — you can often just use the default $  \eta = 0.001  $
+3: Works great on problems with very different scales across parameters
+4: “Just works” for most new projects
+2D: Adam: Downsides:
+1: Sometimes gives slightly worse final accuracy / generalization than well-tuned SGD + momentum (especially in computer vision)
+2: Can overfit more easily on some tasks
+3: Uses a bit more memory (stores extra moving averages)
+######
+lukas noter AAI-13-02-26
+Rule of thumb in 2026:
+1: Start with Adam (or its improved version AdamW) — it is the default for a reason.
+2: If you are doing research or want the absolute best accuracy (especially on images), switch to SGD + momentum at the end of training.
+3: Modern libraries also have AdamW, RAdam, Lion, etc., but Adam is still the most common starting point.
+
+
+## What are Convolutional Neural Networks (CNNs)
+###
+a specialized type of deep neural network designed to process data that has a grid-like structure, such as images (2D grids of pixels), videos, or even 1D signals like audio spectrograms or time-series data.
+---
+1: What a CNN Is:
+A CNN is an artificial neural network that automatically learns to extract hierarchical features from its input by using special layers called convolutional layers. Instead of treating every single pixel as completely independent (which would explode the number of parameters in a regular fully connected network), a CNN uses local connections and shared weights. This mimics how the human visual cortex works: neurons look at small patches of the visual field and detect simple patterns that build up into more complex ones.
+---
+2: What CNNs Are Used For:
+CNNs are the go-to architecture for computer vision tasks, where the spatial arrangement of the data matters. Common applications include:
+1: Image classification (e.g., “Is this a cat or a dog?”)
+2: Object detection (finding where objects are in an image and what they are)
+3: Semantic segmentation (labeling every pixel, e.g., road vs. car vs. pedestrian for self-driving cars)
+4: Facial recognition, medical image analysis (detecting tumors in X-rays or MRIs), video analysis, and even some non-vision tasks like speech recognition (via spectrograms) or certain types of text processing (treating text as a 1D “image”).
+---
+They power many real-world systems you use every day: photo tagging on social media, medical diagnostics tools, autonomous vehicles, and security cameras
+#### ainotes
+#####
+How CNNs Work (High-Level, No Math):
+Think of the process as a feature-extraction pipeline that gets smarter layer by layer:
+1: Input:
+An image enters as a grid of pixel values (with separate channels for red, green, blue).
+2: Convolutional Layers (the heart of the CNN):
+Small learnable filters (also called kernels) — think of them as tiny windows — slide across the image. Each filter looks for a specific simple pattern (early layers detect edges or color blobs; later layers detect textures, shapes, eyes, wheels, etc.).
+Because the same filter is reused everywhere (parameter sharing), the network is efficient and translation-invariant: it can recognize a feature no matter where it appears in the image.
+The result of sliding a filter is a feature map — a new grid that highlights where that pattern was found.
+3: Activation & Pooling Layers (usually right after convolution)
+A non-linearity (like ReLU) is applied to keep only the “positive” detections.
+Then a pooling layer (max pooling is most common) shrinks the feature map by taking the strongest signal in each small region. This reduces the amount of data, cuts computation, and makes the network somewhat robust to small shifts or distortions in the image.
+4: Stacking & Hierarchy
+You repeat conv → activation → pooling many times. Early layers learn low-level features (edges, corners); deeper layers combine them into high-level concepts (a whole face, a car). This hierarchical learning is what makes CNNs so powerful.
+5: Fully Connected Layers & Output
+At the very end, the final feature maps are flattened into a 1D vector and fed into a regular dense (fully connected) network that makes the final decision: class probabilities, bounding boxes, or pixel labels.
+---
+The whole network is trained end-to-end on labeled data using backpropagation (just like any other neural network), so the filters automatically tune themselves to the patterns that are most useful for the task.
+######
+lukas noter AAI-06-03-26
+Downsides of CNNs:
+While extremely successful, CNNs are not perfect:
+1: Computationally expensive — Training (and often inference) requires powerful GPUs and a lot of memory, especially for very deep or high-resolution models.
+2: Data-hungry — They usually need huge amounts of labeled data to perform well; without it they overfit easily.
+3: Black-box nature — It can be hard to understand why the network made a particular prediction, which matters in critical applications like medicine or law.
+4: Less effective on non-grid data — For purely sequential data (long texts, time series with long dependencies) other architectures like Transformers or RNNs can sometimes be better or easier to train.
+5: Sensitivity to certain variations — Without extra tricks (data augmentation, specific architectures like ResNet or attention), they can struggle with large rotations, scale changes, or adversarial examples (tiny invisible perturbations that fool the network).
+6: High parameter count in practice — Modern CNNs can have tens or hundreds of millions of parameters, making deployment on edge devices (phones, cameras) challenging without compression techniques.
+---
+Despite these limitations, CNNs remain foundational in machine learning and are often the starting point (or backbone) for modern vision systems. Many recent advances (EfficientNet, Vision Transformers, etc.) build directly on the convolutional idea or hybridize it with attention mechanisms.
+
+
+
+## Difference between DNN And CNN
+###
+1: A Deep Neural Network (DNN) is a general term for any artificial neural network that has multiple hidden layers (typically 3 or more layers total, including input and output). It is "deep" because of the depth (many layers), which allows it to learn complex, hierarchical representations from data.
+2: A Convolutional Neural Network (CNN) is a specific type (or architecture) of deep neural network. In other words: All (modern) CNNs are DNNs, but not all DNNs are CNNs.
+---
+Key Differences in Architecture and Design:
+1: Structure:
+1A: DNN: Mostly (or entirely) fully connected (dense) layers. Every neuron in one layer connects to every neuron in the next layer.
+1B: CNN: Mix of convolutional layers + pooling layers + (usually) some fully connected layers at the end.
+2: Connections:
+2A: DNN: Fully connected — high number of parameters.
+2B: CNN: Local connections via small filters/kernels that slide over the input. Weights are shared across the image (parameter sharing).
+3: Best for:
+3A: DNN: Tabular/structured data, simple classification/regression where spatial relationships don't matter (e.g., predicting house prices from features like size, location, age).
+3B: CNN: Grid-like or spatial data, especially images (pixels have strong local relationships), videos, or even 1D signals like audio spectrograms.
+4: Feature Learning:
+4A: DNN: Learns features, but treats every input feature independently. No built-in understanding of "nearby" pixels or spatial hierarchy.
+4B: CNN: Automatically learns spatial hierarchies: early layers detect edges/corners, deeper layers detect textures/objects. Very efficient for visual patterns.
+5: Efficiency on Images:
+5A: DNN: Can work on flattened images, but becomes extremely inefficient (millions/billions of parameters, loses spatial info, prone to overfitting).
+5B: CNN: Much more efficient and effective due to local receptive fields, parameter sharing, and translation invariance (a cat is still a cat even if shifted slightly).
+6: Common Use Cases:
+6A: DNN: General-purpose tasks, tabular data, smaller datasets.
+6B: CNN: Computer vision (image classification, object detection, segmentation), and sometimes other grid/sequential data.
+#### ainotes
+#####
+Why CNNs Were Developed
+Regular DNNs (fully connected) struggle with real images because:
+1: An image has thousands or millions of pixels. Flattening it into a vector and connecting everything leads to an explosion in parameters → very slow training, high memory use, and poor generalization.
+2: It ignores the fact that pixels next to each other are highly related (spatial locality).
+CNNs solve this by using convolution (the sliding filters you learned about earlier) to focus only on local patches, reuse the same filters everywhere, and gradually build up higher-level features.
+######
+lukas noter AAI-06-03-26
+In Practice (for Your Course)
+1: When professors or papers say "DNN," they often mean a multilayer perceptron (MLP) — the classic fully connected deep network.
+2: CNNs are presented as a specialized DNN architecture optimized for perceptual data (vision, etc.).
+3: Many modern models are actually hybrids (e.g., ResNet is a very deep CNN; some use CNN backbones + transformers).
+---
+In short: CNN is not separate from deep neural networks — it is one of the most successful and widely used kinds of deep neural network, especially in computer vision.
+If your course uses "DNN" to specifically contrast with CNN, it's usually to highlight the fully-connected vs. convolutional difference.
+Let me know if you want examples of when you might still choose a plain DNN over a CNN, or how this fits into other architectures like RNNs or Transformers!
+
+
+## What are Decision Trees And Random forest
+###
+1: What are decision trees: A Decision Tree is a simple, intuitive supervised machine learning model that makes predictions by learning a series of if-then decision rules. You can literally visualize it as an upside-down tree.
+What it looks like and how it works
+1: It starts at the root node (top) with the full dataset.
+2: At each decision node (internal node), the algorithm asks a question about one feature — for example: “Is age > 30?” or “Is income > $50K?”.
+3: Based on the answer (yes/no or a threshold), the data is split into two (or more) branches.
+4: This process repeats recursively, creating deeper levels, until it reaches a leaf node (terminal node), which gives the final prediction (class label for classification, or an average value for regression).
+---
+The tree automatically learns which features are most important and where to split to best separate the classes or minimize prediction error. Early splits tend to capture the most important patterns; deeper splits capture finer details.
+---
+2: What Decision Trees are used for:
+1: Classification tasks (e.g., spam/not spam, approve/deny loan, disease diagnosis)
+2: Regression tasks (predicting a continuous value like house price)
+3: They are very popular as interpretable models because you can literally draw the tree and explain the reasoning step-by-step to non-technical people.
+---
+3: Advantages:
+1: Easy to understand and visualize
+2: Handles both numerical and categorical data
+3: Requires little data preprocessing (no need to scale features)
+Can capture non-linear relationships
+----
+4: Downsides
+1: Overfitting — A deep tree can memorize the training data perfectly (including noise), leading to poor performance on new data.
+2: Instability — A small change in the data can produce a completely different tree (high variance).
+3: Bias toward certain features — It can prefer features with more levels or categories.
+4: Not great for very complex patterns unless the tree becomes very deep (which worsens overfitting).
+---
+To reduce overfitting, techniques like pruning (cutting back branches) or setting maximum depth are commonly used.
+#### ainotes
+#####
+Random Forest:
+A Random Forest is an ensemble method — it builds many decision trees and combines their predictions to get a more accurate and robust result. It was designed specifically to fix the biggest weaknesses of single decision trees.
+How a Random Forest works (high-level):
+1: Bootstrap sampling (bagging): For each tree, a random subset of the training data is sampled with replacement (some samples may appear multiple times, others not at all).
+2: Feature randomness: At each split in a tree, the algorithm only considers a random subset of the features (not all of them). This makes each tree different and less correlated with the others.
+3: Many such diverse trees (often hundreds) are grown — usually quite deep, without much pruning.
+4: Aggregation:
+For classification: Each tree votes for a class → the forest takes the majority vote.
+For regression: Each tree predicts a number → the forest takes the average.
+---
+Because the trees are different from each other (thanks to random data and random features), their individual mistakes tend to cancel out when combined.
+---
+What Random Forests are used for:
+1: Almost any supervised task where decision trees would be considered, but higher accuracy is needed: fraud detection, customer churn prediction, medical diagnosis, recommendation systems, Kaggle competitions, etc.
+2: They often serve as a strong baseline model before trying more complex methods like neural networks.
+---
+Advantages over a single Decision Tree
+1: Much better generalization and accuracy (reduces overfitting dramatically)
+2: More stable and robust to noisy data or small changes in the dataset
+3: Built-in feature importance ranking (you can see which features the forest relies on most)
+4: Handles missing values and outliers reasonably well.
+---
+Downsides:
+1: Less interpretable — You lose the nice “follow the path” explanation of a single tree. A random forest is a “black box” of hundreds of trees.
+2: Slower to train and predict (especially with many trees and large datasets), though still much faster than deep neural networks.
+3: Requires more memory to store all the trees.
+4: Can still struggle with very high-dimensional sparse data (e.g., text) compared to other methods.
+######
+lukas noter AAI-06-03-26
+
+
+
+## What models are good for classification
+###
+1: LinearModels:
+1A: Examples: Logistic Regression, Linear SVM
+1B: When to Use: High-dimensional, linearly separable data
+1C: Strengths: Fast, interpretable, scalable
+1D: Weaknesses: Limited to linear boundaries
+2: Tree-based Models:
+2A: Examples: Decision Tree, Random Forest, XGBoost, LightGBM, CatBoost
+2B: When to Use: Tabular/structured data, mixed features
+2C: Strengths: High accuracy, handle non-linearity
+2D: Weaknesses: Can overfit, less interpretable
+3: Instance-based:
+3A: Examples: k-Nearest Neighbors (k-NN)
+3B: When to Use: Small datasets, non-parametric
+3C: Strengths: Simple, no training phase
+3D: Weaknesses: Slow prediction, sensitive to scale
+4: Probabilistic Models：
+4A: Examples: Naïve Bayes (Gaussian, Multinomial, Bernoulli)
+4B: When to Use: Text classification, high-dimensional sparse data
+4C: Strengths: Very fast, works well with independence assumption
+4D: Weaknesses: Strong independence assumption
+5: Convolutional Neural Networks (CNN)：
+5B: When to Use: Best for image classification.
+#### ainotes
+#####
+Quick Recommendation Guide:
+1: Tabular data → Gradient Boosting (XGBoost/LightGBM/CatBoost) or Random Forest
+2: Text data → Fine-tuned Transformers (BERT, etc.)
+3: Image data → CNNs or Vision Transformers
+4: Very large datasets → Neural networks or highly optimized boosting
+5: Need interpretability → Logistic Regression or Decision Tree + SHAP/LIME
+6: Small dataset → k-NN, Naïve Bayes, or SVM
+######
+lukas noter AAI-06-03-26
+
+## What is entropy?
+###
+(along with GINI, one measure of how "mixed" or "impure" the classes are inside the node of a decision tree)
+---
+Entropy in machine learning is a concept borrowed from information theory (thanks to Claude Shannon). In simple terms, it measures uncertainty or impurity in your data—specifically, how “mixed up” the class labels are in a dataset or a node of a model.
+1: Low entropy = low uncertainty (the data is very “pure” — almost all examples belong to the same class).
+2: High entropy = high uncertainty (classes are evenly mixed, like 50/50 in a binary problem).
+3: Entropy = 0 when a group is 100 % one class (perfect purity, no surprise).
+---
+Think of it as “how surprised you would be on average if you picked a random example’s class.” In a pure group you’re never surprised. In a perfectly balanced group you’re maximally surprised every time.
+---
+#### ainotes
+#####
+Entropy in Decision Trees (the most common place you’ll meet it in a practical ML course):
+Decision trees (like those built with sklearn’s DecisionTreeClassifier) use entropy to decide which feature to split on next. The goal is to reduce uncertainty as much as possible at each step.
+The algorithm calculates:
+1: Entropy of the parent node (before the split)
+2: Weighted average entropy of the child nodes (after the split)
+Then it picks the split that gives the biggest Information Gain (biggest drop in entropy).
+Intuition example (binary classes, say “Yes/No”):
+1: Before split: 50 % Yes, 50 % No → entropy ≈ 1 (maximum impurity).
+2: After a good split: one child is 100 % Yes (entropy = 0), the other is 80 % No (entropy lower).
+3: Weighted entropy drops → high Information Gain → tree chooses that feature.
+---
+In scikit-learn:
+from sklearn.tree import DecisionTreeClassifier
+model = DecisionTreeClassifier(criterion='entropy')   # or 'gini' (very common alternative, faster)
+---
+1: criterion='entropy' tells the tree to use entropy + Information Gain.
+2: criterion='gini' uses Gini impurity (very similar math, slightly faster, almost identical results in practice).
+3: In exercises you might be asked to calculate entropy manually on a small table of data, or interpret why the tree chose one feature over another.
+4: Random Forests and Gradient Boosting trees also use the same idea under the hood.
+---
+Key takeaway for the course: Entropy helps the tree ask the most “informative” questions first, so it builds a smaller, better tree.
+######
+lukas noter AAI-06-03-26
+2. Entropy in Loss Functions → Cross-Entropy Loss (the other big place you’ll see it):
+When you train neural networks, logistic regression, or any probabilistic classifier, the model outputs probabilities (e.g., 0.92 probability of class “cat”).
+Cross-entropy loss (also called log loss) tells the model “how wrong your probability predictions are.” It is directly built on the entropy idea:
+1: If the model is very confident and wrong → huge penalty (because the log term blows up).
+2: If the model is uncertain but right → small penalty.
+3: Perfect prediction → loss = 0.
+----
+What you need to know practically:
+1: In Keras/TensorFlow/PyTorch the default classification loss is almost always cross-entropy:
+loss='binary_crossentropy' (two classes)
+loss='categorical_crossentropy' (many classes)
+2: Lower cross-entropy = better probability predictions = more accurate model.
+3: You don’t usually compute it by hand in exercises, but you will see it in training curves and model comparison.
+
+
+## What is GINI?
+###
+(along with GINI, one measure of how "mixed" or "impure" the classes are inside the node of a decision tree)
+---
+Gini (or Gini Impurity) is the other popular way—alongside entropy—to measure how “mixed” or impure the classes are inside a node of a decision tree.
+It serves exactly the same purpose as entropy: the tree uses it to evaluate possible splits and chooses the one that creates the purest possible child nodes.
+---
+Simple Intuition:
+Gini impurity tells you:
+“If I randomly pick one sample from this node and randomly assign it a class label according to the current proportions in the node, how often would I be wrong?”
+1: Gini = 0 → Perfect purity (all samples belong to one single class). No chance of misclassification.
+2: Gini = 0.5 (for binary classification) → Maximum impurity (50/50 split — like flipping a fair coin).
+3: Lower Gini = better (more pure).
+---
+It is very similar in spirit to entropy, but mathematically simpler and faster to compute.
+#### ainotes
+#####
+Binary example (classes Yes/No):
+70% Yes, 30% No → Gini = 1 - (0.7² + 0.3²) = 1 - (0.49 + 0.09) = 0.42
+100% Yes → Gini = 1 - (1² + 0²) = 0
+50/50 → Gini = 1 - (0.5² + 0.5²) = 0.5
+(Gini is always between 0 and 0.5 for binary cases, entropy between 0 and 1)
+---
+How Gini Is Used in Decision Trees:
+The algorithm works almost exactly like with entropy:
+1: For every possible feature and every possible split on that feature:
+Calculate the Gini impurity of the parent node.
+Calculate the weighted average Gini of the two (or more) child nodes after the split.
+2: Compute Gini Gain (or Gini reduction) = Parent Gini − Weighted child Gini.
+3: Choose the split that gives the largest Gini Gain (biggest drop in impurity).
+The tree keeps doing this recursively until stopping conditions are met (max depth, min samples per leaf, etc.).
 
 
 
