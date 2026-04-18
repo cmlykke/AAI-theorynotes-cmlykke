@@ -146,6 +146,7 @@ For example, say you have a lot of data about your blog’s visitors. You may wa
 
 ## What is "dimensionality reduction" and "feature extraction"
 ###
+"Kunsten at fjerne data, uden at fjerne information"-Lukas.
 A related task is dimensionality reduction, in which the goal is to simplify the data without losing too much information. One way to do this is to merge several correlated features into one. For example, a car’s mileage may be strongly correlated with its age, so the dimensionality reduction algorithm will merge them into one feature that represents the car’s wear and tear. This is called feature extraction.
 #### geron1
 #####
@@ -607,6 +608,27 @@ Switch from a complex ensemble to a simpler linear model
 Reduce the value of k in k-NN or increase regularization strength
 Why it works: A simpler model has lower variance and is less likely to overfit.
 ###### (p. 82). O'Reilly Media. Kindle Edition.
+More on Dropout layers (a regularization technique):
+Dropout is one of the most popular and effective regularization techniques for neural networks.
+How Dropout Works:
+1: During training, each neuron in the selected layer has a probability (e.g., 0.2 to 0.5) of being randomly “dropped out” (set to zero) in every forward pass.
+2: This prevents neurons from becoming overly dependent on specific other neurons (co-adaptation).
+3: It forces the network to learn more robust and redundant features.
+4: Effectively, it trains many different “thinned” sub-networks at once (like an ensemble), which improves generalization.
+5: At inference/test time, dropout is turned off, and all neurons are used (weights are usually scaled by the dropout rate to keep the expected output the same).
+----
+Key Points:
+1: Dropout is structural regularization (it modifies the network during training) rather than adding a penalty to the loss function like L1/L2.
+2: It is especially effective in deep neural networks with many parameters (fully connected layers, CNNs, Transformers, etc.).
+3: Typical dropout rates:
+– 0.2 – 0.5 for hidden layers
+– Lower (or none) for input layers
+4: It primarily helps with overfitting. It does not directly solve underfitting (and can sometimes make underfitting worse if the model is already too weak).
+---
+When to Use Dropout:
+1: When you see a large gap between training and validation performance.
+2: Often combined with L2 regularization (weight decay) and data augmentation for even better results.
+
 
 
 
@@ -2095,6 +2117,291 @@ Calculate the weighted average Gini of the two (or more) child nodes after the s
 2: Compute Gini Gain (or Gini reduction) = Parent Gini − Weighted child Gini.
 3: Choose the split that gives the largest Gini Gain (biggest drop in impurity).
 The tree keeps doing this recursively until stopping conditions are met (max depth, min samples per leaf, etc.).
+
+
+## one-hot encoding: 1/3: Why would you do it? (on nominel data)
+###
+Nominal data consists of unordered categories (e.g., colors: red, blue, green; cities: New York, London, Tokyo; or product types: electronics, clothing, food). These cannot be ranked or measured numerically. Most machine learning algorithms require numerical input, so we must convert nominal data into a usable format. One-hot encoding is one of the safest and most widely used methods for this.
+---
+How One-Hot Encoding Works
+It transforms a single nominal column into multiple binary (0/1) columns, with one new column for each unique category.
+1: A “1” means the category is present for that row.
+2: A “0” means it is absent.
+Exactly one “1” appears per original row across the new columns.
+---
+Example:
+Original: Color = [red, blue, green]
+After one-hot encoding → Color_red, Color_blue, Color_green (all filled with 0s and 1s).
+#### ainotes
+#####
+Key Benefits of Using One-Hot Encoding
+1: Makes Nominal Data Usable for ML Algorithms
+Most models (linear regression, logistic regression, neural networks, SVM, k-NN, etc.) cannot handle text or categories directly. One-hot encoding converts them into pure numerical features that these algorithms can process.
+2: Preserves the “No Order” Nature of Nominal Data
+Unlike label encoding (which assigns 1, 2, 3…), one-hot encoding does not create false ordering or imply that one category is “greater than” or “twice” another. This prevents the model from learning incorrect relationships.
+3: Enables Better Model Performance
+Linear models and neural networks can learn independent weights for each category.
+Each category gets its own dedicated feature, allowing the model to treat “red” and “blue” differently without assuming any hierarchy.
+4: Improves Interpretability
+The resulting 0/1 columns are easy to understand: “Color_red = 1” clearly means the observation belongs to the red category. Feature importance or coefficients directly show the impact of each specific category.
+5: Works Well with Distance-Based and Gradient-Based Algorithms
+Binary features have equal spacing (difference of 1), which suits algorithms sensitive to numerical scales (e.g., neural nets, SVMs). No further scaling is usually needed.
+6: Avoids the Dummy Variable Trap (with k-1 columns)
+In linear models, we often drop one column to prevent perfect multicollinearity, while still capturing all information.
+######
+Lukas noter AAI-27-03-26
+---
+When One-Hot Encoding Provides the Greatest Benefit
+1: Low to medium cardinality (typically < 20–50 unique categories)
+2: When working with linear models, neural networks, or any algorithm that assumes numerical inputs
+3: When maintaining clear interpretability is important
+4: When you want to avoid injecting artificial order into the data
+---
+Limitations (for balance).
+Curse of dimensionality: With very high cardinality (hundreds or thousands of categories), it creates too many columns, increasing memory use and risk of overfitting. In such cases, alternatives like target encoding, embeddings, or frequency encoding are often better.
+---
+Summary
+One-hot encoding turns pure nominal data into clean, binary numerical features without introducing false order or magnitude. The main benefits are compatibility with almost any ML algorithm, prevention of misleading assumptions, and improved model accuracy and interpretability for categorical variables that have no natural ranking.
+It remains one of the best default choices whenever you need to feed unordered categorical data into machine learning models.
+
+## one-hot encoding: 2/3: What is PCA?
+###
+PCA stands for Principal Component Analysis.
+PCA is a popular unsupervised dimensionality reduction technique used in machine learning and statistics. It transforms a large set of (possibly correlated) features into a smaller set of new features called principal components.
+These principal components:
+1: Are linear combinations of the original features.
+2: Are uncorrelated with each other.
+3: Capture the maximum possible variance (information) from the original data, with the first component explaining the most variance, the second the next most, and so on.
+---
+The goal is to reduce the number of features while losing as little important information as possible. This helps with:
+1: Reducing computational cost and memory usage.
+2: Mitigating the curse of dimensionality.
+3: Improving model training speed.
+4: Making data visualization easier (e.g., projecting to 2D or 3D).
+#### ainotes
+#####
+How PCA Relates to One-Hot Encoded Nominal Data:
+After one-hot encoding a nominal feature (which turns it into many binary 0/1 columns), you often end up with a high-dimensional sparse matrix — especially if the categorical variable has high cardinality (many unique categories). This can cause problems like increased memory use, slower training, and potential overfitting.
+In this situation, people sometimes apply PCA on the one-hot encoded columns as a follow-up step to:
+1: Compress the large number of binary dummy variables into fewer, denser numerical features.
+2: Retain most of the variance/information from the original categories.
+3: Create a more manageable set of inputs for downstream models (e.g., linear models, neural networks, or clustering).
+---
+Example workflow:
+1: One-hot encode the nominal column(s) → creates many 0/1 columns.
+2: (Optionally standardize the data, though it's debated for binary features).
+3: Apply PCA → keep only the top k principal components that explain, say, 95% of the variance.
+4: Use these new components as features instead of the full one-hot matrix.
+---
+Important Caveats in This Specific Context
+While technically possible, applying PCA directly to one-hot encoded binary data is controversial and often suboptimal:
+1: PCA assumes continuous, roughly Gaussian data and works best with numerical features that have meaningful variance and correlations. Binary 0/1 data violates some of these assumptions.
+2: The resulting principal components are hard to interpret (they become weighted sums of many categories, losing the clear "is this category?" meaning).
+3: For perfectly one-hot encoded groups, PCA may not reduce dimensionality effectively because the columns are linearly dependent (they sum to 1 per row), and you often get little real compression beyond what dropping one dummy column already achieves.
+4: Many experts argue it "doesn't make much sense" mathematically for pure binary dummy variables and can produce less meaningful results than alternatives.
+######
+AI supplement til  lukas noter AAI-27-03-26
+Better Alternatives When Dealing with One-Hot Encoded Nominal Data
+1: For low cardinality: Just use one-hot encoding as-is (or with k-1 columns).
+2: For high cardinality: Consider target encoding, frequency encoding, embeddings (e.g., entity embeddings in neural nets), feature hashing, or specialized categorical PCA variants instead of standard PCA.
+3: If dimensionality is still an issue after encoding: Use techniques like Sparse PCA, autoencoders, or tree-based models that can handle high-dimensional or categorical data natively (e.g., CatBoost, LightGBM).
+---
+In short: In our conversation, PCA is a tool you might reach for after one-hot encoding to shrink the explosion of binary columns created by nominal data. It can help with high-dimensionality problems, but it comes with limitations and is not always the best choice here.
+
+
+## what is K-means (in unsupervised learning?)
+###
+K-means clustering is one of the most popular and simplest unsupervised machine learning techniques. It is used to group unlabeled data points into a predefined number of clusters (groups) based on similarity.
+1: Unsupervised means the algorithm learns patterns from the data without any labels or target variable. It discovers hidden structure on its own.
+2: The goal: Put similar data points together in the same cluster, while keeping different clusters as far apart as possible.
+---
+How K-means Works (Simple Explanation)
+1: Choose K — You decide in advance how many clusters you want (e.g., K=3).
+2: Initialize centroids — Randomly place K "cluster centers" (called centroids) in the data space.
+3: Assign points — Each data point is assigned to the nearest centroid (usually measured by Euclidean distance).
+4: Update centroids — Recalculate each centroid as the mean (average) of all points assigned to that cluster.
+5: Repeat — Go back to step 3 and keep re-assigning and updating until the centroids stop moving (or move very little). The algorithm has then converged.
+---
+The final result: Your data is partitioned into K clusters, and each point belongs to exactly one cluster.
+#### ainotes
+#####
+Key Strengths
+1: Very simple and fast to run.
+2: works well when clusters are roughly spherical and of similar size.
+3: Easy to understand and interpret.
+---
+Common Use Cases
+1: Customer segmentation (group customers with similar behavior)
+2: Image compression
+3: Document grouping
+4: Anomaly detection
+5: Market basket analysis
+---
+Connection to Our Previous Discussion (One-Hot Encoding + Nominal Data):
+K-means works on numerical data and relies on calculating distances between points. That's why we talked about one-hot encoding:
+1: After one-hot encoding pure nominal data, you get binary 0/1 columns, which are numerical → you can feed them into K-means.
+2: However, it is not always ideal because:
+2A: One-hot encoding can create high-dimensional sparse data (curse of dimensionality).
+2B: All categories end up equally distant from each other (e.g., distance between any two different categories is often √2), which may not reflect real similarity.
+2C: The "mean" of binary columns is just a proportion, which can be hard to interpret.
+---
+Because of these issues, when you have a lot of categorical (nominal) data, people sometimes prefer alternatives like:
+1: K-modes (designed specifically for categorical data)
+2: K-prototypes (for mixed numerical + categorical data)
+3: One-hot encoding + PCA (to reduce dimensions first) before applying K-means
+######
+AI supplement til  lukas noter AAI-27-03-26
+Quick Summary
+1: K-means = Unsupervised clustering algorithm that partitions data into K groups by minimizing the distance between points and their cluster centroids.
+2: It is not for prediction (like regression or classification). It is for discovering groups in your data.
+---
+Once you run K-means and discover the groups (clusters), the real value comes from what you do with that information. Clustering is rarely the end goal — it's a tool to gain insights and drive better decisions or actions.
+---
+In the Context of Nominal Data + One-Hot Encoding:
+If you one-hot encoded categorical features (like product type, city, or color) before running K-means, the clusters help you discover natural groupings among those categories. For example:
+You might find that certain combinations of categories behave similarly, even though they had no obvious order.
+
+
+## What are distance emasures?
+###
+Distance measures quantify how similar or dissimilar two data points (vectors, strings, sets, etc.) are. They form the foundation for many algorithms by helping decide:
+1: Which points are "close" (similar)
+2: Which are "far" (dissimilar)
+---
+They are essential in both supervised and unsupervised learning, and appear in tasks like classification, clustering, recommendation systems, dimensionality reduction, anomaly detection, and information retrieval.
+Key idea: Smaller distance = higher similarity (except for similarity metrics like cosine similarity, where larger value = higher similarity; often converted to distance as 1 - similarity).
+---
+1: Euclidean Distance (L2 Norm)
+1A: What is it: Straight-line ("as the crow flies") distance in n-dimensional space.
+1B: Where it's used:
+1B1: K-Means clustering (default metric — minimizes within-cluster variance)
+1B2: K-Nearest Neighbors (KNN) classification/regression
+1B3: Anomaly detection (points far from cluster centers)
+1B4: Dimensionality reduction (e.g., some variants of PCA or t-SNE)
+1C: Best for: Low-to-medium dimensional numerical data where features are on similar scales (always standardize/normalize first). Works well when clusters are roughly spherical.
+1D: Limitation: Suffers in very high dimensions (curse of dimensionality) and is sensitive to scale and outliers.
+2: Cosine Distance / Cosine Similarity
+3A: What is it: Measures the angle (direction/orientation) between two vectors. Ignores magnitude (length).
+2B: Where it's used:
+2B1: Text data & NLP — document similarity (TF-IDF, word embeddings like Word2Vec, BERT), topic modeling
+2B2: Recommendation systems — user-item similarity (collaborative filtering)
+2B3: Image retrieval and embeddings (face recognition, search)
+2B4: Clustering high-dimensional sparse data (e.g., text documents)
+2C: Best for: High-dimensional data (hundreds or thousands of features) where direction matters more than magnitude — e.g., two documents are similar even if one is much longer. This is why cosine often outperforms Euclidean on text/embeddings.
+2D: Limitation: Not ideal when absolute magnitude (e.g., rating scale differences) is important.
+3: Hamming Distance:
+3A: What is it: Simple count of mismatches (works best on binary or categorical data).
+3B: Where it's used:
+3B1: Binary/categorical data — comparing one-hot encoded features, binary fingerprints, or strings of equal length
+3B2: Error-correcting codes (ECC memory, QR codes, data transmission)
+3B3: Pattern recognition and DNA sequence comparison (fixed length)
+3B4: Some clustering or KNN variants on categorical data
+3B5: Image retrieval using binary hash codes
+3C: Best for: Binary vectors or categorical features after proper encoding. Very efficient to compute.
+3D: Limitation: Distance between "10110" and "11100" is 2 (positions 2 and 4 differ).
+#### ainotes
+#####
+Practical Tips
+1: Always preprocess: Scale/normalize numerical features (especially for Euclidean/Manhattan).
+2: High dimensions → Prefer cosine over Euclidean (magnitude becomes less meaningful).
+3: Categorical data → Hamming (after encoding) or switch to K-Modes / Jaccard.
+4: Mixed data → Consider Gower's distance or specialized algorithms.
+5: Many libraries (scikit-learn, SciPy) let you choose the metric easily.
+---
+Distance measures are not one-size-fits-all — the "best" one depends on your data type (numerical, text, binary, categorical), dimensionality, and what kind of similarity actually makes sense for the business/problem.
+######
+AI supplement til  lukas noter AAI-27-03-26
+
+
+
+## Anomaly detection and auto encoders
+###
+Anomaly detection (also called outlier or novelty detection) is the task of identifying rare items, events, or observations that deviate significantly from the majority of the data — often called "normal" behavior.
+It is typically an unsupervised or semi-supervised problem because:
+1: Anomalies are rare by nature (you often don't have many labeled examples).
+2: In many real-world cases (fraud, equipment failure, medical issues), you only have plenty of "normal" data.
+---
+Common applications:
+1: Credit card fraud detection
+2: Network intrusion / cybersecurity
+3: Predictive maintenance (machine failure)
+4: ECG / medical signal analysis (abnormal heartbeats)
+5: Manufacturing defect detection
+6: Sensor data monitoring
+---
+Traditional methods include:
+1: Distance-based (e.g., K-means clustering + high distance to nearest centroid, KNN, Mahalanobis distance)
+2: Density-based (Isolation Forest, Local Outlier Factor)
+3: Statistical methods
+---
+These often rely directly on the distance measures we discussed earlier (Euclidean, cosine, etc.).
+#### ainotes
+#####
+What is an Autoencoder?
+An autoencoder is a type of neural network trained to reconstruct its own input. It has two main parts:
+1: Encoder: Compresses the input data into a lower-dimensional latent representation (bottleneck / code). This forces the model to learn the most important features.
+2: Decoder: Reconstructs the original input from the latent representation.
+---
+The network is trained by minimizing the reconstruction error (usually Mean Squared Error — MSE — between input and output).
+Because of the bottleneck, the autoencoder learns to capture the underlying structure and distribution of the data efficiently.
+Variants include:
+1: Vanilla (fully connected) Autoencoders
+2: Convolutional Autoencoders (good for images or time-series like ECG)
+3: LSTM / Recurrent Autoencoders (good for sequences and time series)
+4: Variational Autoencoders (VAEs) — add probabilistic elements
+----
+How Autoencoders Are Used for Anomaly Detection:
+This is one of the most popular deep learning approaches for anomaly detection. The method is elegant and powerful:
+1: Train only on normal data (unsupervised/semi-supervised setting).
+The autoencoder learns to reconstruct "normal" patterns very well → low reconstruction error on normal examples.
+2: During inference (testing):
+Feed new data through the autoencoder.
+Compute the reconnection error (distance between original input and reconstructed output).
+If the reconstruction error is high → the data point does not fit the learned "normal" patterns → flag as anomaly.
+---
+The reconstruction error acts as an anomaly score. You set a threshold (e.g., based on mean + 3×std of errors on normal validation data) to decide what counts as anomalous.
+Why it works:
+
+1: Normal data lies in the manifold the model has learned → easy to compress and reconstruct.
+2: Anomalies lie outside this manifold → the model struggles to reconstruct them accurately → high error.
+---
+This connects beautifully to distance measures: the reconstruction error is essentially a learned distance in the data space (often Euclidean/MSE, but can be customized).
+######
+AI supplement til  lukas noter AAI-10-04-26
+Connection to ECG Anomaly Detection
+ECG signals are a classic use case. You train the autoencoder only on normal heartbeats. Abnormal rhythms (arrhythmias) produce significantly higher reconstruction error and get flagged. Convolutional or LSTM autoencoders are especially effective here because they handle the temporal and spatial structure of ECG waveforms well.
+---
+Strengths of Autoencoders for Anomaly Detection:
+1: Handles high-dimensional, complex data (images, time series, sensor streams) better than simple distance-based methods like K-means.
+2: Learns non-linear patterns and representations automatically.
+3: No need for labeled anomalies during training.
+4: Can work in unsupervised mode when you have mostly normal data.
+5: Scalable with deep learning frameworks (TensorFlow, PyTorch).
+---
+Limitations and Caveats:
+1: Black-box nature: Harder to interpret why something is anomalous compared to simple distance-to-centroid in K-means.
+2: Can sometimes reconstruct certain anomalies too well if the bottleneck is not restrictive enough.
+3: Sensitive to hyperparameter choices (bottleneck size, architecture, threshold).
+4: Requires careful preprocessing and normalization (similar to K-means).
+5: In very noisy data, performance can degrade.
+---
+Some research notes that basic autoencoders can occasionally be unreliable for certain datasets, which is why variants (VAEs, denoising autoencoders, or hybrid approaches) are often used.
+---
+Quick Comparison with K-means (from our earlier chat)
+1: K-means: Simple, fast, uses explicit distance (usually Euclidean) to centroids. Good baseline, but assumes spherical clusters and struggles with complex, non-linear patterns or high-dimensional time series like raw ECG.
+2: Autoencoders: More powerful for complex data. Learns a non-linear compressed representation first, then uses reconstruction error (a learned distance) for detection. Better at capturing temporal dependencies in signals.
+---
+Bottom Line:
+Autoencoders turn the problem of "what is normal?" into a reconstruction task. By training only on normal examples and measuring how badly the model fails to reconstruct new data, they provide a robust, scalable way to detect anomalies — especially useful in domains like healthcare (ECG), fraud detection, and industrial monitoring.
+
+
+
+## Discriminative vs. generative AI
+###
+#### ainotes
+#####
+######
+AI supplement til  lukas noter AAI-17-04-26
 
 
 
