@@ -1,10 +1,4 @@
-#  Card title (optional). Example: '# My Card Title'\n" +
-## front1
-### back1
-#### Tags (optional, space-separated). Example: '#### tag1 tag2'\n"
-##### Primary info (optional).\n" +
-###### Secondary info (optional).\n" +
-I lukas noter: jeg skal til AAI-06-03-26
+
 
 
 ## What is machine learning
@@ -768,14 +762,6 @@ The statement “you typically only use classifiers for nominal data” mixes up
 Both types of models are flexible with input data types after appropriate encoding/preprocessing.
 
 
-##
-###
-#### ainotes
-#####
-######
-christian notes 2026-02-20
-
-
 ## Evaluating a classifier - Performance measures
 ###
 1: Cross-validation: A good way to evaluate a model is to use cross-validation, just as you did in Chapter 2. Let’s use the cross_val_score() function to evaluate our SGDClassifier model (Stochastic Gradient Descent), using k-fold cross-validation with three folds. Remember that k-fold cross-validation means splitting the training set into k folds (in this case, three), then training the model k times, holding out a different fold each time for evaluation (see Chapter 2):
@@ -1124,8 +1110,7 @@ You run it long enough.
 This property holds because logistic regression is a linear model (the decision boundary is linear in the feature space). The combination of the linear predictor with the logistic (sigmoid) function produces a convex optimization problem.
 #### geron4 chapterquestions
 #####
-Contrast with Other Models
-
+Contrast with Other Models:
 In non-convex problems (e.g., training deep neural networks), the cost surface has many local minima, saddle points, and plateaus. Gradient descent can get stuck in poor local minima there.
 For linear regression (with MSE loss), the cost function is also convex, so the same guarantee applies.
 Practical Notes from Géron’s Book (Chapter 4)
@@ -2449,7 +2434,6 @@ If the reconstruction error is high → the data point does not fit the learned 
 ---
 The reconstruction error acts as an anomaly score. You set a threshold (e.g., based on mean + 3×std of errors on normal validation data) to decide what counts as anomalous.
 Why it works:
-
 1: Normal data lies in the manifold the model has learned → easy to compress and reconstruct.
 2: Anomalies lie outside this manifold → the model struggles to reconstruct them accurately → high error.
 ---
