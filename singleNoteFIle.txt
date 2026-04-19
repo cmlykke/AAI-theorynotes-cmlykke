@@ -729,6 +729,52 @@ The grid search algorithm iterates through all possible combinations and selects
 ###### (p. 171). O'Reilly Media. Kindle Edition.
 
 
+## When do you use classification vs. regression?
+###
+When do you use classification?
+1. Classification (for categorical targets)
+You use a classifier when the target variable is discrete/categorical:
+1A: Nominal (no order): e.g., predict animal species (cat, dog, bird), email spam/not spam, image class (car, truck, bike).
+1B: Ordinal (has order): e.g., predict customer satisfaction (low, medium, high), star ratings (1–5), disease severity (mild, moderate, severe).
+---
+Common algorithms: Logistic Regression, Decision Trees, Random Forests, SVM, Neural Networks (with softmax), etc.
+Even for ordinal targets, people often treat them as nominal multi-class classification unless they explicitly model the order (e.g., ordinal regression or using specialized loss functions).
+---
+2. Regression (for continuous or numeric targets)
+You use regression when the target is numeric/continuous (or at least treated as such):
+2A: Predict house price (continuous value).
+2B: Predict temperature, sales amount, stock price, age, etc.
+2C: Even if the target looks “discrete” (e.g., count data like number of customers), you often still use regression (Poisson regression, negative binomial, etc.) rather than treating it as classification.
+---
+Common algorithms: Linear Regression, Ridge/Lasso, Decision Trees (regression trees), Gradient Boosting (XGBoost, LightGBM), Neural Networks (with linear output), etc.
+#### ainotes
+#####
+Important nuances:
+1: Feature types (inputs) don't dictate classifier vs regressor:
+1A: You can (and routinely do) feed nominal features into regressors (after one-hot encoding, target encoding, etc.).
+1B: You can feed continuous features into classifiers.
+1C: Mixed feature types are extremely common in both.
+2: Ordinal targets sit in a gray area:
+2A: Many practitioners just use multi-class classification.
+2B: There are dedicated ordinal regression models (e.g., proportional odds model) or techniques that respect the ordering.
+3: When the distinction blurs:
+3A: Predicting probabilities → often treated as regression (e.g., predict probability of rain).
+3B: Multi-label classification.
+3C: Structured prediction problems.
+######
+Bottom line:
+The rule of thumb is “classification for categorical targets, regression for numeric targets” — regardless of whether the features are nominal, ordinal, or continuous.
+The statement “you typically only use classifiers for nominal data” mixes up target vs features, which is a common source of confusion for beginners. You use classifiers whenever the thing you’re trying to predict is a category (nominal or ordinal), and regression when it’s a number.
+Both types of models are flexible with input data types after appropriate encoding/preprocessing.
+
+
+##
+###
+#### ainotes
+#####
+######
+christian notes 2026-02-20
+
 
 ## Evaluating a classifier - Performance measures
 ###
@@ -752,6 +798,8 @@ It is often convenient to combine precision and recall into a single metric call
 #####
 The F1 score favors classifiers that have similar precision and recall. This is not always what you want: in some contexts you mostly care about precision, and in other contexts you really care about recall. For example, if you trained a classifier to detect videos that are safe for kids, you would probably prefer a classifier that rejects many good videos (low recall) but keeps only safe ones (high precision), rather than a classifier that has a much higher recall but lets a few really bad videos show up in your product (in such cases, you may even want to add a human pipeline to check the classifier’s video selection). On the other hand, suppose you train a classifier to detect shoplifters in surveillance images: it is probably fine if your classifier only has 30% precision as long as it has 99% recall.
 ###### ( (p. 204). O'Reilly Media. Kindle Edition.
+
+
 
 
 ## what is a confusion matrix ? (in classification)
@@ -898,6 +946,7 @@ Best for: Large-scale real-world problems, online learning, or when you’re alr
 
 ## Gradient descent and cost function
 ###
+"""notation: J(θ) == J(Theta)"""
 AI:
 Core Idea of Gradient Descent
 Gradient Descent is a general-purpose optimization algorithm used to minimize a cost function (also called loss function or error function).
@@ -1675,6 +1724,42 @@ Best for: Imbalanced datasets when you care about both false positives and false
 ---
 These metrics are all interconnected, and no single one tells the full story — always look at several together (and ideally the confusion matrix itself). For multi-class problems, most of these can be averaged (macro, micro, or weighted) across classes.
 
+## What are performance metrics? (for classification problems)
+### where the target variable is categorical/discrete, like predicting spam/not spam, disease/no disease, cat/dog, or customer churn yes/no).
+Unlike regression metrics (which measure how close predictions are to continuous values), classification metrics evaluate how well the model assigns the correct category (class) to each instance. They focus on counting correct and incorrect predictions, often using a confusion matrix as the foundation.
+Here’s a clear summary of the most important and commonly used classification metrics:
+1. Accuracy
+(What it measures: The proportion of correct predictions out of all predictions.
+Interpretation: Overall percentage of times the model was right (e.g., 92% accuracy).
+Strengths: Very intuitive and easy to understand.
+Weaknesses: Can be highly misleading on imbalanced datasets (e.g., if 95% of samples are “no disease”, a model that always predicts “no disease” gets 95% accuracy but is useless).
+Use when: Classes are roughly balanced and all types of errors have similar cost.)
+2. Precision
+(What it measures: Of all the instances the model predicted as positive, how many were actually positive? (True Positives / (True Positives + False Positives)).
+Interpretation: “When the model says yes, how often is it correct?”
+Strengths: Useful when false positives are costly.
+Weaknesses: Ignores false negatives.
+Use when: The cost of false positives is high — e.g., spam detection (you don’t want to mark important emails as spam), fraud alerts, or recommendation systems.)
+3. Recall (also called Sensitivity or True Positive Rate)
+(What it measures: Of all the actual positive instances, how many did the model correctly identify? (True Positives / (True Positives + False Negatives)).
+Interpretation: “How many of the real positives did we catch?”
+Strengths: Critical when missing a positive case is expensive.
+Weaknesses: Ignores false positives.
+Use when: The cost of false negatives is high — e.g., cancer screening (you don’t want to miss sick patients), fraud detection, or security threats.)
+4. F1 Score
+(What it measures: The harmonic mean of Precision and Recall.
+Interpretation: A single score that balances precision and recall (especially useful when you care about both).
+Strengths: Gives a better picture than accuracy on imbalanced data; penalizes extreme imbalances between precision and recall.
+Weaknesses: Doesn’t consider true negatives; still threshold-dependent.
+Use when: You need a balance between precision and recall, or when the dataset is imbalanced.)
+#### ainotes
+#####
+Other important metrics:
+1: ROC-AUC (Area Under the Receiver Operating Characteristic Curve): Measures the model’s ability to distinguish between classes across all possible thresholds. Great for comparing models overall (especially useful with imbalanced data).
+2: Confusion Matrix: Not a single number, but a table showing True Positives, True Negatives, False Positives, and False Negatives — the foundation for calculating most other metrics.
+3: Log Loss (Cross-Entropy Loss): Measures how confident and well-calibrated the probability predictions are (commonly used as a loss function during training).
+######
+
 
 
 ## What are performance metrics? (for regression problems)
@@ -1695,6 +1780,7 @@ Strengths: More interpretable than MSE; still penalizes large errors more than M
 Very popular in practice because it balances interpretability and sensitivity to big mistakes.)
 ...Others
 #### ainotes
+
 
 
 
@@ -1938,6 +2024,8 @@ Let me know if you want examples of when you might still choose a plain DNN over
 
 ## What are Decision Trees And Random forest
 ###
+"""Det er I decision trees natur at vaere overfittet. De vil naesten altid blive overfittet. Det er deres natur, saa man faar ofte ikke saa meget ud af at justere dem.
+Noget man kan goere at al justere hvor dybe traeerne maa blive).""".
 1: What are decision trees: A Decision Tree is a simple, intuitive supervised machine learning model that makes predictions by learning a series of if-then decision rules. You can literally visualize it as an upside-down tree.
 What it looks like and how it works
 1: It starts at the root node (top) with the full dataset.
@@ -2395,14 +2483,237 @@ Bottom Line:
 Autoencoders turn the problem of "what is normal?" into a reconstruction task. By training only on normal examples and measuring how badly the model fails to reconstruct new data, they provide a robust, scalable way to detect anomalies — especially useful in domains like healthcare (ECG), fraud detection, and industrial monitoring.
 
 
+## What are markov chains
+### A Markov Chain is a mathematical model that describes a sequence of possible events (called states) where the probability of moving to the next state depends only on the current state, and not on the sequence of events that came before it.
+This property is called the Markov Property (or "memorylessness"):
+"The future is independent of the past given the present."
+---
+Why are Markov Chains Used in Machine Learning?
+Markov Chains are powerful because they are:
+1: Simple yet effective for modeling sequential data
+2: Computationally efficient
+3: Have strong theoretical foundations (steady-state distributions, ergodicity, etc.)
+---
+Main reasons to use them:
+1: Modeling sequences with limited memory (when past history beyond the last state doesn't help much)
+2: Generating realistic sequences (text, music, paths, etc.)
+3: Modeling stochastic processes where exact prediction is impossible, but probabilistic modeling is useful
+4: Foundation for more advanced models (HMMs, MDPs, Transformers use similar ideas)
+#### ainotes
+#####
+Modern Context in Machine Learning
+While pure Markov Chains are rarely used for state-of-the-art text generation anymore (Transformers are far superior), they are still very useful because:
+1: They are interpretable
+2: Great for small data or resource-constrained environments
+3: Excellent baseline models
+4: Still heavily used in Reinforcement Learning (as the foundation of MDPs)
+5: Combined with deep learning in models like Markovian Score Matching, diffusion models (some connections), etc.
+######
+AI supplement til  lukas noter AAI-17-04-26
+Eksempel paa brug af Markov chains == SPAM filtre.
 
-## Discriminative vs. generative AI
+
+
+
+## What is joint probability in generative AI
 ###
+In simple terms:
+It answers the question "How likely is this complete piece of data (e.g., an entire image, sentence, or audio clip) under the model's learned distribution?"
+Generative models aim to learn or approximate this joint probability distribution from training data, so they can sample new, realistic data points from it.
+---
+Why Joint Probability Matters in Generative AI
+1: Discriminative models (e.g., most classifiers) learn conditional probability P(Y|X) — "Given an image X, what's the probability it's a cat (Y)?"
+2: Generative models learn the full joint distribution P(X) or P(X,Y). This allows them not only to classify but also to create new examples by drawing samples from the learned distribution.
+---
+Once you have a good approximation of P(X), you can generate new x's that look like they came from the same underlying process as your training data.
+#### ainotes
+#####
+Practical Examples in Popular Generative Models
+1: Language Models (e.g., GPT):
+The joint probability of a whole sentence is modeled autoregressively. Training maximizes the likelihood of the next token given previous ones, which effectively learns P(sentence).
+2: Variational Autoencoders (VAEs):
+Explicitly optimize a lower bound (ELBO) on the log-likelihood of the data, i.e., they try to make the model's joint probability assign high probability to real data points.
+3: Diffusion Models (Stable Diffusion, DALL·E, etc.):
+They learn to reverse a gradual noising process. This implicitly models the data distribution P(X) by learning how to denoise step by step. They excel at capturing complex joint distributions in images.
+4: GANs:
+The generator learns to produce samples from a distribution that fools the discriminator. While not explicitly modeling P(X) via likelihood, the goal is still to match the true joint data distribution.
+######
+AI supplement til  lukas noter AAI-17-04-26
+Why This Enables Generation
+If your model has learned a good approximation of the joint probability:
+1: You can evaluate how "realistic" a new sample is (high P(x) = plausible).
+2: You can sample new points: draw random variables according to the learned probabilities.
+3: You can manipulate the distribution (e.g., conditional generation: "generate an image of a cat" by conditioning on text).
+---
+In short, joint probability is the mathematical object that generative AI tries to capture. By learning it (explicitly or implicitly), the model gains the ability to create entirely new, coherent data that follows the same statistical patterns as the training set.
+
+
+
+## What is Latent-space? (in generative AI)
+###
+"""Naar vi laver PCA reducrtion, saa kommer vi ned i latent-space. Det betyder at det er en blackbox""".
+Latent space is a lower-dimensional, compressed, continuous vector space that a model learns to represent the essential underlying features (or "latent variables") of high-dimensional input data, such as images, text, audio, or video.
+1: Why "latent"? "Latent" means hidden or inferred. The space isn't directly observable in the raw data; the model discovers it during training by figuring out what really matters (e.g., pose, style, semantics, texture) while ignoring noise or irrelevant details.
+2: It acts like a highly efficient "map" or "embedding" where similar data points end up close together, and meaningful transformations (e.g., changing a smile, adding glasses, or shifting from "cat" to "dog") correspond to smooth movements in this space.
+#### ainotes
+#####
+Why is latent space fundamental to generative AI?
+Generative models (like VAEs, GANs, diffusion models such as Stable Diffusion, or even aspects of large language models) rely on it in two main stages:
+1: Encoding (compression): The model maps raw, high-dimensional data (e.g., a 512×512 image with millions of pixel values) into a compact latent representation — often just a vector of dozens or hundreds of numbers.
+2: Generation (decoding/sampling): The model samples points from this latent space (or adds noise and denoises in diffusion models) and decodes them back into new, realistic data that resembles the training set.
+---
+This enables:
+1: Efficient training and inference — Working in latent space is much cheaper and faster than operating directly in pixel or token space (as in Latent Diffusion Models).
+2: Interpolation and creativity — Walking between two points in latent space can smoothly morph one image into another or blend concepts.
+3: Controlled generation — Editing specific attributes (e.g., age, emotion, lighting) by manipulating directions in the space.
+4: Dimensionality reduction — Capturing the "essence" of data while discarding redundancy.
+---
+For example:
+1: In a face generation model, nearby points in latent space might represent faces with similar age, gender, or expression.
+2: In text-to-image models, the text prompt is often encoded into a latent vector that guides the generation process.
+######
+AI supplement til  lukas noter AAI-17-04-26
+Common models that heavily use latent space
+1: Variational Autoencoders (VAEs) — Explicitly learn a probabilistic latent space for smooth sampling and generation.
+2: Generative Adversarial Networks (GANs) — The generator often works from a latent noise vector.
+3: Diffusion models / Latent Diffusion Models (LDMs) — Many modern image generators (e.g., Stable Diffusion) perform the heavy lifting in a compressed latent space for efficiency.
+4: Autoencoders in general — Used as a first stage in some generative pipelines.
+---
+In short, latent space is where the "magic" of understanding and creating new data happens in most generative AI systems. It's what allows models to go beyond memorization and actually generalize, interpolate, and invent.
+
+
+
+
+
+## What are autoencoders ?
+###
+In machine learning, autoencoders and variational autoencoders (VAEs) are both unsupervised neural network architectures used for learning compressed representations of data.
+---
+What is a (Standard) Autoencoder?
+An autoencoder is a neural network trained to copy its input to its output as accurately as possible, but through a bottleneck (compressed) layer.
+---
+Architecture:
+1: Encoder: Compresses the high-dimensional input data (e.g., an image with thousands of pixels) into a lower-dimensional latent representation (also called the "code" or "bottleneck"). This is a fixed vector of numbers.
+2: Decoder: Reconstructs the original input from this latent vector as closely as possible.
+3: The model is trained by minimizing the reconstruction loss (e.g., mean squared error between input and output).
+---
+Goal: Learn efficient, compressed features of the data (dimensionality reduction). It's like a nonlinear version of PCA (Principal Component Analysis).
+---
+Common uses:
+1: Denoising (remove noise from images/signals).
+2: Anomaly detection (high reconstruction error = anomaly).
+3: Data compression or feature extraction.
+4: Pretraining for other models.
+---
+Limitation: The latent space is often disorganized or "discontinuous." If you pick a random point in the latent space (or interpolate between two encodings), the decoder may produce garbage or unrealistic outputs. Standard autoencoders are deterministic — same input always gives the exact same latent vector — and not great for generating new data.
+#### ainotes
+#####
+What is a Variational Autoencoder (VAE)?
+A Variational Autoencoder (VAE) is an extension of the standard autoencoder that turns it into a generative model. It was introduced to address the limitations of regular autoencoders for generation tasks.
+1: Key difference: Instead of encoding the input to a single fixed vector, the VAE's encoder outputs parameters of a probability distribution (usually a multivariate Gaussian: a mean vector μ and a standard deviation vector σ) over the latent space.
+2: How it works:
+2A: The encoder learns to map inputs to distributions in latent space.
+2B: During training/encoding, you sample a latent vector z from that distribution (using the "reparameterization trick" for differentiability).
+2C: The decoder then reconstructs the input from the sampled z.
+2D: This introduces probabilistic behavior: even the same input can produce slightly different outputs due to sampling.
+3: Loss function (unique to VAEs):
+3A: Reconstruction loss: How well the output matches the input (same as standard AE).
+3B: KL divergence (regularization term): Forces the learned latent distributions to be close to a simple prior (usually a standard normal distribution N(0,1)). This keeps the latent space smooth, continuous, and well-organized.
+---
+The total loss balances faithful reconstruction while ensuring the latent space is "nice" for sampling.
+4: Advantages:
+4A: Generative capability: You can sample random points from the prior distribution in latent space and decode them to generate entirely new, realistic data (e.g., new faces, molecules, or images that look like the training set).
+4B: Smooth interpolation: Moving gradually in latent space produces meaningful transitions (e.g., gradually changing a face from smiling to frowning).
+4C: Better handling of uncertainty and variability in data.
+######
+AI supplement til  lukas noter AAI-17-04-26
+Real-World Applications
+1: Autoencoders: Image denoising, anomaly detection in manufacturing or fraud, dimensionality reduction before feeding data to other models.
+2: VAEs: Generating synthetic images (e.g., faces, artwork), drug discovery (generating new molecules), semi-supervised learning, style transfer, and as building blocks in more advanced models like Latent Diffusion Models (used in Stable Diffusion).
+---
+VAEs are a foundational generative AI technique, though they are often compared to (and sometimes combined with) GANs. VAEs tend to produce slightly blurrier outputs but are more stable to train and provide a more interpretable latent space.
+
+
+## Hvad er Data og hvad er information?
+### Data er de raa tal. Det vi har I raekker og kolonner.
+Infrmation er det vi kan udlede af vores data.
 #### ainotes
 #####
 ######
-AI supplement til  lukas noter AAI-17-04-26
+AI supplement til  Christian noter AAI-27-03-26
 
+
+
+
+## Hvad er en standard-scaler?
+### A StandardScaler (from scikit-learn in Python) is a preprocessing tool that centers the data around 0 by subtracting the mean and then scales it so that the standard deviation becomes 1 (unit variance).
+---
+Simple Summary
+StandardScaler transforms your numerical features so that each one has:
+Mean = 0
+Standard deviation = 1
+---
+This process is called standardization or Z-score normalization.
+The formula for each value is:
+z = (x - μ) / σ
+Where:
+1: x = original value
+2: μ (mu) = mean of the feature
+3: σ (sigma) = standard deviation of the feature
+---
+It is applied independently to each feature (each column), so different features with completely different scales (e.g., age in years vs. salary in thousands) are brought to the same scale.
+---
+Why Do We Use StandardScaler?
+Many machine learning algorithms perform much better (or even require) when features are on a similar scale. Without scaling:
+1: Features with larger numbers (e.g., income) can dominate those with smaller numbers (e.g., number of children).
+2: Distance-based algorithms get distorted.
+3: Gradient-based methods (like neural networks) converge slower or poorly.
+---
+After applying StandardScaler, every feature contributes more equally.
+#### ainotes
+#####
+When to Use It (and When Not To)
+Best for:
+1: Algorithms that assume data is roughly normally distributed or work with distances/gradients:
+1A: Logistic Regression
+1B: Linear Regression
+1C: Support Vector Machines (SVM)
+1D: Neural Networks
+1E: Principal Component Analysis (PCA)
+1F: K-Means clustering
+2: When your features have different units or widely varying ranges.
+---
+Less ideal:
+1: When your data has many outliers (StandardScaler is sensitive to them because it uses mean and std).
+2: Tree-based models (Random Forest, XGBoost, Decision Trees) — these usually don’t need scaling at all.
+3: When you need bounded values (e.g., between 0 and 1) → use MinMaxScaler instead.
+---
+Alternative if outliers are a problem: Use RobustScaler (uses median and interquartile range instead of mean/std).
+######
+AI supplement til  Christian noter AAI-27-03-26
+How It Works in Practice (Typical Workflow)
+1: Fit on the training data only → calculates mean and std from training set.
+2: Transform the training data.
+3: Transform the test/validation data using the same mean and std (never refit on test data!).
+--
+This prevents data leakage.
+---
+Key Takeaways
+1: What it does: Moves the mean to 0 and scales variance to 1 (exactly what you thought).
+2: Purpose: Makes features comparable so no single feature dominates due to its scale.
+3: When: Use before distance-based or gradient-based models; skip for tree-based models.
+4: Important: Always fit only on training data.
+
+
+
+
+
+## question
+### dsfsfnbvnv
+#### ainotes
+#####
+######
+AI supplement til  Christian noter AAI-27-03-26
 
 
 
