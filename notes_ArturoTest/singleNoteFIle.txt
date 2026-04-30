@@ -1,0 +1,22 @@
+
+
+
+
+
+## What is machine learning
+### [Machine learning is the] field of study that gives computers the ability to learn without being explicitly programmed.
+#### geron1
+######
+—Arthur Samuel, 1959
+Géron, Aurélien. Hands-On Machine Learning with Scikit-Learn and PyTorch: Concepts, Tools, and Techniques to Build Intelligent Systems (p. 27). O'Reilly Media. Kindle Edition.
+
+
+
+
+
+
+
+
+
+
+
