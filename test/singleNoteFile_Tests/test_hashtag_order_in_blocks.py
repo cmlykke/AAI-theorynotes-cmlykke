@@ -8,7 +8,7 @@ class TestHashtagOrderInBlocks(unittest.TestCase):
         # This allows the test to run from the root or from the test directory.
         current_dir = os.path.dirname(os.path.abspath(__file__))
         project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
-        self.file_path = os.path.join(project_root, "singleNoteFIle.txt")
+        self.file_path = os.path.join(project_root, "notes_ArturoTest/arturoNote.txt")
         self.assertTrue(os.path.exists(self.file_path), f"File {self.file_path} not found.")
 
     def test_file_content_constraints(self):

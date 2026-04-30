@@ -1,0 +1,65 @@
+
+
+## Arturo test ueuestion
+### Arturo test  answer
+#### chrnoter
+######
+Arturo mere information: Anbefalede boerger:
+-Hambling, Brian, ed. (2019) (light-reading)
+Software testing foundationL An USTQB-BSC
+certified Tester foundation guide.
+-Khorikov, Vladimir (2020) (bedste bog)
+Unit testing: Principles, Practice and Patterns
+-Mohan, Gayatri (2022) (ikke den bedste, men daekker alle emner).
+
+
+
+## What is SDLC and what is the V model
+### SDLC stands for Software Development Life Cycle.
+Requirements -> Design -> Development -> Testing -> Deployment -> Maintenance.
+#### chrnoter
+##### there are several different SDLC models:
+(Waterfall, Agile, Spiral, Iterative, DevOps, etc.). The V-model is one of them.
+######
+The V-Model (Verification and Validation Model) is a sequential SDLC model that gives strong emphasis on testing. It is an extension of the classic Waterfall model, but instead of testing being only at the end, testing activities are planned in parallel with each development phase.
+It gets its name from the "V" shape of the diagram:
+** Left side of the V → Development (downward flow)
+** Bottom → Coding
+** Right side of the V → Testing (upward flow)
+----
+Visual Structure of the V-Model:
+1: Requirements Analysis          ↔          Acceptance Testing
+       ↓                                           ↑
+2: System Design                  ↔          System Testing
+       ↓                                           ↑
+3: Architectural (High-Level) Design ↔     Integration Testing
+       ↓                                           ↑
+4: Module (Low-Level) Design      ↔          Unit Testing
+       ↓                                           ↑
+5:             CODING (Implementation)
+
+
+
+## Why do we test?
+###
+1: all software will fail in time, 
+#### chrnoter
+#####
+
+
+##
+###
+#### chrnoter
+#####
+
+//// chrnoter
+noter jeg har skrevet til Aturos fag
+
+
+
+
+
+
+
+
+
