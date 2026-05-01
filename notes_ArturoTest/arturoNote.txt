@@ -1,6 +1,7 @@
 
 
-## Arturo test ueuestion
+
+## Arturo test queuestion
 ### Arturo test  answer
 #### chrnoter
 ######
@@ -42,9 +43,110 @@ Visual Structure of the V-Model:
 
 ## Why do we test?
 ###
-1: all software will fail in time, 
+1: all software will fail in time (fordi fejlrettelser næsten
+altid vil ødelægge noget et andet sted)
+2: use tests to: enforce requirements,
+find errors, prevent regression, understand the code,
+help to check for completeness,
+prevent errors from happening.
 #### chrnoter
 #####
+
+
+## What is a good test?
+### see if we can break the system.
+a test is good if it finds errors.
+("tester" tankegangen) skal være
+at prøve at finde fejl.
+Hvis man skriver 10.000 tests, og ikke finder fejl,
+er det testene den er gal med.
+(SELVFØLGELIG er der fejl i kode, men
+testene kan ikke finde dem).
+#### chrnoter
+#####
+Tests skal være systematiske. Det
+er ikke ok. at teste tilfældigt.
+
+
+## Testing vs. debugging
+### Testing finds errors.
+Debugging finds AND solves errors.
+#### chrnoter
+#####
+
+## Static testing vs. dynamic testing:
+### static: The code is not executed.
+Dynamic: code is executed with testdata.
+#### chrnoter
+#####
+
+
+## Positive testing vs. Negative testing:
+### Positive: Code is expected to work (golden path). Negative: code is expected to fail.
+#### chrnoter
+##### We should focus our efforts on negative tests.
+
+
+## Test basis
+### The body of knowledge used as a basis for automated tests.
+#### chrnoter
+#####
+
+
+## Verification vs. Validation
+### Verification: check that work meets requirements.
+Validation: evaluates against users needs.
+#### chrnoter
+#####
+
+
+## Iterative vs. Incremental models:
+### Iterative: Tilføjer det hele fra starten med gradvis forbedring.
+Incremental: gradvis tilføjelse, men det man laver er komplet.
+#### chrnoter
+#####
+
+
+## Defects, and when to test
+### The earlier you test the better.
+Defects are clustered (20% of code has 80% of bugs).
+Exhaustive testing is not possible. (because of things like loops and parameters that accepts f.eks. "Any text").
+#### chrnoter
+#####
+
+
+
+## Unit tests: AAA pattern
+### Arrange (preconditions),
+Act (execution),
+Assert (verification). AKA.
+Given-When-Then pattern
+#### chrnoter
+#####
+--- Never overuse unit tests.
+--- Unit tests should ONLY be used for business logic. DONT write unit tests just for CRUD operations.
+--- You dont want to write different tests (at different levels) that test the same thing.
+--- Each unittest should only test one thing.
+--- avoid more than one assert in unit tests, and avoid branching.
+
+######
+2025-01-27 – Foerste dag / uge – del 3 – Unit tests.
+--- when a test fails => fix the code IMMEDIATELY. When all tests pass, but a bug is found, a unit tests must be written.
+--- The goal of unit tests: Enable SUSTAINABLE GROWTH of a software system.
+--- dont think just about values. Think about how code might break.
+--- Brug Parameterized tests (selvom man kan argumentere for at det bryder med AAA modellen)
+
+
+## Black box
+### Teknikker:
+--- Equivalence partitioning.
+--- Boundary value analysis.
+--- decision table testing.
+--- state transition testing.
+#### chrnoter blackbox
+#####
+######
+2025-02-03 – uge 2(6) – del 1 – Black Box test design.
 
 
 ##
@@ -55,8 +157,8 @@ Visual Structure of the V-Model:
 //// chrnoter
 noter jeg har skrevet til Aturos fag
 
-
-
+//// blackbox
+2025-02-03 – uge 2(6) – del 1 – Black Box test design.
 
 
 
