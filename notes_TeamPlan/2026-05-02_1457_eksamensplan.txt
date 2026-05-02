@@ -1,0 +1,43 @@
+
+
+valgfag presentation:
+7/5 - Torsdag - ca. kl .10-10.45 -- se link tilsendt pr. mail.
+
+
+
+AI mandatory 2 d. 14/5.  -- aflevere peer review d. 21. Maj.
+Sidste AI aflevering == deadline 11. Juni.
+Eksamen: 17 - 19 Juni.
+
+
+Database:
+26. Maj.
+eksamen: 8 - 11. Juni.
+
+
+Software quality:
+aflevering deadline 30. Maj.
+Eksamen:
+1 - 4 Juni.
+
+
+--------------------------------------------------
+Moedes med gruppen Tirsdag kl. 9.00 -
+moedes fysisk.
+
+-- - Quality == booking system, evt. noget der omhandle noget der foregaar udendoers,
+saa det giver mening med en vejr app.
+
+
+-- opgave: Implementer at spille med AI.
+-- anden prioritet: Skub den saa den kan deploy paa github pages.
+
+Markus vil saa, til paa tirsdag give den gas med tron.
+Mark vil have Softwarequal plan. -- kigge paa at lave en plan for vores softwarequal plan.
+Lukas -- vil lave database backend.
+
+
+
+
+
+
