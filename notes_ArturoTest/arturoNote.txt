@@ -137,7 +137,7 @@ Given-When-Then pattern
 --- Brug Parameterized tests (selvom man kan argumentere for at det bryder med AAA modellen)
 
 
-## Black box
+## Black box techniques
 ### Teknikker:
 --- Equivalence partitioning.
 --- Boundary value analysis.
@@ -149,10 +149,16 @@ Given-When-Then pattern
 2025-02-03 – uge 2(6) – del 1 – Black Box test design.
 
 
+
+
 ##
 ###
 #### chrnoter
 #####
+
+
+
+
 
 //// chrnoter
 noter jeg har skrevet til Aturos fag
