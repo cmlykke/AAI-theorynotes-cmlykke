@@ -151,14 +151,22 @@ Given-When-Then pattern
 
 
 
-##
-###
-#### chrnoter
-#####
+## Who got which report roles (mandatory 2 software quality report)
+### Author: Mark Jessing (an Author is the one who wrote the requireement specification.
+Mark got the role because he is good at spotting potential pitfalls in software design,
+so we selected him to preemptively avoid design issues)
+Moderator:  Christian Mantzius Lykke (chosen as moderator, because
+he has 5 years experience in an agile development team)
+Scribe:  Lukas Aleksander Maibom (chosen because he writes the best lecture notes in the team)
+Reviewer: Markus Lindeberg Bille & Andreas Rahbek Hansen
+#### chrnoter reportnotes
+##### Til eksamen vil vi blive spurgt om
+hvorfor vi har valgt de forskellige personer til deres roller.
 
 
 
-
+//// reportnotes
+Noter skrevet på baggrund af vores skriftlige opgaver
 
 //// chrnoter
 noter jeg har skrevet til Aturos fag
