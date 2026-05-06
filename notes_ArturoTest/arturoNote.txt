@@ -1,5 +1,30 @@
 
 
+## Software Quality
+### Spoergsmaal:
+i boundary values omkring nul, Har vi i klassen kun set
+-1, 0, 1. Hvorfor er -2 og 2 ikke altid med?
+####
+#####
+######
+++ hvornaar skal man lave mocks og stubs istedet for
+at kalde rigtige services?
+
+
+## Who got which report roles (mandatory 2 software quality report)
+### Author: Mark Jessing (an Author is the one who wrote the requireement specification.
+Mark got the role because he is good at spotting potential pitfalls in software design,
+so we selected him to preemptively avoid design issues)
+Moderator:  Christian Mantzius Lykke (chosen as moderator, because
+he has 5 years experience in an agile development team)
+Scribe:  Lukas Aleksander Maibom (chosen because he writes the best lecture notes in the team)
+Reviewer: Markus Lindeberg Bille & Andreas Rahbek Hansen
+#### reportnotes
+##### Til eksamen vil vi blive spurgt om
+hvorfor vi har valgt de forskellige personer til deres roller.
+
+
+
 
 ## Arturo test queuestion
 ### Arturo test  answer
@@ -119,7 +144,7 @@ Exhaustive testing is not possible. (because of things like loops and parameters
 ## Unit tests: AAA pattern
 ### Arrange (preconditions),
 Act (execution),
-Assert (verification). AKA.
+Assert (verification). Også kendt som:
 Given-When-Then pattern
 #### chrnoter
 #####
@@ -150,20 +175,269 @@ Given-When-Then pattern
 
 
 
+## black box - Equivalence partitioning
+### Instead of testing every possible input value (which is usually impossible), you divide the input domain into a small number of equivalence classes (or partitions).
+A partition: "A partition (also called an equivalence partition) is a set of input values that the software is expected to treat in exactly the same way."
+Valid partitions → Inputs that should be accepted by the system.
+Invalid partitions → Inputs that should be rejected or handled with error messages.
+#### chrnoter blackbox
+#####
+For integers: positive tal, 0 og negative tal er partitions.
+hvis systemet kun acceptere en range, f.eks. 18-65 for at få kørekort,
+vil de positive tal 18-65 være en valid partiton, og 1-17 og 66+ vil være invalid partitions.
+Herudover vil 0, negativetal, floats, strings, null ect. være invalid partitions.
+Hvis man arbejder i et typestærkt sprog, kan non-integers udelades som partitions, fordi systemet ikke vil acceptere dem.
+######
+For strings:
+empty string (iflg. Arturo. Korikov gør det ikke), only whitespace, minimul / maximum length,
+valid / invalid characters (eg. ø, ö, 漢).
+(ISTQB (International Software Testing Qualifications Board) explicitly mention prioritizing invalid partitions that represent security risks, such as SQL injection attempts.)
+For dates: minimum / maximum value, invalid format, leap-year (2024-02-29 valid, 2025-02-29 invalid - and always test for 30.feb.), timezone.
 
-## Who got which report roles (mandatory 2 software quality report)
-### Author: Mark Jessing (an Author is the one who wrote the requireement specification.
-Mark got the role because he is good at spotting potential pitfalls in software design,
-so we selected him to preemptively avoid design issues)
-Moderator:  Christian Mantzius Lykke (chosen as moderator, because
-he has 5 years experience in an agile development team)
-Scribe:  Lukas Aleksander Maibom (chosen because he writes the best lecture notes in the team)
-Reviewer: Markus Lindeberg Bille & Andreas Rahbek Hansen
-#### chrnoter reportnotes
-##### Til eksamen vil vi blive spurgt om
-hvorfor vi har valgt de forskellige personer til deres roller.
 
 
+## blackbox - Boundary value analysis
+### "errors tend to cluster around boundaries".
+We use 3-value boundaries: (partition: 1-99. Valid boundaries: 1, 2, 98, 99, invalid boundaries: 0, 100). Man kan vælge også at medtage en "Middle value". For partition 1-99: 23 could be a middle value.
+(Det er valgfrit at bruge middle-values, så længe man har
+gode 3-value boundaries)
+For overlapping values: remove dublicates.
+#### chrnoter blackbox
+##### Treat type-specific extremes as boundaries:
+example: signed 32-bit integers:
+INT_MIN (-2147483648), INT_MIN + 1, -1, 0
+INT_MAX (2147483647), INT_MAX - 1, 1.
+(Dette kan vi ikke gøre for strings, så vi må beslutte for store strings vi vil teste).
+######
+Når man tester ekstreme værdier (eg. MAX_INT). Hvordan tester man så MAX_INT + 1?:
+"because of wraparound, you test the extreme representable values and the system's behavior when arithmetic crosses those limits — not necessarily by passing the wrapped result as input."-AI
+
+
+## blackbox - Hvårnår skal vi teste mere end teorien siger?
+###
+"Dont let reality ruin a good test".
+Selv hvis forretningsreglerne siger at vi ikke kan have
+værdier under 5, så inkluder 0 og negative tal som partitions.
+Det er en god ide at tage højde for at en funktion måske får tilsendt
+en talværdi der er under 5, 0 eller negative tal.
+#### chrnoter blackbox
+#####
+Dog bør man altid undersøge hvad appen skal bruges til.
+Hvis det er en intern app i virksomeheden, behøver man
+ikke teste f.eks. negative tal, hvis appen  kun forventer positive tal.
+Hvis det er en web+app, bør vi teste negative tal, fordi
+ANY FRONTEND IS VERY EASILY HACKABLE
+######
+Nogen gange bør man teste mere end teorien siger:
+Hvis tallene er temperaturer for fahrenheit, bør man også teste tallene for vands kogepunkt. (selvom det ikke er en boundary value). DVS. man skal huske at tænke på forretningsbehov og ikke kun tekniske partitions.
+
+
+## blackbox - hvårnår skal vi teste mindre end teorien siger?
+### Husk "Frameing shop" opgaven:
+Vi skulle teste korrekte priser for en butik,
+ der tog forskellige beløb for Frames med forskellige arealer. Det var fordusat at input kun kunne være integers. VI MÅ DERFOR IKKE LAVE TESTS FOR AREAL OUTPUT 1601 cm2 elelr 1602 cm2, da de ikke kan forekomme med integer input.
+ Vi er nødt til at tænke: Vi må ikke skrive tests for cases der ikke kan forekomme.
+#### chrnoter blackbox
+#####
+(man kan selvfølgelig teste hvordan systemet håndtere et illegalt float input, men det var uden for scope af opgaven).
+######
+2025-02-10 – uge 3 (7) --
+setup+teardown and mocking, unittesting in depth, and antipatterns.
+
+
+
+## black-box: TDD: London vs. classical
+###
+Classical (Detroit/Chicago) (State-based) School:
+-- Verification style: Check final state or return value.
+-- Use of Test Doubles: Minimal – prefer real objects
+-- Isolation: (Kent Beck TDD book): Tests can run with real dependencies.
+Mock only shared dependencies (collaborators (shared dependencies) are not mocked)
+-- Design Influence: Emergent design from refactoring
+-- fordel: det er nemere at refakturere, pga. focus på returnerede værdier. Fravær af mocks beskytter også bedre mod regression.
+-- ulempe: sværere at finde årsagen til bugs, og testene vil ofte køre langsommere, når få ting er mocked.
+#### chrnoter blackbox ainotes
+#####
+London / Interaction-based school:
+-- Verification style: Check interactions with collaborators
+-- Use of Test Doubles: Heavy use of mocks/stubs/spies
+-- Isolation: (Steve freeman & Nat Price 2009): Isolate SUT from all dependencies. (but dont mock constants / enums ect.)
+-- Design Influence: Design guided by interfaces & interactions
+-- fordel: På grund af isolering, ved man præcist hvad der fejler, og kan hurtigt fixe det.
+-- ulempe: når man isolere alle systemets dele, kræves der mange tests, og al refakturering / kodeændring kræver meget arbejde med at ændre tests
+######
+"the London School vs Classical School distinction originated in and is most strongly associated with Test-Driven Development (TDD), but the core ideas extend beyond TDD to general unit testing practices. It was popularized by Martin Fowler in his 2007 article "Mocks Aren't Stubs"." - AI
+--- Khorikovs aproach: classical + “dependencies we have full occntrol over, eg. databases, should NOT be mocke”.
+
+
+## black-box: TDD: Mock, Stub and Spy
+### Alle 3 kaldes "test doubles".
+Man mocker de objekter der kræver for lant tid (testene bliver for langsomme at køre).
+I Jest (javascript) kan man ogsaa mocke implementationen af en funktion, f.eks. Hvis den er kompliceret og man kun er interesseret I en lille del.
+#### chrnoter blackbox
+#####
+London school:
+-- Mock: Outgoing information (eg. send an email). (verify that system under test sent the correct data)
+-- Stub: Incomming information (getting infor from database) == Stub. (provides fake data to the system under test)
+-- Spy == Does both.
+Classical school:
+All 3 are mocks.
+######
+A "Spy" is a test double that acts as both a Stub and a Mock at the same time. (it is usually a wrapper around a real object)
+Uses:
+1: You want most of the real object’s behavior, but need to override just one or two methods.
+2: testing legacy code: When you can’t easily refactor a big class, but still want to isolate parts of it.
+3: Verifying Side Effects while keeping real logic.
+4: observe internal calls: You need to know whether private/protected/helper methods inside the class were invoked correctly.
+
+
+## black-box: what to test in a unit test
+###
+-- Unit tests should test one behavior
+-- en behavior, can vaere en funktion, men det kan ogsaa vaere meget mere komplex.
+-- AVOID chaining arrange, act assert.
+-- Avoid branching (if else while for)
+-- Cover the business logic, and not much else.
+(DET BETYDER == I MANGE APPLICATIONER BOER DER IKKE VAERE UNIT TESTS !!! MEDMINDRE MAN BRUGER TDD)
+-- "Act" section should be one line (eg. hvis man har en Purchase funktion, og er noedt til bagefter at kalde en RemoveFromInventory, betyder det at koden er dårlig.RemoveFromInventory burde have vaeret en del af  Purchase handling)
+-- Never test private methods / functions directly. (hvis man gør det, kopler man tests til implementation)
+-- Do never expose private state (Do not leak domain knowledge to unit tests -> use hardcoded or mocked values in tests)
+-- dont polute the code with anything test-related (eg. dont use "only for test"-booleans)
+#### chrnoter blackbox
+##### Årsagen til at man kun bør teste businesslogic:
+jo mere man tester ting udover business logic, jo mere er man noedt til at aendre dem naar man refakturere. Der boer ikke ske. Unit tests skal vaere implementationsuafhaengige.
+######
+
+
+
+## black-box: how to handle dates / CPR / Money ect..
+###
+-- man kan bruge indbyggede bibioteker til dates, f.eks. Til at finde dato forskelle.
+-- test altid for 30. februar. Hvordan haandtere ens system det?
+-- da man skal bruge hardcodede vaerdier til tests, og ikke boer lave beregninger I tests,
+    saa boer man mogge “dagen idag” datoen, istedet for at bruge date.now()
+-- CPR: Man bør holde sig til at det er en "10 digit numeric string" og ikke hænge sig i at det er CPR. CPR er kun et navn.
+-- Penge: man kan konvertere ens float til en string, of fjerne de ekstradecimaler.
+-- API: fint at teste at vi får en 400 fejl, men vi må ikke bare teste at vi modtager en bestemt fejl string.
+-- telefonnumre: I teorien er et anti-pattern at bruge en regex, men det giver stor værdi, så gør det alligevel.
+#### chrnoter blackbox
+#####
+######
+2025-02-17 – uge 4 (8)
+vedroernde employees opgaven.
+
+
+
+
+## integration testing.
+###
+-- Continous integration: after merge, automated builds and tests run immediately to catch issues early.
+-- Continous delivery: After CI succeeds, the pipeline goes further: It automatically prepares the software for real-world use and runs more thorough tests (integration test, enc-to-end ect). The final step to production needs human approval.
+-- Continuous Deployment → If all tests pass, it automatically deploys to production with no human approval.
+#### chrnoter ainotes
+#####
+-- Brug github actions: Efter hvert commit, kør et automatisk build.
+Det vil tjekke for kompileringsfejl, og er en test i sig selv.
+-- Firmaer stoler for meget på gituhb actions. Hvis man kun bruger det, kan man ikke replikere hardware og LAN+netværk.
+I stedet bør man lave en separat cloud test server ved siden af ens alm. server, og lave en aftale med cloud providren at hardware skal være det samme.
+######
+Best practice:
+--- The moment you have a function working: commit
+--- Include the tests in each commit (Martin Fowler)
+--- Nobody has a higher priority than fixing the (failing) build (Kent beck)
+Continous integration tools:
+Jenkins (komplex at bruge og installere),
+CircleCi == Jenkins alternativ
+Github Actions (nu det mest populaere, alle bruger det).
+TeamCity (??Jetbrains??).
+(der findes mange sider der påstår at vise top-10
+lister over CI tools, men spørger man virksomhedderne,
+bruger (næsten?) alle Github actions).
+
+
+
+## End-to-End testing
+###
+--- en studenrende har dumpet eksamen for at bruge cypress
+til både unit tests, integrationtests og end+to+end. Det må man ikke
+--- testpyramiden siger at man skal have få end-to-end tests, fordi de er langsomme (involvere hele applikationen helt tilbage til databasen).
+(men nogen firmaer bruger dem meget)
+#### chrnoter
+#####
+Page-Object Model:
+Man har en testklasse for hver fyssike side i applikationen (or per major component):
+--- All locatiors (how you find elements) and actions for a page are stored in one place
+1:your testscripts call these high-level methods.
+2: Dette skaber en adskillelse mellem test logik (det man tester) og hvordan man interagere med UI.
+--- Det kan dog være svært i en web-shop hvor samme side kan have forskellige elementer. Så er man nødt til at have parametre i sine tests.
+--- I cypress, kan man tilføje nogen elementer i html (eg. data-cy="MyId") for at gøre test enklere. Arturo advare imod det, da produktions-kode skal afkoples fra tests.
+######
+--- man kan træne CSS med "CSS Diner".
+--- man kan træne end-to-end med "Formy" eller "The-Internet"
+
+## Static testing
+### Test software, without executing it:
+linting, sonarqube, eller en programmør der manuelt gennemgår koden.
+---"they dont find failures, but causes of failures"
+#### chrnoter
+#####
+######
+
+
+## Review (1)
+###
+two types:
+1: Codereview
+2: Document review
+2a: document is studied by the reviewers
+2b: Author is informed of the issues found
+2c: the author updates the document
+2d: a next iteration is performed, if nessasary
+#### chrnoter review
+#####
+Review: Systematic examination of a document to find and remove errors.
+(objective: Finding defects, gaining understanding, generating discussions, decision making by consensus.)
+--- Reviews in the V-model:
+We can review anything in the V-model.
+######
+4 types of document reviews (by levels of formality):
+1: informal
+1a: Documentation not required
+1b: Sometimes just a quick non-technical check
+1c: inexpensive, but limited benefit
+2: Walkthrough (can be code review)
+2a: Review meeting led by the author of the document
+2b: It helps team members understand the document
+2c: open-ended
+2d: preparation and production of a repost is optional
+3: Technical review (code review)
+3a: Documented, well-defined detection process.
+3b: peer review, desirably with no presence of management.
+3c: Preparation and report.
+4: Inspection
+4a: led by a trained moderator.
+4b: Peer examination of a document.
+4c: pre-meeting preparation
+4d: production of an inspection report
+4e: formal follow-up
+
+
+
+
+## Review (2) -
+### https://ek.itslearning.com/ContentArea/ContentArea.aspx?LocationID=7576&LocationType=1&TextURL=%2fLearningToolElement%2fViewLearningToolElement.aspx%3fLearningToolElementId%3d1455689
+#### chrnoter review
+#####
+######
+
+
+
+
+//// review
+noter om review (der er en del teori om det)
+
+//// ainotes
+Noter skrevet af AI, naar jeg ikke har andet
 
 //// reportnotes
 Noter skrevet på baggrund af vores skriftlige opgaver
