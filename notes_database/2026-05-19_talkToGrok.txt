@@ -1,0 +1,23 @@
+
+
+I have a university exam in database technologies based on these books:
+Seven Databases in Seven Weeks - A Guide to Modern Databases -- Eric Redmond
+SQL and NoSQL Databases - Modeling, Languages, Security and -- Michael Kaufmann
+There is project part of the exam, and an oral part.
+The project part of the exam is that we create a an SQL database
+and then create a MongoDB database and a Neo4j database and migrate
+the data from the SQL database to the MongoDB and Neo4j database.
+I have a large number of exam questions i think i might get.
+I need you to prepare good answers for me, so I can memorize them.
+
+
+
+
+
+
+
+
+
+
+
+
