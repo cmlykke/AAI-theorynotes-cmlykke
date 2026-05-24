@@ -13,19 +13,26 @@ Discuss -> open reasoning.
 (incl. Latency vs throughput optimization and trade-offs)
 ###
 The performance of a database has 4 factors:
-Response time (how fast individual operations complete),
-Capacity (how much work (number of users?) the system handles overall),
-Scalability (how well the system handles growing volume or num. of users.),
-Resource efficiency (CPU, memory, I/O, network usage).
- —-
+*** Response time / Latency (How long it takes for a single operation/query to complete (e.g. p95 or p99 latency).),
+*** Throughput / Capacity (How many operations/queries the system can handle per second (ops/sec, transactions/sec, users served)),
+*** Scalability (how well the system handles growing volume or num. of users.),
+*** Resource efficiency (CPU, memory, I/O, network usage).
+ —---
 Different databases optimize for different performance profiles:
-Graphj:  resource efficiency (less CPU and I/O during lookup) And scalability. Caused by: Sql uses indexes and joins = O(log(n)), whereas Neo4J follows a pointer =O(1).
-Downside: Slow at “table scans” (eg. “calculate average salary of all emplyeees”)
-Document: Optimized for easy sharding (horizontal scaling).  Better Response times (single read, no joins), less compute (bson, no transformation), fast write of non-dublicated data (just append).
+*** Graphj: Neo4j uses index-free adjacency — relationships are stored as direct pointers. Traversing from one node to another is O(1), whereas SQL needs to perform index lookups + joins → O(log n).
+Downside: Slow at “table scans” (eg. “calculate average salary of all emplyeees”) or aggregations. Scaling is more complex than document stores (though possible with clustering).
+*** Document: Optimized for easy sharding (horizontal scaling). High write throughput + Reduced CPU overhead during reads/writes (BSON format, no complex transformations or joins). REASON: Documents are self-contained → most queries become simple key lookups. Sharding key design allows the database to distribute data and load easily across many nodes.
 Downside: High storage overhead (data dublication), Slow write of duplicated data (user changes name == must be changed everywhere). Data fragmentation and inconsistent latency (if a doc grows beyond the memory allocation, it must be moved)
-—-
-Latency (response time):
-
+*** SQL: good for complex analytical queries + joins. Downside: Joins at very large scale.
+Pros: SQL excels at predictable latency for complex joins/aggregations with proper indexes and offers strong ACID support, making it efficient for transactional workloads with good resource use when data fits in memory.
+Cons: It struggles with horizontal scalability (sharding is hard), suffers from join overhead (O(log n)) at large scale, and has lower write throughput due to index maintenance, constraints, and locking.
+Trade-offs:
+Prioritizes query flexibility and consistency over raw speed and massive scale — denormalization helps reads but hurts writes, and vertical scaling is preferred over easy horizontal growth.
+This is why we migrate to MongoDB (better sharding & single-doc speed) and Neo4j (O(1) traversals) in the project.
+—---
+Latency VS throughput - tradeoff:
+*** Techniques that improve throughput (batching, queuing, compression, write buffering) usually increase latency.
+*** Techniques that improve latency (more indexes, more RAM, denormalization, caching) often reduce maximum throughput or increase resource consumption.
 #### questionlist performance
 #####
 ###### AI:
