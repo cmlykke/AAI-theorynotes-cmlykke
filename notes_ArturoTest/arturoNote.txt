@@ -10,6 +10,18 @@ i boundary values omkring nul, Har vi i klassen kun set
 ++ hvornaar skal man lave mocks og stubs istedet for
 at kalde rigtige services?
 
+## Arturo test queuestion
+### Arturo test  answer
+#### chrnoter
+######
+Arturo mere information: Anbefalede boerger:
+-Hambling, Brian, ed. (2019) (light-reading)
+Software testing foundationL An USTQB-BSC
+certified Tester foundation guide.
+-Khorikov, Vladimir (2020) (bedste bog)
+Unit testing: Principles, Practice and Patterns
+-Mohan, Gayatri (2022) (ikke den bedste, men daekker alle emner).
+
 
 ## Who got which report roles (mandatory 2 software quality report)
 ### Author: Mark Jessing (an Author is the one who wrote the requireement specification.
@@ -22,21 +34,6 @@ Reviewer: Markus Lindeberg Bille & Andreas Rahbek Hansen
 #### reportnotes
 ##### Til eksamen vil vi blive spurgt om
 hvorfor vi har valgt de forskellige personer til deres roller.
-
-
-
-
-## Arturo test queuestion
-### Arturo test  answer
-#### chrnoter
-######
-Arturo mere information: Anbefalede boerger:
--Hambling, Brian, ed. (2019) (light-reading)
-Software testing foundationL An USTQB-BSC
-certified Tester foundation guide.
--Khorikov, Vladimir (2020) (bedste bog)
-Unit testing: Principles, Practice and Patterns
--Mohan, Gayatri (2022) (ikke den bedste, men daekker alle emner).
 
 
 
@@ -126,8 +123,8 @@ Validation: evaluates against users needs.
 
 
 ## Iterative vs. Incremental models:
-### Iterative: Tilføjer det hele fra starten med gradvis forbedring.
-Incremental: gradvis tilføjelse, men det man laver er komplet.
+### Iterative: Tilføjer det hele fra starten med gradvis forbedring. (eg. Agile)
+Incremental: gradvis tilføjelse, men det man laver er komplet. (eg. waterfall)
 #### chrnoter
 #####
 
@@ -146,6 +143,19 @@ Exhaustive testing is not possible. (because of things like loops and parameters
 Act (execution),
 Assert (verification). Også kendt som:
 Given-When-Then pattern
+----
+Unit test: - test a small piece of code,
+does it quickly , and in an isolated manor
+---
+"small peice":
+ London school = isolated from other tests AND other classes.
+classical = isolated from other tests
+-----
+"unit":
+- london: specific class or method in a class
+- classical: "One business rule or user-facing action"
+(ask: "does the functionality make sence to a business person / user?" == unit test,
+"If I refactor the internal structure, will this test still make sense?", if not = dont test, the level is too low).
 #### chrnoter
 #####
 --- Never overuse unit tests.
@@ -153,7 +163,6 @@ Given-When-Then pattern
 --- You dont want to write different tests (at different levels) that test the same thing.
 --- Each unittest should only test one thing.
 --- avoid more than one assert in unit tests, and avoid branching.
-
 ######
 2025-01-27 – Foerste dag / uge – del 3 – Unit tests.
 --- when a test fails => fix the code IMMEDIATELY. When all tests pass, but a bug is found, a unit tests must be written.
@@ -169,7 +178,18 @@ Given-When-Then pattern
 --- decision table testing.
 --- state transition testing.
 #### chrnoter blackbox
-#####
+##### Decision table testing:
+--- Decision Table Testing is used when a system has multiple conditions (inputs)
+and different combinations of these conditions lead to different outcomes (actions).
+It helps test all possible combinations systematically.
+(Each row of unique combinations becomes a test case.)
+--- State Transition Testing is used for systems that change states based on events or inputs.
+It models the different states the system can be in and the valid/invalid transitions between them.
+Best for: Login systems, order processing, vending machines, game levels, ATM machines, etc.
+- hver mulig state skrives ned, og alle veje mellem states skrives ned som pile mellem states.
+- Man skriver herefter tests for alle de valide paths from one state to another (positive tests),
+and for all the invalid paths from one state to another (negative tests)
+(only write tests for "each arrow" and not multiple, because you only want one "act" pr test.)
 ######
 2025-02-03 – uge 2(6) – del 1 – Black Box test design.
 
@@ -252,7 +272,9 @@ Classical (Detroit/Chicago) (State-based) School:
 -- Verification style: Check final state or return value.
 -- Use of Test Doubles: Minimal – prefer real objects
 -- Isolation: (Kent Beck TDD book): Tests can run with real dependencies.
-Mock only shared dependencies (collaborators (shared dependencies) are not mocked)
+Mock only shared dependencies (to avoid shared state between tests),
+and unmanaged denepdencies (because their system is their responsability).
+collaborators (own classes) are not mocked.
 -- Design Influence: Emergent design from refactoring
 -- fordel: det er nemere at refakturere, pga. focus på returnerede værdier. Fravær af mocks beskytter også bedre mod regression.
 -- ulempe: sværere at finde årsagen til bugs, og testene vil ofte køre langsommere, når få ting er mocked.
@@ -327,9 +349,116 @@ jo mere man tester ting udover business logic, jo mere er man noedt til at aendr
 vedroernde employees opgaven.
 
 
+## Dependencies
+###
+- in-process vs out-of-process:
+any external system or resource that runs in its own separate process.
+- outOfProcess: managed vs unmanaged:
+(incl. a database (often managed), message que (often managed),
+ externam api (often unmanaged), email serevr (often unmanaged))
+- shared vs private:
+shared if more than one test uses it. oterwise private
+(the each test makes its own instance).
+----
+#### ainotes
+#####
 
 
 ## integration testing.
+###
+integration test == any test that is not a unit test.
+London: Any test that uses a real colaborator.
+Classical: Any test does doesnt follow all three of these:
+"single unit of behavior, quickly, isolated from other tests".
+(in practice: any test that verifys how the system works with out-of-process
+dependencies).
+----
+- used for: happy path + edge cases that cant be done with unit tests.
+- use real managed dependencies (database)
+(to an integration test, they are implementation details)
+- mock unmanaged depenedencies.
+#### khori
+#####
+######
+Korikov 2.4 (page 37+)
+
+
+
+
+
+## circular dependencies
+###
+example: an OrderService depends on a NotificationService to send order confirmations.
+NotificationService depends on OrderService to perform actions like canceling orders under certain conditions.
+----
+How to avoid them:
+- reduce layers:
+Many circular dependencies appear because people create too many thin, artificial layers.
+Try to keep your domain model and application services relatively flat.
+- introduce new class:
+new Ordermanager (dependes on both orderService and notificationService),
+= now you can test OrderService without having to mock NotificationService.
+- Use events (Domain Events) instead of direct calls:
+Order service publish an event:
+(f.eks. private readonly IEventPublisher _eventPublisher;)
+and NotificationService listens to it and react.
+(Domain Events + IEventPublisher = An internal notification system inside your application (like an in-memory pub/sub).)
+- Make one dependency go "down" the architecture:
+OrderService (higher level) depends on NotificationService (lower level).
+NotificationService is not allowed to depend back on OrderService.
+If NotificationService needs something, it should get the data from a repository or domain model instead of calling a service.
+#### ainotes khori
+#####
+Many circular dependencies appear because people create too many thin, artificial layers.
+Try to keep your domain model and application services relatively flat.
+######
+Khorikov chapter. 8
+
+## Controllertests vs. integration tests.
+###
+Use unit tests for most business logic (domain model).
+Use integration tests to verify the happy path + critical interactions with the database.
+----
+Controllertests / API tests: Should be kept minimal.
+mainly to check:
+Correct routing
+Proper request/response formats
+Authentication / authorization
+Basic error handling at the HTTP level.
+(He generally advises against trying to test complex business scenarios through API tests, because they become slow, brittle, and hard to maintain.)
+#### ainotes
+#####
+
+## End-to-End testing
+###
+--- en studenrende har dumpet eksamen for at bruge cypress
+til både unit tests, integrationtests og end+to+end. Det må man ikke
+--- testpyramiden siger at man skal have få end-to-end tests, fordi de er langsomme (involvere hele applikationen helt tilbage til databasen).
+(men nogen firmaer bruger dem meget)
+#### chrnoter
+#####
+Page-Object Model:
+Man har en testklasse for hver fyssike side i applikationen (or per major component):
+--- All locatiors (how you find elements) and actions for a page are stored in one place
+1:your testscripts call these high-level methods.
+2: Dette skaber en adskillelse mellem test logik (det man tester) og hvordan man interagere med UI.
+--- Det kan dog være svært i en web-shop hvor samme side kan have forskellige elementer. Så er man nødt til at have parametre i sine tests.
+--- I cypress, kan man tilføje nogen elementer i html (eg. data-cy="MyId") for at gøre test enklere. Arturo advare imod det, da produktions-kode skal afkoples fra tests.
+######
+--- man kan træne CSS med "CSS Diner".
+--- man kan træne end-to-end med "Formy" eller "The-Internet"
+
+
+## Static testing
+### Test software, without executing it:
+linting, sonarqube, eller en programmør der manuelt gennemgår koden.
+---"they dont find failures, but causes of failures"
+#### chrnoter
+#####
+######
+
+
+## CI/CD
 ###
 -- Continous integration: after merge, automated builds and tests run immediately to catch issues early.
 -- Continous delivery: After CI succeeds, the pipeline goes further: It automatically prepares the software for real-world use and runs more thorough tests (integration test, enc-to-end ect). The final step to production needs human approval.
@@ -353,36 +482,6 @@ TeamCity (??Jetbrains??).
 (der findes mange sider der påstår at vise top-10
 lister over CI tools, men spørger man virksomhedderne,
 bruger (næsten?) alle Github actions).
-
-
-
-## End-to-End testing
-###
---- en studenrende har dumpet eksamen for at bruge cypress
-til både unit tests, integrationtests og end+to+end. Det må man ikke
---- testpyramiden siger at man skal have få end-to-end tests, fordi de er langsomme (involvere hele applikationen helt tilbage til databasen).
-(men nogen firmaer bruger dem meget)
-#### chrnoter
-#####
-Page-Object Model:
-Man har en testklasse for hver fyssike side i applikationen (or per major component):
---- All locatiors (how you find elements) and actions for a page are stored in one place
-1:your testscripts call these high-level methods.
-2: Dette skaber en adskillelse mellem test logik (det man tester) og hvordan man interagere med UI.
---- Det kan dog være svært i en web-shop hvor samme side kan have forskellige elementer. Så er man nødt til at have parametre i sine tests.
---- I cypress, kan man tilføje nogen elementer i html (eg. data-cy="MyId") for at gøre test enklere. Arturo advare imod det, da produktions-kode skal afkoples fra tests.
-######
---- man kan træne CSS med "CSS Diner".
---- man kan træne end-to-end med "Formy" eller "The-Internet"
-
-## Static testing
-### Test software, without executing it:
-linting, sonarqube, eller en programmør der manuelt gennemgår koden.
----"they dont find failures, but causes of failures"
-#### chrnoter
-#####
-######
-
 
 ## Review (1)
 ###
@@ -432,6 +531,9 @@ We can review anything in the V-model.
 
 
 
+
+/// khori
+Khorikov book
 
 //// review
 noter om review (der er en del teori om det)
