@@ -1,0 +1,707 @@
+
+
+## Software Quality
+### Spoergsmaal:
+i boundary values omkring nul, Har vi i klassen kun set
+-1, 0, 1. Hvorfor er -2 og 2 ikke altid med?
+####
+#####
+######
+++ hvornaar skal man lave mocks og stubs istedet for
+at kalde rigtige services?
+
+## Arturo test queuestion
+### Arturo test  answer
+#### chrnoter
+######
+Arturo mere information: Anbefalede boerger:
+-Hambling, Brian, ed. (2019) (light-reading)
+Software testing foundationL An USTQB-BSC
+certified Tester foundation guide.
+-Khorikov, Vladimir (2020) (bedste bog)
+Unit testing: Principles, Practice and Patterns
+-Mohan, Gayatri (2022) (ikke den bedste, men daekker alle emner).
+
+
+## Who got which report roles (mandatory 2 software quality report)
+### Author: Mark Jessing (an Author is the one who wrote the requireement specification.
+Mark got the role because he is good at spotting potential pitfalls in software design,
+so we selected him to preemptively avoid design issues)
+Moderator:  Christian Mantzius Lykke (chosen as moderator, because
+he has 5 years experience in an agile development team)
+Scribe:  Lukas Aleksander Maibom (chosen because he writes the best lecture notes in the team)
+Reviewer: Markus Lindeberg Bille & Andreas Rahbek Hansen
+#### reportnotes
+##### Til eksamen vil vi blive spurgt om
+hvorfor vi har valgt de forskellige personer til deres roller.
+
+
+
+## What is SDLC and what is the V model
+### SDLC stands for Software Development Life Cycle.
+Requirements -> Design -> Development -> Testing -> Deployment -> Maintenance.
+#### chrnoter
+##### there are several different SDLC models:
+(Waterfall, Agile, Spiral, Iterative, DevOps, etc.). The V-model is one of them.
+The V-Model (Verification and Validation Model) is a sequential SDLC model that gives strong emphasis on testing. It is an extension of the classic Waterfall model, but instead of testing being only at the end, testing activities are planned in parallel with each development phase.
+It gets its name from the "V" shape of the diagram:
+** Left side of the V → Development (downward flow)
+** Bottom → Coding
+** Right side of the V → Testing (upward flow)
+----
+Visual Structure of the V-Model:
+1: Requirements Analysis          ↔          Acceptance Testing
+       ↓                                           ↑
+2: System Design                  ↔          System Testing
+       ↓                                           ↑
+3: Architectural (High-Level) Design ↔     Integration Testing
+       ↓                                           ↑
+4: Module (Low-Level) Design      ↔          Unit Testing
+       ↓                                           ↑
+5:             CODING (Implementation)
+######
+System Testing: end-to-end, security, stress test, usability test,
+
+
+## Why do we test?
+###
+1: all software will fail in time (fordi fejlrettelser næsten
+altid vil ødelægge noget et andet sted)
+2: use tests to: enforce requirements,
+find errors, prevent regression, understand the code,
+help to check for completeness,
+prevent errors from happening.
+#### chrnoter
+#####
+
+
+## What is a good test?
+### see if we can break the system.
+a test is good if it finds errors.
+("tester" tankegangen) skal være
+at prøve at finde fejl.
+Hvis man skriver 10.000 tests, og ikke finder fejl,
+er det testene den er gal med.
+(SELVFØLGELIG er der fejl i kode, men
+testene kan ikke finde dem).
+#### chrnoter
+#####
+Tests skal være systematiske. Det
+er ikke ok. at teste tilfældigt.
+
+
+## Testing vs. debugging
+### Testing finds errors and reporting.
+Debugging finds AND removes errors.
+#### chrnoter
+#####
+
+## Static testing vs. dynamic testing:
+### static: The code is not executed.
+Dynamic: code is executed with testdata.
+#### chrnoter
+#####
+
+
+## Positive testing vs. Negative testing:
+### Positive: Code is expected to work (golden path). Negative: code is expected to fail.
+#### chrnoter
+##### We should focus our efforts on negative tests.
+
+
+## Test basis
+### The body of knowledge used as a basis for automated tests.
+#### chrnoter
+#####
+
+
+## Verification vs. Validation
+### Verification: check that work meets requirements.
+Validation: evaluates against users needs.
+#### chrnoter
+#####
+
+
+## Iterative vs. Incremental models:
+### Iterative: Tilføjer det hele fra starten med gradvis forbedring. (eg. Agile)
+Incremental: gradvis tilføjelse, men det man laver er komplet. (eg. waterfall)
+#### chrnoter
+#####
+
+
+## Defects, and when to test
+### The earlier you test the better.
+Defects are clustered (20% of code has 80% of bugs).
+Exhaustive testing is not possible. (because of things like loops and parameters that accepts f.eks. "Any text").
+#### chrnoter
+#####
+
+
+
+## Unit tests: AAA pattern
+### Arrange (preconditions),
+Act (execution),
+Assert (verification). Også kendt som:
+Given-When-Then pattern
+----
+Unit test: - test a small piece of code,
+does it quickly , and in an isolated manor
+---
+"small peice":
+ London school = isolated from other tests AND other classes.
+classical = isolated from other tests
+-----
+"unit":
+- london: specific class or method in a class
+- classical: "One business rule or user-facing action"
+(ask: "does the functionality make sence to a business person / user?" == unit test,
+"If I refactor the internal structure, will this test still make sense?", if not = dont test, the level is too low).
+#### chrnoter
+#####
+--- Never overuse unit tests.
+--- Unit tests should ONLY be used for business logic. DONT write unit tests just for CRUD operations.
+--- You dont want to write different tests (at different levels) that test the same thing.
+--- Each unittest should only test one thing.
+--- avoid more than one assert in unit tests, and avoid branching.
+######
+2025-01-27 – Foerste dag / uge – del 3 – Unit tests.
+--- when a test fails => fix the code IMMEDIATELY. When all tests pass, but a bug is found, a unit tests must be written.
+--- The goal of unit tests: Enable SUSTAINABLE GROWTH of a software system.
+--- dont think just about values. Think about how code might break.
+--- Brug Parameterized tests (selvom man kan argumentere for at det bryder med AAA modellen)
+
+
+## Black box techniques
+### Teknikker:
+--- Equivalence partitioning.
+--- Boundary value analysis.
+--- decision table testing.
+--- state transition testing.
+#### chrnoter blackbox
+##### Decision table testing:
+--- Decision Table Testing is used when a system has multiple conditions (inputs)
+and different combinations of these conditions lead to different outcomes (actions).
+It helps test all possible combinations systematically.
+(Each row of unique combinations becomes a test case.)
+--- State Transition Testing is used for systems that change states based on events or inputs.
+It models the different states the system can be in and the valid/invalid transitions between them.
+Best for: Login systems, order processing, vending machines, game levels, ATM machines, etc.
+- hver mulig state skrives ned, og alle veje mellem states skrives ned som pile mellem states.
+- Man skriver herefter tests for alle de valide paths from one state to another (positive tests),
+and for all the invalid paths from one state to another (negative tests)
+(only write tests for "each arrow" and not multiple, because you only want one "act" pr test.)
+######
+2025-02-03 – uge 2(6) – del 1 – Black Box test design.
+
+
+
+## black box - Equivalence partitioning
+### Instead of testing every possible input value (which is usually impossible), you divide the input domain into a small number of equivalence classes (or partitions).
+A partition: "A partition (also called an equivalence partition) is a set of input values that the software is expected to treat in exactly the same way."
+Valid partitions → Inputs that should be accepted by the system.
+Invalid partitions → Inputs that should be rejected or handled with error messages.
+#### chrnoter blackbox
+#####
+For integers: positive tal, 0 og negative tal er partitions.
+hvis systemet kun acceptere en range, f.eks. 18-65 for at få kørekort,
+vil de positive tal 18-65 være en valid partiton, og 1-17 og 66+ vil være invalid partitions.
+Herudover vil 0, negativetal, floats, strings, null ect. være invalid partitions.
+Hvis man arbejder i et typestærkt sprog, kan non-integers udelades som partitions, fordi systemet ikke vil acceptere dem.
+######
+For strings:
+empty string (iflg. Arturo. Korikov gør det ikke), only whitespace, minimul / maximum length,
+valid / invalid characters (eg. ø, ö, 漢).
+(ISTQB (International Software Testing Qualifications Board) explicitly mention prioritizing invalid partitions that represent security risks, such as SQL injection attempts.)
+For dates: minimum / maximum value, invalid format, leap-year (2024-02-29 valid, 2025-02-29 invalid - and always test for 30.feb.), timezone.
+
+
+
+## blackbox - Boundary value analysis
+### "errors tend to cluster around boundaries".
+We use 3-value boundaries: (partition: 1-99. Valid boundaries: 1, 2, 98, 99, invalid boundaries: 0, 100). Man kan vælge også at medtage en "Middle value". For partition 1-99: 23 could be a middle value.
+(Det er valgfrit at bruge middle-values, så længe man har
+gode 3-value boundaries)
+For overlapping values: remove dublicates.
+#### chrnoter blackbox
+##### Treat type-specific extremes as boundaries:
+example: signed 32-bit integers:
+INT_MIN (-2147483648), INT_MIN + 1, -1, 0
+INT_MAX (2147483647), INT_MAX - 1, 1.
+(Dette kan vi ikke gøre for strings, så vi må beslutte for store strings vi vil teste).
+######
+Når man tester ekstreme værdier (eg. MAX_INT). Hvordan tester man så MAX_INT + 1?:
+"because of wraparound, you test the extreme representable values and the system's behavior when arithmetic crosses those limits — not necessarily by passing the wrapped result as input."-AI
+
+
+## blackbox - Hvårnår skal vi teste mere end teorien siger?
+###
+"Dont let reality ruin a good test".
+Selv hvis forretningsreglerne siger at vi ikke kan have
+værdier under 5, så inkluder 0 og negative tal som partitions.
+Det er en god ide at tage højde for at en funktion måske får tilsendt
+en talværdi der er under 5, 0 eller negative tal.
+#### chrnoter blackbox
+#####
+Dog bør man altid undersøge hvad appen skal bruges til.
+Hvis det er en intern app i virksomeheden, behøver man
+ikke teste f.eks. negative tal, hvis appen  kun forventer positive tal.
+Hvis det er en web+app, bør vi teste negative tal, fordi
+ANY FRONTEND IS VERY EASILY HACKABLE
+######
+Nogen gange bør man teste mere end teorien siger:
+Hvis tallene er temperaturer for fahrenheit, bør man også teste tallene for vands kogepunkt. (selvom det ikke er en boundary value). DVS. man skal huske at tænke på forretningsbehov og ikke kun tekniske partitions.
+
+
+## blackbox - hvårnår skal vi teste mindre end teorien siger?
+### Husk "Frameing shop" opgaven:
+Vi skulle teste korrekte priser for en butik,
+ der tog forskellige beløb for Frames med forskellige arealer. Det var fordusat at input kun kunne være integers. VI MÅ DERFOR IKKE LAVE TESTS FOR AREAL OUTPUT 1601 cm2 elelr 1602 cm2, da de ikke kan forekomme med integer input.
+ Vi er nødt til at tænke: Vi må ikke skrive tests for cases der ikke kan forekomme.
+#### chrnoter blackbox
+#####
+(man kan selvfølgelig teste hvordan systemet håndtere et illegalt float input, men det var uden for scope af opgaven).
+######
+2025-02-10 – uge 3 (7) --
+setup+teardown and mocking, unittesting in depth, and antipatterns.
+
+
+
+## black-box: TDD: London vs. classical
+###
+Classical (Detroit/Chicago) (State-based) School:
+-- Verification style: Check final state or return value.
+-- Use of Test Doubles: Minimal – prefer real objects
+-- Isolation: (Kent Beck TDD book): Tests can run with real dependencies.
+Mock only shared dependencies (to avoid shared state between tests),
+and unmanaged denepdencies (because their system is their responsability).
+collaborators (own classes) are not mocked.
+-- Design Influence: Emergent design from refactoring
+-- fordel: det er nemere at refakturere, pga. focus på returnerede værdier. Fravær af mocks beskytter også bedre mod regression.
+-- ulempe: sværere at finde årsagen til bugs, og testene vil ofte køre langsommere, når få ting er mocked.
+#### chrnoter blackbox ainotes
+#####
+London / Interaction-based school:
+-- Verification style: Check interactions with collaborators
+-- Use of Test Doubles: Heavy use of mocks/stubs/spies
+-- Isolation: (Steve freeman & Nat Price 2009): Isolate SUT from all dependencies. (but dont mock constants / enums ect.)
+-- Design Influence: Design guided by interfaces & interactions
+-- fordel: På grund af isolering, ved man præcist hvad der fejler, og kan hurtigt fixe det.
+-- ulempe: når man isolere alle systemets dele, kræves der mange tests, og al refakturering / kodeændring kræver meget arbejde med at ændre tests
+######
+"the London School vs Classical School distinction originated in and is most strongly associated with Test-Driven Development (TDD), but the core ideas extend beyond TDD to general unit testing practices. It was popularized by Martin Fowler in his 2007 article "Mocks Aren't Stubs"." - AI
+--- Khorikovs aproach: classical + “dependencies we have full occntrol over, eg. databases, should NOT be mocke”.
+
+
+## black-box: TDD: Mock, Stub and Spy
+### Alle 3 kaldes "test doubles".
+Man mocker de objekter der kræver for lant tid (testene bliver for langsomme at køre).
+I Jest (javascript) kan man ogsaa mocke implementationen af en funktion, f.eks. Hvis den er kompliceret og man kun er interesseret I en lille del.
+#### chrnoter blackbox
+#####
+London school:
+-- Mock: Outgoing information (eg. send an email). (verify that system under test sent the correct data)
+-- Stub: Incomming information (getting infor from database) == Stub. (provides fake data to the system under test)
+-- Spy == Does both.
+Classical school:
+All 3 are mocks.
+######
+A "Spy" is a test double that acts as both a Stub and a Mock at the same time. (it is usually a wrapper around a real object)
+Uses:
+1: You want most of the real object’s behavior, but need to override just one or two methods.
+2: testing legacy code: When you can’t easily refactor a big class, but still want to isolate parts of it.
+3: Verifying Side Effects while keeping real logic.
+4: observe internal calls: You need to know whether private/protected/helper methods inside the class were invoked correctly.
+
+
+## black-box: what to test in a unit test
+###
+-- Unit tests should test one behavior
+-- en behavior, can vaere en funktion, men det kan ogsaa vaere meget mere komplex.
+-- AVOID chaining arrange, act assert.
+-- Avoid branching (if else while for)
+-- Cover the business logic, and not much else.
+(DET BETYDER == I MANGE APPLICATIONER BOER DER IKKE VAERE UNIT TESTS !!! MEDMINDRE MAN BRUGER TDD)
+-- "Act" section should be one line (eg. hvis man har en Purchase funktion, og er noedt til bagefter at kalde en RemoveFromInventory, betyder det at koden er dårlig.RemoveFromInventory burde have vaeret en del af  Purchase handling)
+-- Never test private methods / functions directly. (hvis man gør det, kopler man tests til implementation)
+-- Do never expose private state (Do not leak domain knowledge to unit tests -> use hardcoded or mocked values in tests)
+-- dont polute the code with anything test-related (eg. dont use "only for test"-booleans)
+#### chrnoter blackbox
+##### Årsagen til at man kun bør teste businesslogic:
+jo mere man tester ting udover business logic, jo mere er man noedt til at aendre dem naar man refakturere. Der boer ikke ske. Unit tests skal vaere implementationsuafhaengige.
+######
+
+
+
+## black-box: how to handle dates / CPR / Money ect..
+###
+-- man kan bruge indbyggede bibioteker til dates, f.eks. Til at finde dato forskelle.
+-- test altid for 30. februar. Hvordan haandtere ens system det?
+-- da man skal bruge hardcodede vaerdier til tests, og ikke boer lave beregninger I tests,
+    saa boer man mogge “dagen idag” datoen, istedet for at bruge date.now()
+-- CPR: Man bør holde sig til at det er en "10 digit numeric string" og ikke hænge sig i at det er CPR. CPR er kun et navn.
+-- Penge: man kan konvertere ens float til en string, of fjerne de ekstradecimaler.
+-- API: fint at teste at vi får en 400 fejl, men vi må ikke bare teste at vi modtager en bestemt fejl string.
+-- telefonnumre: I teorien er et anti-pattern at bruge en regex, men det giver stor værdi, så gør det alligevel.
+#### chrnoter blackbox
+#####
+######
+2025-02-17 – uge 4 (8)
+vedroernde employees opgaven.
+
+
+## Dependencies
+###
+- in-process vs out-of-process:
+any external system or resource that runs in its own separate process.
+- outOfProcess: managed vs unmanaged:
+(incl. a database (often managed), message que (often managed),
+ externam api (often unmanaged), email serevr (often unmanaged))
+- shared vs private:
+shared if more than one test uses it. oterwise private
+(the each test makes its own instance).
+----
+In-process and shared:
+Application-wide caches (MemoryCache, IMemoryCache)
+In-memory databases (e.g., SQLite :memory:, H2 in-memory)
+===
+#### ainotes
+#####
+
+
+## integration testing.
+###
+integration test == any test that is not a unit test.
+London: Any test that uses a real colaborator.
+Classical: Any test does doesnt follow all three of these:
+"single unit of behavior, quickly, isolated from other tests".
+(in practice: any test that verifys how the system works with out-of-process
+dependencies).
+----
+- used for: happy path + edge cases that cant be done with unit tests.
+- use real managed dependencies (database)
+(to an integration test, they are implementation details)
+- mock unmanaged depenedencies.
+#### khori
+#####
+######
+Korikov 2.4 (page 37+)
+
+
+
+
+
+## circular dependencies
+###
+example: an OrderService depends on a NotificationService to send order confirmations.
+NotificationService depends on OrderService to perform actions like canceling orders under certain conditions.
+----
+How to avoid them:
+- reduce layers:
+Many circular dependencies appear because people create too many thin, artificial layers.
+Try to keep your domain model and application services relatively flat.
+- introduce new class:
+new Ordermanager (dependes on both orderService and notificationService),
+= now you can test OrderService without having to mock NotificationService.
+- Use events (Domain Events) instead of direct calls:
+Order service publish an event:
+(f.eks. private readonly IEventPublisher _eventPublisher;)
+and NotificationService listens to it and react.
+(Domain Events + IEventPublisher = An internal notification system inside your application (like an in-memory pub/sub).)
+- Make one dependency go "down" the architecture:
+OrderService (higher level) depends on NotificationService (lower level).
+NotificationService is not allowed to depend back on OrderService.
+If NotificationService needs something, it should get the data from a repository or domain model instead of calling a service.
+#### ainotes khori
+#####
+Many circular dependencies appear because people create too many thin, artificial layers.
+Try to keep your domain model and application services relatively flat.
+######
+Khorikov chapter. 8
+
+## Controllertests vs. integration tests.
+###
+Use unit tests for most business logic (domain model).
+Use integration tests to verify the happy path + critical interactions with the database.
+----
+Controllertests / API tests: Should be kept minimal.
+mainly to check:
+Correct routing
+Proper request/response formats
+Authentication / authorization
+Basic error handling at the HTTP level.
+(He generally advises against trying to test complex business scenarios through API tests, because they become slow, brittle, and hard to maintain.)
+#### ainotes
+#####
+
+## End-to-End testing
+###
+--- en studenrende har dumpet eksamen for at bruge cypress
+til både unit tests, integrationtests og end+to+end. Det må man ikke
+--- testpyramiden siger at man skal have få end-to-end tests, fordi de er langsomme (involvere hele applikationen helt tilbage til databasen).
+(men nogen firmaer bruger dem meget)
+#### chrnoter
+#####
+Page-Object Model:
+Man har en testklasse for hver fyssike side i applikationen (or per major component):
+--- All locatiors (how you find elements) and actions for a page are stored in one place
+1:your testscripts call these high-level methods.
+2: Dette skaber en adskillelse mellem test logik (det man tester) og hvordan man interagere med UI.
+--- Det kan dog være svært i en web-shop hvor samme side kan have forskellige elementer. Så er man nødt til at have parametre i sine tests.
+--- I cypress, kan man tilføje nogen elementer i html (eg. data-cy="MyId") for at gøre test enklere. Arturo advare imod det, da produktions-kode skal afkoples fra tests.
+######
+--- man kan træne CSS med "CSS Diner".
+--- man kan træne end-to-end med "Formy" eller "The-Internet"
+
+
+## Static testing
+### Test software, without executing it:
+linting, sonarqube, eller en programmør der manuelt gennemgår koden.
+---"they dont find failures, but causes of failures"
+#### chrnoter
+#####
+######
+
+
+## CI/CD
+###
+-- Continous integration: after merge, automated builds and tests run immediately to catch issues early.
+-- Continous delivery: After CI succeeds, the pipeline goes further: It automatically prepares the software for real-world use and runs more thorough tests (integration test, enc-to-end ect). The final step to production needs human approval.
+-- Continuous Deployment → If all tests pass, it automatically deploys to production with no human approval.
+#### chrnoter ainotes
+#####
+-- Brug github actions: Efter hvert commit, kør et automatisk build.
+Det vil tjekke for kompileringsfejl, og er en test i sig selv.
+-- Firmaer stoler for meget på gituhb actions. Hvis man kun bruger det, kan man ikke replikere hardware og LAN+netværk.
+I stedet bør man lave en separat cloud test server ved siden af ens alm. server, og lave en aftale med cloud providren at hardware skal være det samme.
+######
+Best practice:
+--- The moment you have a function working: commit
+--- Include the tests in each commit (Martin Fowler)
+--- Nobody has a higher priority than fixing the (failing) build (Kent beck)
+Continous integration tools:
+Jenkins (komplex at bruge og installere),
+CircleCi == Jenkins alternativ
+Github Actions (nu det mest populaere, alle bruger det).
+TeamCity (??Jetbrains??).
+(der findes mange sider der påstår at vise top-10
+lister over CI tools, men spørger man virksomhedderne,
+bruger (næsten?) alle Github actions).
+
+## Review (1)
+###
+two types:
+1: Codereview
+2: Document review
+2a: document is studied by the reviewers
+2b: Author is informed of the issues found
+2c: the author updates the document
+2d: a next iteration is performed, if nessasary
+#### chrnoter review
+#####
+Review: Systematic examination of a document to find and remove errors.
+(objective: Finding defects, gaining understanding, generating discussions, decision making by consensus.)
+--- Reviews in the V-model:
+We can review anything in the V-model.
+######
+4 types of document reviews (by levels of formality):
+1: informal
+1a: Documentation not required
+1b: Sometimes just a quick non-technical check
+1c: inexpensive, but limited benefit
+2: Walkthrough (can be code review)
+2a: Review meeting led by the author of the document
+2b: It helps team members understand the document
+2c: open-ended
+2d: preparation and production of a repost is optional
+3: Technical review (code review)
+3a: Documented, well-defined detection process.
+3b: peer review, desirably with no presence of management.
+3c: Preparation and report.
+4: Inspection
+4a: led by a trained moderator.
+4b: Peer examination of a document.
+4c: pre-meeting preparation
+4d: production of an inspection report
+4e: formal follow-up
+
+
+
+
+## Review (2) -
+### https://ek.itslearning.com/ContentArea/ContentArea.aspx?LocationID=7576&LocationType=1&TextURL=%2fLearningToolElement%2fViewLearningToolElement.aspx%3fLearningToolElementId%3d1455689
+#### chrnoter review
+#####
+######
+
+
+## name 4 testing principles:
+###
+???
+####
+##### arturo
+
+
+## 4 pillars of khorikov:
+###
+1: Matinability
+
+2: protect against regression,
+3: protect against refactoring
+4: fast feedback
+
+regression -- refactoring: End to end tests
+(slow, but good at protecting against regression and refactoring)
+refactoring -- fast feedback: Trivial tests
+(tests that cover simple pieces of code, unlikely to brak)
+regression -- fast feedback: Brittle tests.
+(tests that run fast and good at ctaching regression, but has a lot of false positives)
+#### khori
+#####
+resistance to refactoring er NON NEGOTIOBLE (side 85).
+grunden til det er at man ikke kan have tests der er "lidt britte".
+Det er som en boolean. Du har enten 100% resistence to refactoring, eller
+du har intent.
+######
+Khorikov - 4.4.5, page 84 + 85
+
+What criteria did you use to assign roles for your specification review?
+How did you apply the boundary values technique to the design of test cases?
+Why did you create/not create a decision table?
+Track your unit tests to the test cases found in the black-box design phase or vice versa
+Explain how you organised your risk table
+Explain the follow-up to a specific risk
+Did your coverage tool calculate statement coverage or decision coverage?
+Explain what approach to unit testing did you use
+Discuss your use of the AAA pattern for your unit tests
+Show your use of parameterised tests/data providers
+Show how you used test doubles or, if you did not, explain why
+Explain how you tested the database
+
+
+Explain how you tested the external API
+Showcase negative API tests
+Explain the design of your internal API tests
+Explain the design of your end-to-end tests
+Explain the design of the stress performance tests
+Practical. Examples:
+Run the unit tests
+Change the code of the application so that a unit test fails
+Run the continuous integration job
+Push to the repository so that the CI job runs automatically
+Make the CI job fail
+Run the API tests
+Make an API test fail
+Run specific end-to-end UI tests
+Edit an end-to-end UI test
+Run a stress performance test
+
+What are the differences between testing and debugging?’
+What is static testing and what is dynamic testing?
+What is verification and what is validation?
+What is regression testing?
+Explain at least four general testing principles.
+Describe the V-model
+According to the ISTQB certification (as expressed in the slides), what parts of the V-model correspond to verification and which ones to validation?
+Explain what types of tests fall normally under system testing
+Explain the test pyramid and discuss its applicability
+
+Explain the difficulties of performing acceptance testing in a Scrum setting
+-- acception test: Acceptance Testing is the final level of software testing performed to determine whether a software system meets the business requirements and is acceptable to the end users or stakeholders before it is released into production.
+-- Det er for resourcekraevende at goere efter hvert sprint.
+
+What is test monitoring and control? -- Test coverage
+- keeping track of how good out testsuite is (on different metrics)
+- Our test cases prepared vs. planned ones. ()
+- Number of cases that we run/don't and that pass/fail.
+- Density and defects ()
+- We can talk costs too…
+
+
+What is incident management?
+Incident. Unplanned event requiring further investigation
+• Defects, specification changes, test design problems
+or other misunderstandings
+• They can arise through the full SDLC, and must be tracked
+• Incident management. “The process of recognising, investigating,
+taking action and disposing of incidents” (IEEE 1044)
+• Use of incident-tracking tools (e.g., Jira, Bugzilla, Azure DevOps Server)
+• Incident reports
+• Feedback for developers and other parties
+• Quality tracking information (e.g., number of incidents, priority, correction status)
+• Ideas for improvement of the test process
+
+
+Risk analyssi:
+forhindre, eller mindske skaden (mitigation).
+
+
+
+
+What is configuration management?
+- verioncontrol for all test related tools and workproducts.
+- bidirection traceability:
+ens tests indeholder information om versionen af den software man tester
+(hvis vi tester kode version 1.0, skal vi bruge test version 1.0).
+
+
+
+White Box Test Design: Explain the pros and cons of coverage as a test progress measuring indicator
+- good negative indicator, bad positive indicator.
+Statement Coverage
+• Also called code coverage or test coverage
+• It focuses on covering all executable code statements
+•Measure: percentage of executable lines of code tested
+• Helpful, but not very efficient
+Decision Coverage
+• Also called branch coverage
+• Every decision outcome (branch)
+must be tested at least once
+• This means testing else conditions
+with no associated code
+• 100% decision coverage guarantees
+100% statement coverage,
+but not the other way around
+
+
+Unit Testing: Discuss whether private methods must be unit-tested or not
+never test (not in classical, not in london)
+
+Discuss when a unit test can be considered an integration test
+london: andre end den konkrete klasse
+classical: if it tests out-of-process dependencies.
+
+
+What are the advantages and disadvantages of the classical approach to unit testing
+(isolating the unit tests, using test doubles only for shared dependencies)?
+
+
+What are the advantages and disadvantages of the London approach to unit testing
+(isolating the units of code, using test doubles for all but immutable dependencies)?
+
+
+//// arturo
+questions given by arturo
+
+//// khori
+Khorikov book
+
+//// review
+noter om review (der er en del teori om det)
+
+//// ainotes
+Noter skrevet af AI, naar jeg ikke har andet
+
+//// reportnotes
+Noter skrevet på baggrund af vores skriftlige opgaver
+
+//// chrnoter
+noter jeg har skrevet til Aturos fag
+
+//// blackbox
+2025-02-03 – uge 2(6) – del 1 – Black Box test design.
+
+
+
+
+
+
