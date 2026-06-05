@@ -384,72 +384,599 @@ Key Trade-off: Greatly speeds up reads, but slows writes and uses more disk/memo
 ######
 
 
-## I want to query a user by last name - or another example.
-What if you want to query by multiple where statements?
 
+
+## I want to query a user by last name. (we dont have that, so we querry by username)
+###
+1. MySQL (SQL)
+"""
+SELECT username FROM Users
+WHERE username = 'user1';
+Explanation / Why this is good:
+"""
+--- username has a UNIQUE INDEX → lookup is O(log n) (very fast).=
+--- We select only needed columns (avoid SELECT * in production).
+--- After migration, Players references Users via user_id FK, so user data is centralized.
+----------------------------------
+Native MongoDB shell / query:
+"""
+db.users.findOne({ username: "user1" });
+"""
+Or, to exclude hashed password:
+"""
+db.users.findOne(
+    { username: "user1" },
+    { passwordHash: 0 }   // exclude sensitive field
+);
+"""
+--- in repository:
+// In UserMongoRepository.java
+Optional<UserDocument> findByUsername(String username);
+Optional<UserDocument> user = userRepository.findByUsername("user1");
+--- MongoDB automatically indexes _id. For username you should create an index:
+"""
+db.users.createIndex({ username: 1 }, { unique: true });
+"""
+----------------------------------------
+Neo4j: (in cyper):
+"""
+MATCH (u:User)
+WHERE u.username = 'user1'
+RETURN u;
+"""
+--- In graph databases we use pattern matching (MATCH).
+--- username should have an index/constraint for performance:cypherCREATE CONSTRAINT user_username_unique IF NOT EXISTS
+"""
+FOR (u:User) REQUIRE u.username IS UNIQUE;
+"""
 #### questionlist indexes
+#####
+Mysql-username-index-and-emailindex:
+"""
+CREATE TABLE IF NOT EXISTS `arimaadockermysqldb`.`Users` (
+  `id`         BIGINT        NOT NULL AUTO_INCREMENT,
+  `username`   VARCHAR(50)   NOT NULL,
+  `email`      VARCHAR(254)  NOT NULL,
+  `password`   VARCHAR(100)  NOT NULL,
+  `role`       VARCHAR(50)   NOT NULL,
+  `created_at` DATETIME(6)   NOT NULL,
+  `updated_at` DATETIME(6)   NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `username_UNIQUE` (`username`),
+  UNIQUE INDEX `email_UNIQUE`    (`email`)
+) ENGINE = InnoDB;
+"""
+----------------------------------
+With JOIN example (if you also need player data):
+"""
+SQLSELECT u.*, p.*
+FROM Users u
+LEFT JOIN Players p ON p.user_id = u.id
+WHERE u.username = 'user1';
+"""
+######
+
+
+
+## (I want to query a user by last name - or another example.)...
+What if you want to query by multiple where statements?
+###
+MySQL:
+"""
+SELECT
+    u.username,
+    u.email,
+    u.role,
+    p.rating,
+    p.games_played
+FROM Players p
+JOIN Users u ON p.user_id = u.id
+WHERE p.rating >= 1500
+  AND p.games_played >= 30
+  AND u.role = 'PLAYER'
+ORDER BY p.rating DESC
+LIMIT 10;
+"""
+--- We use JOIN because data is split between Users and Players tables.
+--- Multiple conditions are combined with AND in the WHERE clause.
+--- ORDER BY + LIMIT for the best/top results.
+--- Very common type of query in relational databases.
+-------------------------------------
+MongoDB:
+"""
+// MongoDB Shell
+db.users.find({
+    "role": "PLAYER",
+    "rating": { $gte: 1500 },
+    "gamesPlayed": { $gte: 30 }
+})
+.sort({ rating: -1 })
+.limit(10);
+"""
+Key Points:
+--- All conditions are inside one find() filter.
+--- No joins needed — everything is in one document (embedded or referenced).
+--- Very readable and flexible.
+----------------------------------------
+Neo4j: cypher:
+"""
+MATCH (u:User)-[:HAS_PLAYER_PROFILE]->(p:Player)
+WHERE u.role = 'PLAYER'
+  AND p.rating >= 1500
+  AND p.gamesPlayed >= 30
+RETURN u.username, u.email, p.rating, p.gamesPlayed
+ORDER BY p.rating DESC
+LIMIT 10;
+"""
+Key Points:
+--- Uses graph pattern matching (MATCH).
+--- Conditions are in WHERE with AND.
+--- Relationships (HAS_PLAYER_PROFILE) replace SQL joins.
+-----------------------------------------------
+#### questionlist indexes
+#####
+######
+
+
 
 
 ## Pros and cons (of indexes).
-
+###
+---- General Pros: Significantly faster SELECT, WHERE, JOIN, ORDER BY, and sorting.
+Help enforce uniqueness (e.g. username). Improve overall query performance on large data.
+---- General Cons: Slower INSERT/UPDATE/DELETE because indexes must be updated.
+Consume extra storage space. Require maintenance and can hurt performance if overused.
+--------------------
+MySQL:
+--- Pros: Excellent B-Tree indexes for equality, ranges, and joins
+(great for username, user_id, rating in our project). Primary keys and foreign keys get indexes automatically.
+--- Cons: Every write operation becomes slower; extra disk space used.
+---------------------
+MongoDB:
+--- Pros: Very flexible — indexes on any field, compound indexes (multiple fields),
+and special types like text indexes. Automatic _id index.
+--- Cons: High memory consumption (indexes ideally stay in RAM),
+slows down write-heavy workloads noticeably.
+--------------------------------
+Neo4j:
+--- Pros: Schema indexes speed up property lookups in Cypher queries (e.g. on username or rating).
+Works well with graph traversals.
+--- Cons: Still slows writes; indexes mainly help filtering,
+not the relationship traversals themselves.
 #### questionlist indexes
+#####
+Verbal Summary: Indexes are crucial because they turn slow full scans into fast lookups,
+boosting read performance across MySQL, MongoDB, and Neo4j.
+However, they trade off write speed and storage.
+In our migration project we added indexes on frequently used fields like username after moving data from SQL to NoSQL stores.
+Always evaluate query patterns before creating them.
+
+
 
 
 ## What types of indexes do you know?
-
+###
+MySQL (SQL):
+--- Primary Key Index: Auto-created, unique, clustered (e.g. Users.id).
+--- Unique Index: Enforces uniqueness (e.g. username_UNIQUE).
+--- Secondary / Non-unique Index: For frequent filters (e.g. on rating, role).
+--- Composite Index: Multiple columns (e.g. rating + games_played).
+--- B-Tree (default) — great for ranges and sorting. Also Full-text and Hash indexes.
+---------------------------
+MongoDB:
+--- Single Field Index: On one field (e.g. username).
+--- Compound Index: Multiple fields (e.g. {role:1, rating:-1}).
+--- Unique Index, Hashed, Text Index, Geospatial.
+--- Partial / Sparse / TTL indexes.
+---------------------------
+Neo4j:
+--- Schema Index: On label + property (e.g. CREATE INDEX ON :User(username)).
+--- Composite Schema Index: Multiple properties.
+--- Full-text Index (via Lucene integration).
+--- Point / Spatial indexes.
 #### questionlist indexes
+#####
+Database Indexes Summary:
+ *
+ * 1. SQL (MySQL):
+ *    - Primary keys are indexed automatically.
+ *    - UNIQUE indexes on:
+ *        - Puzzles: name
+ *        - Countries: name
+ *        - Players: username, email
+ *    - Explicit indexes for performance on:
+ *        - Players: countries_id (FK), rating, RU
+ *        - Matches: player_id_silver (FK), player_id_gold (FK), events_id (FK), gameTypes_id (FK),
+ *                   termination_type + match_result, gameTypes_id + match_result, events_id + match_result,
+ *                   player_id_silver + timestamp, player_id_gold + timestamp, timestamp
+ *        - Moves: position_id (FK), matches_id (FK), matches_id + turn + sequence
+ *        - OpeningsByMatch: position_id (FK), matches_id (FK)
+ *        - OpeningsByPuzzle: position_id (FK), puzzles_id (FK)
+ *        - Solution: position_id (FK), puzzles_id (FK)
+######
+2. Neo4j:
+ *    - Unique constraints (acting as indexes) on:
+ *        - All entities (Country, Player, Event, GameType, Match, Position, Move, Puzzle, Solution, User): id
+ *        - Country: name
+ *        - Puzzle: name
+ *        - User: username, email
+ *
+ * 3. MongoDB:
+ *    - No explicit indexes defined in the application codebase.
+
+
 
 
 ## Give typical examples when an index will not be used
 and how to fix the issue.
-
+###
+When indexes are ignored in SQL (examples):
+--- Functions on column (e.g. WHERE UPPER(username) = 'USER1').
+--- Leading wildcard in LIKE (LIKE '%abc').
+--- OR conditions or complex expressions.
+-----------------------------
+SQL examples:
+Example: WHERE YEAR(created_at) = 2025 (function kills index).
+Fix: WHERE created_at >= '2025-01-01' AND created_at < '2026-01-01' or add functional index.
+Example: WHERE role = 'PLAYER' OR role = 'ADMIN' (OR often skips index).
+Fix: Use IN ('PLAYER', 'ADMIN') or UNION.
+----------------------------
+MongoDB examples:
+Example: find({$where: "this.rating > 1500"}) (JavaScript eval, no index).
+Fix: Use native operators {rating: {$gt: 1500}}.
+Example: Querying unindexed field.
+Fix: Create index + ensure compound index covers sort + filter.
+----------------------------
+Neo4J examples:
+Example: WHERE toLower(u.username) = 'user1' (function on property).
+Fix: Store normalized value or use WHERE u.username = 'user1'.
+Example: No index on filtered property.
+Fix: CREATE INDEX ON :User(username) and CALL db.awaitIndexes().
+-----------------------------
+--- Our Project Tip: Always check EXPLAIN (MySQL), explain() (Mongo), or PROFILE (Neo4j). After migration, we added indexes on username, rating to avoid full scans.
+--- Verbal Summary:
+"Indexes are skipped when using functions, leading wildcards, or low-selectivity queries.
+Fix by rewriting conditions to match index, creating proper indexes,
+and keeping statistics updated. This is important for performance in all three databases."
 #### questionlist indexes
+#####
+Situations when you wouldnt want to use an index:
+SQL:
+--- Tempted: Index a low-cardinality column like role (only 'PLAYER', 'ADMIN', 'USER').
+--- Bad because: Optimizer often ignores it (full scan is faster). Wastes space and slows writes.
+--- Tempted: Index a long TEXT or VARCHAR(1000) column.
+--- Bad because: Huge index size, very slow maintenance.
+----------------------------------
+MongoDB:
+--- Tempted: Create indexes on every field in a high-write collection (e.g. logs or game events).
+--- Bad because: Dramatically slows down inserts/updates and consumes lots of RAM.
+--- Tempted: Index a field that is almost never used in queries.
+--- Bad because: Pure overhead with zero benefit.
+----------------------------------
+Neo4j:
+--- Tempted: Index a property with very low selectivity (e.g. status with few possible values).
+--- Bad because: Doesn't help filtering and still adds write overhead.
+--- Tempted: Create many composite indexes on rarely combined properties.
+--- Bad because: Increases storage and slows schema changes / writes.
+----------------------------------
+Always index based on real query patterns (EXPLAIN / PROFILE).
+In our project we only indexed username, rating, and user_id — not everything.
+Verbal Summary:
+"Even though we are tempted to index columns we use often, we must avoid low-cardinality fields,
+rarely queried data, or high-write columns, because the write penalty and storage cost outweigh the benefits."
+######
+
+
+
 
 
 ## Covering indexes.
-
+###
+Definition: A covering index contains all columns needed for a query (SELECT + WHERE + ORDER BY).
+The database reads only the index — no extra lookup to the table/document. This makes queries much faster with less I/O.
+----------------------------------
+1. MySQL:
+--- Example: CREATE INDEX idx_cover ON Players(rating, games_played, user_id);
+--- Query: SELECT rating, games_played FROM Players WHERE rating >= 1500;
+--- Benefit: Fully covered → uses index only (EXPLAIN shows "Using index").
+---------------------------
+2. MongoDB:
+--- Example: db.users.createIndex({username:1, role:1, email:1});
+--- Query: db.users.find({username:"user1"}, {username:1, role:1, email:1});
+--- Benefit: Index-only scan, very fast for projection queries.
+----------------------------------
+3. Neo4j:
+--- Example: CREATE INDEX ON :User(username, role, email);
+--- Query: MATCH (u:User) WHERE u.username = 'user1' RETURN u.username, u.role;
+---Benefit: Property lookup stays in index (faster for read-heavy queries).
+-------------------------------------
+Our Project: We use covering indexes on username + role for frequent user lookups after migration.
+Helps performance when joining Users and Players.
+Verbal Summary:
+"A covering index includes every column the query needs,
+so the database avoids accessing the main table.
+It’s very effective in MySQL, MongoDB, and Neo4j for boosting read speed,
+ especially on high-frequency queries like finding users by username."
 #### questionlist indexes
+#####
+
 
 
 ## Index selectivity and column cardinality
-
+###
+--- Cardinality = number of distinct values in a column.
+--- Selectivity = how well a column filters data (high selectivity = few rows match a value).
+--- High cardinality usually means high selectivity → excellent for indexes.
+--- Good for Indexing: High cardinality columns (e.g. username, email, id).
+--- Bad for Indexing: Low cardinality columns (e.g. role, status with few values).
+---------------------------------------
+1. MySQL:
+--- High selectivity: username (unique) → great index.
+--- Low selectivity: role ('PLAYER', 'ADMIN') → often not used alone.
+--- Tip: Use SHOW INDEX + EXPLAIN to check.
+---------------------------------------
+2. MongoDB:
+--- High selectivity: username or email.
+--- Low selectivity: role → better as compound index with high-cardinality field.
+--- Check with explain("executionStats").
+----------------------------------------
+3. Neo4j:
+--- High selectivity: username or player id.
+--- Low selectivity: UserRole → avoid standalone index.
+--- Use PROFILE to verify index usage.
+------------------------------------------
+--- Our Project: We indexed high-selectivity fields like username and rating after migration.
+--- Avoided indexing low-cardinality columns to prevent overhead.
+--- Verbal Summary:
+"Cardinality shows how many unique values a column has. High cardinality gives high selectivity,
+making indexes very effective. In all three databases we prefer indexing columns like username or rating,
+while low-cardinality columns like role are poor candidates alone."
 #### questionlist indexes
+#####
+Selectivity = How good the column is at filtering rows (high = very useful for indexes).
+Good Index (High Selectivity):
+--- username → millions of unique values.
+--- Query WHERE username = 'user1' returns 1 row → index is excellent.
+--------------
+Bad Index (Low Selectivity):
+--- role → only 3 values (PLAYER, ADMIN, USER).
+--- Query WHERE role = 'PLAYER' returns 90% of rows → index is almost useless.
+-----------------
+Examples in our project:
+--- Index username (high cardinality) → fast.
+--- Don’t index role alone (low cardinality) → waste of resources.
+---------------------
+Rule: Prefer high-cardinality columns for indexes. Combine low-cardinality with high ones in compound indexes.
+######
+Cardinality = Number of unique (different) values in a column.
+Example:
+username column → 10,000 different usernames → High Cardinality
+, role column → only 3 values (PLAYER, ADMIN, USER) → Low Cardinality
+------------------------------------
+Selectivity = How effectively a value filters the data (how few rows it returns).
+Connection:
+--- High Cardinality → usually High Selectivity
+→ Good for indexes.
+Example: WHERE username = 'user1' → returns 1 row out of 10,000. Index is very useful.
+--- Low Cardinality → usually Low Selectivity
+→ Bad for indexes.
+Example: WHERE role = 'PLAYER' → returns 8,000 rows out of 10,000. Index gives almost no help (database might ignore it).
+---------------------------
+Rule for Indexes:
+High cardinality columns = strong selectivity = great indexes.
+Low cardinality columns = weak selectivity = usually not worth indexing alone.
+This is why we index username but not role in our project.
+
 
 
 ## When not to add an index?
-
+###
+Situations when you wouldnt want to use an index:
+SQL:
+--- Tempted: Index a low-cardinality column like role (only 'PLAYER', 'ADMIN', 'USER').
+--- Bad because: Optimizer often ignores it (full scan is faster). Wastes space and slows writes.
+--- Tempted: Index a long TEXT or VARCHAR(1000) column.
+--- Bad because: Huge index size, very slow maintenance.
+----------------------------------
+MongoDB:
+--- Tempted: Create indexes on every field in a high-write collection (e.g. logs or game events).
+--- Bad because: Dramatically slows down inserts/updates and consumes lots of RAM.
+--- Tempted: Index a field that is almost never used in queries.
+--- Bad because: Pure overhead with zero benefit.
+----------------------------------
+Neo4j:
+--- Tempted: Index a property with very low selectivity (e.g. status with few possible values).
+--- Bad because: Doesn't help filtering and still adds write overhead.
+--- Tempted: Create many composite indexes on rarely combined properties.
+--- Bad because: Increases storage and slows schema changes / writes.
+----------------------------------
+Always index based on real query patterns (EXPLAIN / PROFILE).
+In our project we only indexed username, rating, and user_id — not everything.
+Verbal Summary:
+"Even though we are tempted to index columns we use often, we must avoid low-cardinality fields,
+rarely queried data, or high-write columns, because the write penalty and storage cost outweigh the benefits."
 #### questionlist indexes
 
 
 ## Database vs application cache
-
+###
+Database Cache:
+Caching done inside the database (automatic).
+--- MySQL: InnoDB Buffer Pool (caches data pages).
+--- MongoDB: WiredTiger cache (in-memory documents/indexes).
+--- Neo4j: Page cache + query cache.
+--- Pros: Transparent, consistent with DB data, handles transactions.
+--- Cons: Limited size, tied to DB server, less control.
+-------------------------------------------------
+Application Cache:
+Caching done in your app (e.g. Redis, Caffeine, Spring @Cacheable).
+Store query results, user sessions, or frequent objects in memory.
+--- Pros: Much faster (no DB roundtrip), custom logic, distributed (Redis).
+--- Cons: Cache invalidation is hard (stale data risk), extra complexity, consistency issues.
+--------------------------------------------------------
+Our Project Example:
+--- Use DB cache for normal queries (username lookup).
+--- Use app cache (Redis) for top players leaderboard or user profiles that change rarely.
+-------------------------------------------------
+Verbal Summary:
+"Database cache is automatic and consistent but limited.
+Application cache is faster and more flexible but requires careful invalidation.
+In our SQL → MongoDB → Neo4j project we rely on DB cache for most work and add application cache only for hot paths."
 #### questionlist caching
 
 
 ## Cache invalidation problems
-
+###
+Cache Invalidation = Removing or updating old cached data when the source data changes.
+It is known as one of the hardest problems in computing.
+-----------------------------
+Main Problems:
+--- Stale data: App shows outdated information (e.g. old player rating).
+--- Consistency issues: Different users see different data.
+--- Race conditions: Multiple updates cause wrong cache state.
+--- Over-invalidation: Too many cache clears → performance drops.
+--- Under-invalidation: Forgets to clear cache → bugs.
+------------------------------------
+In Our Project:
+Database cache (MySQL/MongoDB/Neo4j) mostly handles it automatically.
+Application cache (e.g. Redis for user profiles or top players) is risky.
+Example: Player rating updates in SQL → but app cache still shows old value.
+-----------------------------------
+Common Solutions:
+--- Time-To-Live (TTL) – auto expire after some time.
+--- Write-through / Write-behind cache.
+--- Event-driven invalidation (e.g. listen to DB changes).
+--- Versioning or cache keys with timestamps.
+---------------------------------------
+Verbal Summary:
+"Cache invalidation is difficult because keeping cache and real data in sync is error-prone.
+ t causes stale reads and consistency problems. In our three-database project we prefer
+ database-level caching when possible and use careful TTL or event-based invalidation for application cache."
 #### questionlist caching
+#####
+ * 1. Current Status:
+ *    - There is currently no explicit application-level cache invalidation (e.g., Spring Cache, Redis)
+ *      implemented for any of the 3 databases (SQL, Neo4j, MongoDB).
+ ----------------------------------
+ * 2. Where to Benefit:
+ *    - SQL: Frequently read, rarely changed tables like `Countries` or `Puzzles` could benefit
+ *      significantly from caching to reduce database load.
+ *    - Neo4j: Complex graph traversals (e.g., leaderboard generation, pathfinding) are computationally
+ *      expensive. Caching these results with appropriate invalidation triggers (e.g., when a new
+ *      match is finished) would improve performance.
+ *    - MongoDB: If used for read-heavy analytical data, caching the results of expensive queries
+ *      would be beneficial, with invalidation occurring on data updates.
+
+
 
 
 ## Read-through vs write-through caching
-
+###
+Read-Through Cache:
+On a read request, the cache checks for data.
+--- Miss → loads from database, stores in cache, then returns it.
+--- Writes go directly to the database (cache is updated lazily on next read).
+--------------------------------
+Write-Through Cache:
+On a write request, data is written to both the database and the cache at the same time (synchronously).
+Comparison:
+--- Read-Through
+Pros: Simple, good for read-heavy workloads.
+Cons: First read is slow (cache miss), risk of stale data if not invalidated.
+--- Write-Through
+Pros: Strong consistency (cache always up-to-date).
+Cons: Writes are slower (must update both cache + DB).
+---------------------------
+Verbal Summary:
+"Read-through loads data into cache on miss and is great for reads.
+ rite-through updates both cache and database together for better consistency,
+ but slows down writes.
 #### questionlist caching
 
 
 ## What is a transaction and how does it work?
-
+###
+Definition:
+A transaction is a logical unit of work that contains one or more database operations. It must be executed completely or not at all.
+ACID Properties:
+--- Atomicity: All or nothing (COMMIT or ROLLBACK).
+--- Consistency: Database moves from one valid state to another.
+--- Isolation: Transactions don’t interfere with each other.
+--- Durability: Committed changes survive crashes.
+-------------------------------
+Mysql example:
+"""
+START TRANSACTION;
+UPDATE Users SET role = 'ADMIN' WHERE username = 'user1';
+UPDATE Players SET rating = rating + 100 WHERE user_id = 1;
+COMMIT;        -- Success: all changes saved
+-- or ROLLBACK; -- Failure: all changes undone
+"""
+--------------------------------
+--- In MongoDB:
+Supports multi-document transactions (since v4.0) using startSession(), startTransaction(), commitTransaction().
+--- In Neo4j:
+Uses Cypher transactions or driver-level transactions with automatic rollback on error.
+------------------------------------
+Verbal Summary:
+"A transaction groups operations so they succeed together or fail together (ACID). It ensures reliability especially during migration between our three databases."
 #### questionlist transactions
 
 
 ## Advantages and trade-offs of using transactions
-
+###
+Advantages:
+--- Atomicity: Ensures all operations succeed or none do (no partial updates).
+--- Consistency: Keeps database in valid state (e.g. Users + Players stay linked).
+--- Isolation: Prevents dirty reads, lost updates between concurrent users.
+--- Durability: Committed data survives crashes.
+--- Strong reliability during complex operations like data migration.
+--------------------------------
+Trade-offs / Disadvantages:
+--- Performance overhead: Locks resources, slower than single operations.
+--- Reduced concurrency: Long transactions can block other users.
+--- Deadlock risk: Multiple transactions waiting for each other.
+--- Higher complexity: Need proper error handling and rollback logic.
+--- In distributed systems (MongoDB/Neo4j), they can be slower and less available.
+--------------------------------
+Verbal Summary:
+"Transactions provide strong ACID guarantees and data integrity,
+which is crucial when migrating between SQL, MongoDB, and Neo4j.
+However, they come with performance costs, locking, and complexity.
+We use them for critical operations but keep them short to avoid bottlenecks."
 #### questionlist transactions
 
 
 ## Explain ACID vs BASE properties in databases
 and where each is appropriate
-
+###
+ACID (Atomicity, Consistency, Isolation, Durability)
+Guarantees strong consistency and reliability.
+--- Atomicity: All or nothing.
+--- Consistency: Valid state before/after.
+--- Isolation: Transactions don’t interfere.
+--- Durability: Committed data persists.
+--- Best for: Banking, e-commerce orders, user accounts — where correctness is critical.
+---------------------------------
+BASE (Basically Available, Soft state, Eventual consistency)
+Prioritizes availability and scalability over immediate consistency.
+--- Basically Available: System stays responsive.
+--- Soft state: Data can change over time.
+--- Eventual consistency: Replicas converge eventually.
+--- Best for: Social media feeds, big data analytics, recommendation systems, high-traffic apps where speed > perfect consistency.
+---------------------------------
+Comparison:
+ACID = Strong consistency, lower availability under failure.
+BASE = High availability + scalability, accepts temporary inconsistency.
 #### questionlist transactions
+#####
+Verbal Summary:
+"ACID provides strong guarantees and is ideal for relational databases like MySQL when data integrity matters most.
+BASE sacrifices immediate consistency for higher availability and is common in NoSQL systems
+like MongoDB and Neo4j for large-scale, read-heavy applications."
+
+
+
 
 
 ## Name Concurrency issues that transactions solve.
