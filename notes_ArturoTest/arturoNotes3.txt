@@ -565,29 +565,9 @@ du har intent.
 Khorikov - 4.4.5, page 84 + 85
 
 What criteria did you use to assign roles for your specification review?
-Manager: Arturo
-Author: Mark Jessing -- han var ivrig efter at gaa i kast med den udfordring.
-Moderator:  Christian Mantzius Lykke -- regel fast og detaljeorienteret.
-Scribe:  Lukas Aleksander Maibom      --- lukas er den bedste note skriver,
-Reviewer: Markus Lindeberg Bille & Andreas Rahbek Hansen   --- gode til kritiske spoergsmaal.
-
-//*********************************************
-Equivalence partitioning
-Boundary value analysis
-Decision table testing
-State transition testing
-//*********************************************
-
 How did you apply the boundary values technique to the design of test cases?
--- 3-boundary values ()
-
 Why did you create/not create a decision table?
-Vores logic er for simpel til at det ville give vaerdi.
-
 Track your unit tests to the test cases found in the black-box design phase or vice versa
---- vi overset at lave design for Activity service,
-men vi har design for booking og weather
-
 Explain how you organised your risk table
 Explain the follow-up to a specific risk
 Did your coverage tool calculate statement coverage or decision coverage?
@@ -596,7 +576,6 @@ Discuss your use of the AAA pattern for your unit tests
 Show your use of parameterised tests/data providers
 Show how you used test doubles or, if you did not, explain why
 Explain how you tested the database
-
 
 
 Explain how you tested the external API
@@ -699,23 +678,6 @@ What are the advantages and disadvantages of the classical approach to unit test
 What are the advantages and disadvantages of the London approach to unit testing
 (isolating the units of code, using test doubles for all but immutable dependencies)?
 
-
-## statement, decision, line, instruction, branch
-
-Statement Coverage
-• Also called code coverage or test coverage
-• It focuses on covering all executable code statements
-•Measure: percentage of executable lines of code tested
-• Helpful, but not very efficient
-Decision Coverage
-• Also called branch coverage
-• Every decision outcome (branch)
-must be tested at least once
-• This means testing else conditions
-with no associated code
-• 100% decision coverage guarantees
-100% statement coverage,
-but not the other way around
 
 //// arturo
 questions given by arturo
