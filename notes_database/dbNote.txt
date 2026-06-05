@@ -146,33 +146,242 @@ Disadvantages: Can suffer from contention on "hot" nodes (frequently updated cen
 #####
 ###### AI:
 
+
+
 ## N+1 problem in the backend.
 ###
+The N+1 problem (also called the "N+1 query problem" or "select N+1 problem") is a common performance anti-pattern in backend applications. It occurs when the application executes one initial query to fetch a list of N parent records, and then performs N additional queries (one for each parent) to fetch related child records.
+Total queries = 1 + N, which becomes very expensive as N grows (e.g., 1 + 1000 = 1001 queries).
+-----------------------
+Bad:
+"""
+authors = db.query("SELECT * FROM authors WHERE ...")  # returns 100 authors
+for author in authors:
+    # N queries (one per author)
+    books = db.query("SELECT * FROM books WHERE author_id = ?", author.id)
+    author.books = books
+"""
+This commonly happens with ORMs (Hibernate, SQLAlchemy, Entity Framework, Mongoose, etc.) when using lazy loading by default.
+Lazy loading (default in many ORMs): Related data is loaded only when accessed.
 #### questionlist performance
 #####
-###### AI:
+Solution: (in SQL):
+Eager loading / JOINs:SQL
+"""
+SELECT * FROM authors
+LEFT JOIN books ON books.author_id = authors.id
+"""
+------------------------------
+Solution: (in Mongo DB):
+Embedded documents (denormalization) — best way to avoid N+1 entirely:
+"""
+{
+  "_id": "...",
+  "name": "Author",
+  "books": [ {...}, {...} ]   // embedded array
+}
+"""
+Use $lookup (aggregation pipeline) for references, but prefer embedding when possible.
+Project only needed fields and use proper indexing.
+-------------------------------
+Solution: (in Neo4J):
+Use single Cypher queries with patterns instead of multiple traversals:
+"""
+MATCH (a:Author)-[:WROTE]->(b:Book)
+WHERE ...
+RETURN a, collect(b) AS books
+"""
+Avoid doing N separate MATCH queries in a loop.
+######
+General Techniques
+--- DataLoader pattern (especially important in GraphQL).
+--- Caching (Redis, query caching).
+--- Denormalization (common in NoSQL).
+--- Pagination + careful relationship loading.
+--- Profiling tools (New Relic, Datadog, EXPLAIN in SQL, MongoDB profiler, Neo4j query logs).
+--------------------------------
+Key Points to Remember for Exam
+--- N+1 = 1 query for parents + N queries for children.
+--- Most dangerous with lazy loading in ORMs and GraphQL.
+--- SQL → solved with JOINs / eager fetching.
+--- MongoDB → solved with embedding / careful aggregation.
+--- Neo4j → solved with rich pattern matching in one query.
+--- Always measure with query logs or profilers.
+--- Trade-off: Eager loading / embedding can increase memory usage and cause over-fetching (waterfall vs. cartesian explosion).
+---------------------------------
+This anti-pattern appears in almost every migration project from SQL to NoSQL because developers often keep the same "relational thinking" (multiple small queries) instead of leveraging the strengths of the target database.
+
+
+
 
 ## Caching strategies
 ###
+Caching is the technique of storing copies of frequently accessed data in a fast storage layer (usually in-memory, e.g., RAM) so that future requests for that data can be served much quicker than going to the primary data store (disk-based database).
+Benefits:
+--- Dramatically improves read performance (sub-millisecond responses).
+--- Reduces load on the primary database (SQL, MongoDB, Neo4j).
+--- Lowers latency and increases throughput/scalability.
+--- Cost-effective for read-heavy workloads.
+------------------------------------
+Trade-offs:
+--- Stale data (consistency issues).
+--- Additional complexity (invalidation, eviction).
+--- Memory usage and potential cache stampede/thundering herd problems.
+-------------------------------------
+Consistency & Invalidation
+--- Cache invalidation is one of the hardest problems in computer science.
+,Write-through / Write-behind handle it better.
+, In Cache-Aside: manually delete or update cache entry on writes.
+--- Use versioning or timestamps for optimistic invalidation.
+--- Event-driven invalidation (e.g., via database change streams or CDC).
 #### questionlist performance
 #####
-###### AI:
+common strategies (only 2/5):
+--- Cache-Aside (Lazy Loading).
+HOW IT WORKS: App checks cache first. On miss: fetch from DB, store in cache, return.
+PROS: Simple, flexible, app-controlled
+CONS: App must handle misses & invalidation
+BEST FOR: Most common, read-heavy
+--- Read-Through
+HOW IT WORKS: Cache sits between app & DB. On miss, cache fetches from DB automatically.
+PROS: Cleaner app code
+CONS: Cache provider must support it
+BEST OFR: High-traffic reads.
+---- Also: Write-Through, Write-Behind (Write-Back), Write-Around.
+-----------------------------------
+Eviction Policies (When cache is full)
+--- LRU (Least Recently Used) — most common.
+--- LFU (Least Frequently Used).
+--- TTL (Time To Live) — expire after X seconds/minutes.
+--- FIFO, Random, etc.
+######
+Caching in the Context of Your Exam Project (SQL → MongoDB → Neo4j)
+--- In SQL: Relational model → more joins → higher benefit from caching.
+--- In MongoDB: Denormalization/embedding reduces need for caching but use Redis for hot paths.
+--- In Neo4j: Excellent for connected data; focus on page cache + parameterized queries + result caching for common traversals.
+--- Migration tip: Introduce caching early to maintain performance parity or improvement after migration. Measure with query profilers before/after.
+-----------------------------------------
+Key Points to Memorize for Oral Exam
+--- Cache-Aside is default choice for most apps.
+--- Write-Through for strong consistency, Write-Behind for performance.
+--- Invalidation is critical — stale reads are a common pitfall.
+--- Always monitor cache hit ratio (aim > 80-90%).
+--- Parameterized queries + proper indexing are free caching wins.
+--- Caching complements, does not replace, good data modeling (especially in NoSQL).
+
+
 
 ## Optimizing read-heavy vs write-heavy workloads.
 (incl. OLTP vs OLAP workloads)
 ###
+Read-Heavy vs Write-Heavy
+--- Read-heavy: Many more reads than writes (e.g., analytics dashboards, social feeds). Goal: fast queries, high throughput.
+--- Write-heavy: Many inserts/updates/deletes (e.g., logging, transactions). Goal: high ingestion rate, durability.
+----------------------------------
+OLTP vs OLAP
+--- OLTP (Online Transaction Processing): Write-heavy or balanced, many small concurrent transactions. Focus: ACID, low latency, row-level ops. Typical for SQL in your project.
+--- OLAP (Online Analytical Processing): Read-heavy, complex queries on large historical data. Focus: fast aggregation, column-oriented storage.
+----------------------------------
 #### questionlist performance
 #####
-###### AI:
+Optimization Strategies
+--- SQL (OLTP-focused):
+Read-heavy: Indexes, materialized views, read replicas, query caching.
+, Write-heavy: Proper indexing (avoid over-indexing), partitioning, batch inserts, connection pooling.
+--- MongoDB:
+Read-heavy: Denormalization/embedding, indexes, sharding, read replicas, aggregation pipelines with $match early.
+, Write-heavy: Bulk writes, sharded clusters, write concerns tuned, capped collections.
+--- Neo4j:
+Read-heavy: Page cache tuning, parameterized Cypher, indexes on frequent properties, graph projections.
+, Write-heavy: Batch imports (LOAD CSV), constraints/indexes, transaction batching.
+######
+General Tips for Your Migration Project
+--- Read-heavy: Cache aggressively (Redis), denormalize in MongoDB/Neo4j.
+--- Write-heavy: Use async writes, eventual consistency where possible.
+--- Measure with EXPLAIN, Mongo profiler, Neo4j query logs. Scale horizontally (sharding/replication) for both.
+-------------------------------
+Key Trade-off: Read optimizations (denormalization, caching) can hurt write performance — balance based on workload.
+
+
+
+
 
 ## Measuring performance.
-
+###
+Key Metrics
+--- Latency: Time for a single query/operation (e.g., p95, p99 percentiles).
+--- Throughput: Operations per second (ops/sec).
+--- Resource usage: CPU, memory, disk I/O, network.
+--- Error rates and cache hit ratio.
+--- Scalability: How metrics change under load.
+-------------------------------
+Tools & Methods by Database
+--- SQL:
+--- EXPLAIN / EXPLAIN ANALYZE for query plans.
+--- Slow query log.
+--- Performance Schema (MySQL) or pg_stat_statements (PostgreSQL).
+--- External: pgBadger, New Relic, Prometheus + Grafana.
+---------------------------------
+MongoDB:
+--- Database profiler (db.setProfilingLevel()).
+--- explain() on queries.
+--- MongoDB Atlas metrics or mongostat / mongotop.
+--- Aggregation pipeline optimization via $explain.
+----------------------------------
+Neo4j:
+--- Query logging and EXPLAIN / PROFILE in Cypher.
+--- Neo4j Browser / Ops Center metrics.
+--- Page cache hit ratio, transaction logs monitoring.
 #### questionlist performance
+#####
+General Techniques
+--- Benchmarking: Use tools like Apache JMeter, Locust, or HammerDB for load testing.
+--- Real-time monitoring: Prometheus, Grafana, ELK stack.
+--- Before/After migration: Compare SQL → MongoDB → Neo4j using identical workloads.
+--- Focus on N+1 detection, cache effectiveness, and index usage.
+--------------
+Exam Tip: Always measure in realistic conditions (production-like data volume and concurrency). Performance is workload-specific — read-heavy favors caching/indexes, write-heavy favors batching and hardware.
+
 
 
 ## What is it (indexes) and how does it work?
-
+###
+What Are Indexes?
+--- Indexes are data structures that improve the speed of data retrieval operations (SELECT, JOIN, WHERE, ORDER BY, etc.) at the cost of extra storage and slower writes.
+--- They act like a book's index or a library catalog — instead of scanning every page (full table scan), you jump directly to the relevant data.
+----------------------------
+How Indexes Work
+--- B-Tree (most common in SQL/relational): Balanced tree structure. Allows fast lookups, range scans, and sorting in O(log N) time.
+--- Stores sorted copies of column values + pointers to the actual rows.
+--- Hash indexes: Exact-match only (fast equality lookups, no ranges).
+--- Composite indexes: On multiple columns (order matters — leftmost prefix rule).
+--------------------------
+Write cost: Every INSERT/UPDATE/DELETE must update the index → slower writes.
 #### questionlist indexes
+#####
+Indexes in Your Databases
+SQL:
+--- CREATE INDEX on columns used in WHERE/JOIN/ORDER BY.
+--- Clustered (primary key) vs Non-clustered.
+--- Use EXPLAIN to check index usage.
+------------------------------
+MongoDB:
+--- Indexes on fields or arrays (compound, text, geospatial, TTL).
+--- B-tree by default. Use explain("executionStats") to analyze.
+--------------------------------
+Neo4j:
+--- Indexes on node/relationship properties for fast property lookups.
+--- Schema indexes + full-text indexes.
+--- Crucial for Cypher performance on large graphs.
+-------------------------------------
+Best Practices
+--- Index selective (high-cardinality) columns.
+--- Avoid over-indexing (hurts writes).
+--- Monitor usage and drop unused indexes.
+--- In migration: Identify hot queries in SQL and create equivalent indexes in MongoDB/Neo4j.
+-------------------------------------------
+Key Trade-off: Greatly speeds up reads, but slows writes and uses more disk/memory.
+######
 
 
 ## I want to query a user by last name - or another example.
