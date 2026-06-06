@@ -13,37 +13,37 @@ Discuss -> open reasoning.
 (incl. Latency vs throughput optimization and trade-offs)
 ###
 The performance of a database has 4 factors:
-*** Response time / Latency (How long it takes for a single operation/query to complete (e.g. p95 or p99 latency).),
-*** Throughput / Capacity (How many operations/queries the system can handle per second (ops/sec, transactions/sec, users served)),
-*** Scalability (how well the system handles growing volume or num. of users.),
-*** Resource efficiency (CPU, memory, I/O, network usage).
- —---
+--- Response time / Latency (How long it takes for a single operation/query to complete (e.g. p95 or p99 latency).),
+--- Throughput / Capacity (How many operations/queries the system can handle per second (ops/sec, transactions/sec, users served)),
+--- Scalability (how well the system handles growing volume or num. of users.),
+--- Resource efficiency (CPU, memory, I/O, network usage).
+ —----------------------------
 Different databases optimize for different performance profiles:
-*** Graphj: Neo4j uses index-free adjacency — relationships are stored as direct pointers. Traversing from one node to another is O(1), whereas SQL needs to perform index lookups + joins → O(log n).
+--- Graphj: Neo4j uses index-free adjacency — relationships are stored as direct pointers. Traversing from one node to another is O(1), whereas SQL needs to perform index lookups + joins → O(log n).
 Downside: Slow at “table scans” (eg. “calculate average salary of all emplyeees”) or aggregations. Scaling is more complex than document stores (though possible with clustering).
-*** Document: Optimized for easy sharding (horizontal scaling). High write throughput + Reduced CPU overhead during reads/writes (BSON format, no complex transformations or joins). REASON: Documents are self-contained → most queries become simple key lookups. Sharding key design allows the database to distribute data and load easily across many nodes.
+--- Document: Optimized for easy sharding (horizontal scaling). High write throughput + Reduced CPU overhead during reads/writes (BSON format, no complex transformations or joins). REASON: Documents are self-contained → most queries become simple key lookups. Sharding key design allows the database to distribute data and load easily across many nodes.
 Downside: High storage overhead (data dublication), Slow write of duplicated data (user changes name == must be changed everywhere). Data fragmentation and inconsistent latency (if a doc grows beyond the memory allocation, it must be moved)
-*** SQL: good for complex analytical queries + joins. Downside: Joins at very large scale.
+--- SQL: good for complex analytical queries + joins. Downside: Joins at very large scale.
 Pros: SQL excels at predictable latency for complex joins/aggregations with proper indexes and offers strong ACID support, making it efficient for transactional workloads with good resource use when data fits in memory.
 Cons: It struggles with horizontal scalability (sharding is hard), suffers from join overhead (O(log n)) at large scale, and has lower write throughput due to index maintenance, constraints, and locking.
 Trade-offs:
 Prioritizes query flexibility and consistency over raw speed and massive scale — denormalization helps reads but hurts writes, and vertical scaling is preferred over easy horizontal growth.
 This is why we migrate to MongoDB (better sharding & single-doc speed) and Neo4j (O(1) traversals) in the project.
-—---
+—------------------------------
 Latency VS throughput - tradeoff:
-*** Techniques that improve throughput (batching, queuing, compression, write buffering) usually increase latency.
-*** Techniques that improve latency (more indexes, more RAM, denormalization, caching) often reduce maximum throughput or increase resource consumption.
+--- Techniques that improve throughput (batching, queuing, compression, write buffering) usually increase latency.
+--- Techniques that improve latency (more indexes, more RAM, denormalization, caching) often reduce maximum throughput or increase resource consumption.
 #### questionlist performance
 #####
 ###### AI:
 
 ## Query optimization
 ###
-*** SQL: * Use proper indexing on WHERE, JOIN, ORDER BY columns and run EXPLAIN to avoid full table scans. (example, in """SELECT * FROM users
+--- SQL: * Use proper indexing on WHERE, JOIN, ORDER BY columns and run EXPLAIN to avoid full table scans. (example, in """SELECT * FROM users
 JOIN orders ON users.id = orders.user_id
 WHERE users.status = 'active';""" you should index users.id and orders.user_id)(EXPLAIN can be called before a query. If you see "Seq Scan" (Sequential Scan) → Bad (full table scan).If you see "Index Scan" → Good (using index). )
-* Normalize schema (3NF) for consistency but denormalize/materialized views for read-heavy queries; tune with VACUUM/ANALYZE. (denormalization == deliberately make dublication e.g., copying user_name into the orders table) (Materialized Views = A saved result of a complex query (like a virtual table). The database pre-computes and stores the result.) (postGres ANALYZE == Updates database statistics about table sizes and data distribution. VACUUM: Cleans up old deleted data).
-* Apply partitioning, connection pooling, and query rewriting (projections, LIMIT) for better performance. (partitioning == split a table into many, and scan only the relevant one. == only helps with the partitioning column. Most partition on date) (connection pooling == keep a group of connections open, insted of doestroying and creating -- many ORMs have pooling built in) (query rewriting and LIMIT, eg. SELECT id, name, email, status FROM users LIMIT 50; instead of SELECT * FROM users;.).
+--- Normalize schema (3NF) for consistency but denormalize/materialized views for read-heavy queries; tune with VACUUM/ANALYZE. (denormalization == deliberately make dublication e.g., copying user_name into the orders table) (Materialized Views = A saved result of a complex query (like a virtual table). The database pre-computes and stores the result.) (postGres ANALYZE == Updates database statistics about table sizes and data distribution. VACUUM: Cleans up old deleted data).
+--- Apply partitioning, connection pooling, and query rewriting (projections, LIMIT) for better performance. (partitioning == split a table into many, and scan only the relevant one. == only helps with the partitioning column. Most partition on date) (connection pooling == keep a group of connections open, insted of doestroying and creating -- many ORMs have pooling built in) (query rewriting and LIMIT, eg. SELECT id, name, email, status FROM users LIMIT 50; instead of SELECT * FROM users;.).
 #### questionlist performance
 ##### Query optimization - MongoDB:
 Indexes (mong builds a B-tree of the field + pointer to the document),
@@ -64,19 +64,22 @@ Output (simplified): type: ALL (Full Table Scan)
 rows: 1,245,678
 Extra: Using where
 → Problem: No index on customer_id
-*** MongoDB: db.orders.find({ customer_id: 123 }).explain("executionStats");
+-------------------------
+MongoDB: db.orders.find({ customer_id: 123 }).explain("executionStats");
 Output (simplified): stage: COLLSCAN (Collection Scan)
 nReturned: 2450 (number of documents returned)
 executionTimeMillis: 185
 → No index → scans entire collection.
-*** Neo4J: PROFILE MATCH (u:User)-[:PLACED]->(o:Order)
+--------------------------
+Neo4J: PROFILE MATCH (u:User)-[:PLACED]->(o:Order)
 WHERE u.name = 'John'
 RETURN o;
 Output (simplified): Operator: NodeByLabelScan (scans all User nodes)
 Rows: 45,230
 DB Hits: High
 → Inefficient if many users.
-*** Execution plans show how each database executes queries.
+---------------------------
+Execution plans show how each database executes queries.
 MySQL: Shows scan type (ALL vs ref) and index usage.
 MongoDB: Shows COLLSCAN vs IXSCAN.
 Neo4j: Shows NodeIndexSeek (index) vs NodeByLabelScan (every node) and relationship traversal cost.
@@ -86,28 +89,33 @@ Neo4j: Shows NodeIndexSeek (index) vs NodeByLabelScan (every node) and relations
 
 ## Index usage vs. misuse.
 ###
-*** SQl: good practice: * Create indexes on columns frequently used in WHERE, JOIN, ORDER BY, and GROUP BY clauses.
-* EXPLAIN / EXPLAIN ANALYZE to verify index usage.
-*** SQL misuse: * Over-indexing: Too many indexes slow down INSERT, UPDATE, and DELETE because every write must update all relevant indexes.
-* Indexes on low-cardinality columns (e.g., gender, status flags) often provide little benefit.
-* Unused indexes waste space and maintenance overhead.
-* Creating indexes "just in case" without analyzing query patterns.
+--- SQl: good practice: * Create indexes on columns frequently used in WHERE, JOIN, ORDER BY, and GROUP BY clauses.
+- EXPLAIN / EXPLAIN ANALYZE to verify index usage.
+------------------
+ SQL misuse: * Over-indexing: Too many indexes slow down INSERT, UPDATE, and DELETE because every write must update all relevant indexes.
+--- Indexes on low-cardinality columns (e.g., gender, status flags) often provide little benefit.
+--- Unused indexes waste space and maintenance overhead.
+--- Creating indexes "just in case" without analyzing query patterns.
 Trade-off: Great for read-heavy OLTP workloads; costly in write-heavy scenarios.
-*** MongoDB:
-* indexes are crucial — without them, MongoDB performs collection scans (full scan of every document).
-* Create indexes on fields used in filters (find, $match), sorts, and aggregations.
-* Compound indexes are very powerful when query patterns involve multiple fields in a specific order (leftmost prefix rule).
-*** MongoDB misuse:
-* High write-to-read ratio collections suffer because every insert/update must update all indexes.
-* Too many indexes (max 64 per collection) → high storage and write overhead.
-Trade-off: Indexes bring huge read gains but are expensive on writes. Monitor with $indexStats.
-*** Neo4J:
-* Indexes (and constraints) on node properties that are frequently used for lookups (WHERE n.property = value).
-* Especially important on label + property combinations for fast node finding at the start of graph traversals.
-*** Neo4J Misuse:
-* Over-indexing slows down writes (each index is a redundant copy of data).
-* Relying only on indexes instead of proper graph modeling (relationships are the real strength of Neo4j — "index-free adjacency").
-Trade-off: Indexes help with entry points into the graph, but the power of Neo4j lies in relationship traversal, not in indexing everything
+------------------
+ MongoDB:
+--- indexes are crucial — without them, MongoDB performs collection scans (full scan of every document).
+--- Create indexes on fields used in filters (find, $match), sorts, and aggregations.
+--- Compound indexes are very powerful when query patterns involve multiple fields in a specific order (leftmost prefix rule).
+--------------------
+ MongoDB misuse:
+--- High write-to-read ratio collections suffer because every insert/update must update all indexes.
+--- Too many indexes (max 64 per collection) → high storage and write overhead.
+--- Trade-off: Indexes bring huge read gains but are expensive on writes. Monitor with $indexStats.
+---------------------
+ Neo4J:
+--- Indexes (and constraints) on node properties that are frequently used for lookups (WHERE n.property = value).
+--- Especially important on label + property combinations for fast node finding at the start of graph traversals.
+----------------------
+ Neo4J Misuse:
+--- Over-indexing slows down writes (each index is a redundant copy of data).
+--- Relying only on indexes instead of proper graph modeling (relationships are the real strength of Neo4j — "index-free adjacency").
+--- Trade-off: Indexes help with entry points into the graph, but the power of Neo4j lies in relationship traversal, not in indexing everything
 #### questionlist performance
 #####
 ###### AI:
@@ -115,31 +123,33 @@ Trade-off: Indexes help with entry points into the graph, but the power of Neo4j
 
 ## Concurrent Access and Locking
 ###
-*** MySQL:
+ MySQL:
 Main Approach:
 Primarily pessimistic concurrency control using locking + MVCC (Multi-Version Concurrency Control) in modern systems like PostgreSQL.
-* Row-level locking (most common) + Table-level locks when needed.
-* Shared (S) locks for reads, Exclusive (X) locks for writes.
-* Two-Phase Locking (2PL): Locks acquired as needed, held until end of transaction (commit/rollback).
-* Isolation levels control behavior (READ COMMITTED, REPEATABLE READ, SERIALIZABLE).
+--- Row-level locking (most common) + Table-level locks when needed.
+--- Shared (S) locks for reads, Exclusive (X) locks for writes.
+--- Two-Phase Locking (2PL): Locks acquired as needed, held until end of transaction (commit/rollback).
+--- Isolation levels control behavior (READ COMMITTED, REPEATABLE READ, SERIALIZABLE).
 Advantages: Strong consistency, good for financial/banking data.
 Disadvantages: Can cause blocking, deadlocks, and reduced concurrency under high load.
 Common Issues: Deadlocks (automatically detected and resolved by aborting one transaction), lock contention on hot rows.
-*** MongoDB:
+----------------------------
+ MongoDB:
 Main Approach:
 Optimistic Concurrency Control at document level + multi-granularity locking at higher levels.
-* Single-document operations are atomic by default (no explicit lock needed).
-* Uses WiredTiger storage engine with reader-writer locks and intent locks (IS/IX) at global/database/collection levels.
-* Multi-document ACID transactions (since v4.0): Use snapshot isolation + locking on modified documents.
+--- Single-document operations are atomic by default (no explicit lock needed).
+--- Uses WiredTiger storage engine with reader-writer locks and intent locks (IS/IX) at global/database/collection levels.
+--- Multi-document ACID transactions (since v4.0): Use snapshot isolation + locking on modified documents.
 Advantages: High write throughput and scalability. Good concurrency for most workloads.
 Disadvantages: Multi-document transactions are heavier and can have higher abort rates under heavy contention. Developers often implement manual optimistic locking using version fields (_version or timestamps).
-*** Neo4J:
+---------------------------
+ Neo4J:
 Main Approach:
 Pessimistic locking on nodes and relationships + ACID transactions.
-* Locks are taken automatically on nodes/relationships when they are read and then written (or explicitly with apoc.lock.nodes).
-* Write locks are held until the end of the transaction.
-* Strong focus on preventing lost updates during concurrent modifications of the same node/relationship.
-* Deadlocks are possible and detected (one transaction is aborted).
+--- Locks are taken automatically on nodes/relationships when they are read and then written (or explicitly with apoc.lock.nodes).
+--- Write locks are held until the end of the transaction.
+--- Strong focus on preventing lost updates during concurrent modifications of the same node/relationship.
+--- Deadlocks are possible and detected (one transaction is aborted).
 Advantages: Excellent for maintaining relationship consistency under concurrency.
 Disadvantages: Can suffer from contention on "hot" nodes (frequently updated central nodes). Graph traversals benefit from proper modeling to minimize locking scope.
 #### questionlist performance
@@ -1133,7 +1143,6 @@ Comparison
 --- Distributed: Harder to achieve full ACID, risk of heuristic outcomes (some commit, some rollback). Modern systems try to avoid them when possible.
 ---------------------------------------
 In your project context:
-
 --- SQL (PostgreSQL/MySQL): Excellent single-server support.
 --- MongoDB: Multi-document + distributed (sharded) transactions available but costly.
 --- Neo4j: Strong in single instance / causal cluster; full distributed is more advanced (Causal Clustering).
@@ -2404,7 +2413,6 @@ Mapping effort (Entity ↔ DTO) — usually solved with MapStruct, ModelMapper, 
 // Entity (Database layer)
 @Entity
 public class User { ... full model with relations }
-
 // DTO (API layer)
 public class UserResponseDTO {
     private Long id;
@@ -3306,7 +3314,6 @@ for example you need to add a new entity. How will you do it for the 3 databases
 ###
 1. Adding a New Entity (Example: New Review entity)
 SQL (RDBMS):
-
 --- Create new table: CREATE TABLE reviews (...).
 --- Add foreign keys to related tables (user_id, product_id).
 --- Use migrations (Flyway, Liquibase) for version control.
