@@ -2300,8 +2300,33 @@ Trade-off:
 
 
 ## Show the data layer in your backend. (models, repositories).
-
+###
+MySQL (SQL)
+Handles relational data.
+- **Models**: Located in `com.example.arimaabackend.model.sql`, classes typically end with `Entity` (e.g., `MatchEntity`, `PlayerEntity`, `PuzzleEntity`, `UserEntity`).
+- **Repositories**: Located in `com.example.arimaabackend.repository.sql`, interfaces typically end with `JpaRepository` (e.g., `MatchJpaRepository`, `PlayerJpaRepository`).
+------------------------
+MongoDB
+Handles document-based storage.
+- **Models**: Located in `com.example.arimaabackend.model.mongo`, classes typically end with `Document` (e.g., `MatchDocument`, `PlayerDocument`, `PuzzleDocument`, `UserDocument`).
+- **Repositories**: Located in `com.example.arimaabackend.repository.mongo`, interfaces typically end with `MongoRepository` (e.g., `MatchMongoRepository`, `PlayerMongoRepository`).
+--------------------------
+Neo4j
+Handles graph-based data relationships.
+- **Models**: Located in `com.example.arimaabackend.model.neo4j`, classes typically end with `Node` (e.g., `MatchNode`, `PlayerNode`, `PuzzleNode`, `UserNode`).
+- **Repositories**: Located in `com.example.arimaabackend.repository.neo4j`, interfaces typically end with `Neo4jRepository` (e.g., `MatchNeo4jRepository`, `PlayerNeo4jRepository`).
 #### questionlist datalayer
+#####
+Migration Process
+The backend includes a migration system designed to populate MongoDB and Neo4j databases using MySQL as the source of truth.
+- **Architecture**: The `MigrationRunner` orchestrates the process when the `migration` profile is active.
+- **Steps**: Migration logic is divided into steps implementing the `MigrationStep` interface, each defining a `stepName()`, target(s) (`NEO4J` or `MONGODB`), and execution order.
+- **Configuration**: Migration behavior is controlled via `migration.*` properties, allowing for targeted execution by:
+  - `migration.enabled-targets`: Restrict to specific databases.
+  - `migration.enabled-steps`: Run only specific migration steps.
+- **Reference**: Detailed instructions for adding steps, configuration, and step order are maintained in `MIGRATION_SETUP.md`.
+######
+
 
 
 
@@ -2309,38 +2334,215 @@ Trade-off:
 
 ## ORM vs native driver - pros and cons: incl.
 1: How ORM often hides performance problems and how to check it?
-
+###
+ORM (Object-Relational Mapping)
+Tools like Hibernate (JPA), SQLAlchemy, Mongoose (MongoDB), or Spring Data Neo4j.
+--- Pros:
+- Faster development: Automatic mapping, CRUD, relationships.
+- Reduces boilerplate code.
+- Database-agnostic (easier to switch DBs).
+- Built-in caching, lazy loading, dirty checking.
+--- Cons:
+- Performance overhead: Generates inefficient SQL/ queries.
+- Hides complexity: Developers may not see N+1 query problems, heavy joins, or cartesian products.
+- Less control over exact queries.
+- Steeper learning curve for advanced tuning.
 #### questionlist datalayer
+#####
+Native Driver (e.g., JDBC, MongoDB Java Driver, Neo4j Java Driver)
+Direct access using raw SQL / Cypher / query language.
+--- Pros:
+- Maximum performance and control.
+- Precise query optimization.
+- Better for complex or high-performance operations.
+--- Cons:
+- More boilerplate code.
+- Slower development.
+- Tighter coupling to specific database.
+######
+1. How ORM Hides Performance Problems & How to Check
+ORMs often hide issues like:
+--- N+1 Select Problem (lazy loading triggers many extra queries).
+--- Inefficient generated SQL.
+--- Unnecessary data fetching.
+---------------------------------
+How to Detect:
+--- Enable SQL logging (show_sql = true or driver logging).
+--- Use EXPLAIN / ANALYZE on generated queries.
+--- Monitoring tools: Hibernate Statistics, New Relic, Datadog, pg_stat_statements (PostgreSQL).
+--- Profilers: YourKit, VisualVM, or database-specific query analyzers.
+--- Regularly review slow query logs.
+-------------------------------
+Recommendation for your project:
+Use ORM for rapid prototyping in the SQL part, but switch to native queries for critical paths. Always profile before production.
+
+
+
 
 
 ## DTO pattern
+###
+DTO Pattern (Data Transfer Object)
+What is DTO?
+A DTO is a simple, plain object used to transfer data between layers of an application (e.g., from database layer to service layer to controller/API).
+It contains only data (no business logic) and is optimized for specific use cases.
+----------------------------------
+Why Use DTOs?
+Advantages:
+--- Decouples layers: Hides internal entity structure from the outside world.
+--- Security: Prevents over-exposure of sensitive fields (e.g., passwords, internal IDs).
+--- Performance: Transfer only needed fields (avoid sending entire entity with relationships).
+--- Flexibility: Different DTOs for different clients (mobile vs web, admin vs user).
+--- Versioning: Easier to evolve APIs without breaking internal models.
+--- Reduces network payload and serialization cost.
+----------------------------------
+Disadvantages:
+Extra boilerplate (many classes).
+Mapping effort (Entity ↔ DTO) — usually solved with MapStruct, ModelMapper, etc.
+---------------------------------
+"""
+// Entity (Database layer)
+@Entity
+public class User { ... full model with relations }
 
+// DTO (API layer)
+public class UserResponseDTO {
+    private Long id;
+    private String name;
+    private String email;
+    // no password, no internal fields
+}
+"""
 #### questionlist datalayer
+#####
+
+
 
 
 
 ## Transaction boundaries and implementation in the code.
-
+###
+Transaction Boundaries in the Arimaa-Backend Project:
+The project utilizes Spring's declarative transaction management via the @Transactional annotation. This approach provides a robust and clean way to manage transaction boundaries at the service layer.
+---------------------
+Implementation:
+--- The @Transactional annotation is applied directly to service implementation methods (e.g., in PlayerServiceImpl, MatchServiceImpl, UserServiceImpl).
+--- By default, these transactions are read-write.
+--- For methods that only perform read operations, @Transactional(readOnly = true) is used to optimize performance and prevent unnecessary write locks.
+--- This setup ensures that all database operations within a annotated service method are committed or rolled back atomically as a single unit of work.
+-----------------------
+If transactions were not used:
+--- Without these declarative boundaries, manual transaction management would be required. This would involve explicitly starting, committing, and rolling back transactions in the code (e.g., using PlatformTransactionManager or direct database connection APIs).
+--- This manual approach is more error-prone, increases boilerplate code significantly, and makes it harder to ensure consistency across complex business logic spanning multiple repository calls.
+--- Declarative transaction management is the recommended practice in Spring applications for maintaining consistency and simplifying code maintenance.
 #### questionlist datalayer
+
+
 
 
 ## Repository pattern responsibilities.
-
+###
+The project heavily utilizes the Repository pattern through Spring Data, providing an abstraction layer over database access.
+------------------------
+Implementation:
+- The project uses Spring Data repositories for three different data sources: SQL (JPA), Neo4j, and MongoDB.
+- Repositories are defined as interfaces extending Spring Data's `JpaRepository`, `Neo4jRepository`, or `MongoRepository`.
+- This approach decouples the business logic (service layer) from the data access technology and provides built-in methods for CRUD operations and query derivation.
+--------------------------
+If the Repository pattern were not used:
+- Data access code would be tightly coupled with the business logic.
+- We would have to manually implement data access using raw SQL, Neo4j Query Language (Cypher), or MongoDB drivers in the service layer or separate DAO classes.
+- This would result in significant code duplication, increased complexity, and reduced maintainability, as any changes to the database schema or technology would require extensive changes across the application.
+- The Repository pattern is crucial for maintaining a clean architecture and separation of concerns in modern Spring applications.
 #### questionlist datalayer
+
+
 
 
 
 ## N+1 query problem and solutions: incl.
 1: Lazy vs Eager loading configuration.
 2: Model vs Query configuration.
-
+###
+What is the N+1 Query Problem?
+It occurs when an ORM loads a collection of entities (1 query), then executes N additional queries to load related data (e.g., for each entity). This leads to severe performance degradation.
+Example: Loading 100 users + their orders → 1 + 100 = 101 queries.
+--------------------------
+1. Lazy vs Eager Loading Configuration
+--- Lazy Loading (Default in most ORMs):
+Related data is loaded only when accessed.
+Pros: Saves memory and initial query cost.
+Cons: Causes N+1 if accessed in a loop.
+Config (JPA/Hibernate): @ManyToOne(fetch = FetchType.LAZY)
+--- Eager Loading:
+Related data is loaded immediately in the same query.
+Pros: Avoids N+1.
+Cons: Can load too much unnecessary data (cartesian product risk).
+Config: @ManyToOne(fetch = FetchType.EAGER)
+----------------------------------
+2. Model vs Query Configuration (Better Solutions)
+--- Model Level (Entity annotations): Use FetchType.EAGER sparingly. Risky for global behavior.
+--- Query Level (Recommended):
+Use JOIN FETCH in JPQL:
+"""
+SELECT u FROM User u JOIN FETCH u.orders
+"""
+--- Hibernate: EntityGraph or @EntityGraph
+--- Batch fetching: hibernate.default_batch_fetch_size
+--- Use DTO projections or native queries for complex cases.
 #### questionlist datalayer
+#####
+Best Solutions Summary:
+--- JOIN FETCH / EntityGraph (most effective)
+--- Batch fetching
+--- Convert to DTOs with custom queries
+--- Use native SQL/Cypher when needed
+--- Enable SQL logging and EXPLAIN to detect N+1 early
+------------------------
+In Your Project: Critical when migrating from SQL (ORM) to MongoDB/Neo4j — N+1 issues change form (e.g., many small document lookups).
+This is a very common performance question in exams.
+
+
+
 
 
 
 ## Connection pooling
-
+###
+What is it?
+Connection pooling is a mechanism that maintains a reusable cache (pool) of open database connections. The application borrows a connection from the pool, uses it, and returns it instead of opening/closing a new connection for every operation.
+-------------------------------
+Why Use It?
+--- Creating a new database connection is expensive (network handshake, authentication, memory allocation).
+--- Reduces latency and CPU overhead.
+--- Prevents the database from being overwhelmed by too many simultaneous connections.
+--------------------------------
+How It Works
+--- Pool creates a set of connections at startup (or on demand).
+--- Application requests a connection → pool provides one (or creates if below max limit).
+--- After query execution, connection is returned to the pool.
+--- Idle connections can be validated or closed automatically.
+---------------------------------
+Popular Implementations
+--- Java: HikariCP (best performance), Tomcat JDBC, DBCP.
+--- MongoDB Driver: Built-in pooling (configurable via MongoClientSettings).
+--- Neo4j Driver: Built-in connection pool per driver instance.
+--------------------------------------
+Key Configuration Parameters
+--- maximumPoolSize (e.g., 10–50) – max concurrent connections.
+--- minimumIdle – keep some connections ready.
+--- connectionTimeout – wait time before failing.
+--- maxLifetime / idleTimeout – recycle old connections.
+----------------------------------------
+--- Benefits: High throughput, better scalability, lower resource usage.
+--- Drawbacks: Misconfiguration can lead to connection leaks or exhausted pools.
+--- In Your Project:
+Use HikariCP for the SQL part with Spring Boot. Tune pools separately for each database (SQL, MongoDB, Neo4j) based on expected load. Monitor metrics like active connections and wait times.
 #### questionlist datalayer
+
+
+
+
 
 
 
@@ -2348,9 +2550,39 @@ Trade-off:
 1: Database-level validation and use cases.
 2: Application-level validation and use cases.
 3: Pros and cons of each.
-
+###
+Validation: Application vs Database Level
+-------------------------
+1. Database-level Validation
+--- Enforced directly in the database using constraints.
+--- Use cases:
+- Primary Key, Unique, Not Null, Foreign Key constraints.
+- CHECK constraints (e.g., price > 0, email ~* '^[A-Za-z0-9._%+-]+@...').
+- Default values and triggers for complex rules.
+- Implementation: SQL CREATE TABLE with constraints.
+---------------------------------
+2. Application-level Validation
+--- Performed in backend code before sending data to the database.
+--- Use cases:
+- Complex business rules (e.g., user age + subscription logic).
+- Cross-field validation, format checks, external service calls.
+- User-friendly error messages and multi-step validation.
+--- Implementation: Frameworks like Jakarta Bean Validation (@NotBlank, @Positive, custom validators), libraries (Joi, class-validator).
 #### questionlist datalayer
-
+#####
+3. Pros and Cons
+--- Database-level:
+- Pros: Always enforced (even for direct DB access), strong consistency, centralized.
+- Cons: Limited expressiveness, poor error messages, harder to test, performance cost on every write.
+--- Application-level:
+- Pros: Rich, flexible logic, better UX with clear messages, easier testing and maintenance, can call external systems.
+- Cons: Can be bypassed (direct DB access, other applications), risk of inconsistency if not duplicated in DB.
+-------------------------------
+Best Practice:
+Defense in Depth — Use both.
+--- Database: Enforce critical integrity rules (FK, Unique, CHECK).
+--- Application: Handle complex validation + user experience.
+--- This dual approach is especially important when migrating between SQL, MongoDB (schema validation), and Neo4j in your project.
 
 
 
@@ -2362,84 +2594,484 @@ Trade-off:
 1: Idempotency.
 2: Optimistic vs. Pesimistic locking
 3: Row versioning.
-
+###
+1. Idempotency
+--- Idempotency ensures that repeating the same operation multiple times has the same effect as doing it once.
+--- Why important?
+Prevents duplicate effects from network retries, timeouts, or duplicate requests.
+---------------------------
+Implementation:
+--- Use unique request IDs or idempotency keys (stored in DB).
+--- Make operations like CREATE ORDER idempotent by checking if the key already exists.
+--- HTTP methods: PUT and DELETE are naturally idempotent; POST usually isn’t.
+------------------------
+2. Optimistic vs Pessimistic Locking
+Pessimistic Locking
+--- Locks the record immediately on read (e.g., SELECT ... FOR UPDATE).
+--- Pros: Prevents conflicts early.
+--- Cons: Reduces concurrency, risk of deadlocks, bad for long operations.
+--- Best for: High-contention scenarios with short transactions.
+-----------------------------
+Optimistic Locking
+--- No lock on read. Check for changes before write (usually via version column).
+--- Pros: High concurrency, better scalability.
+--- Cons: Conflicts detected late → requires retry logic.
+--- Best for: Low-contention, read-heavy workloads.
 #### questionlist datalayer
+#####
+3. Row Versioning
+--- Add a version column (integer or timestamp) to entities.
+--- How it works:
+- On read: Load current version.
+- On update: UPDATE ... SET version = version + 1 WHERE id = ? AND version = ?
+- If 0 rows affected → conflict (another transaction modified the row).
+--------------------------
+--- Benefits: Simple implementation of optimistic locking. Works well with ORMs (JPA @Version).
+--- In Your Project:
+- Use optimistic locking + versioning in the SQL part. Handle retries in the application layer when migrating data to MongoDB and Neo4j (which have their own concurrency models).
+- This ensures application-level consistency even when database transactions are not sufficient.
 
 
-## Questions for a specific stored object: incl.
+
+
+
+
+## storedobjects: Stored Procedure: incl.
 1: Use cases.
 2: Pros and cons.
 3: Business logic in DB vs application solution.
 4: Comparison across different RDBMS.
-
+###
+Stored Procedures (Stored Objects)
+-------------------------
+1. Use Cases
+--- Encapsulate complex business logic (e.g., order processing with multiple checks and updates).
+--- Data migration, ETL jobs, and batch operations.
+--- Enforce security (grant execute rights without direct table access).
+--- Performance-critical operations (reduce network round-trips).
+--- Reporting and data validation logic.
+-------------------------
+2. Pros and Cons
+Pros:
+--- Better performance (compiled once, executed on DB server).
+--- Reduced network traffic.
+--- Centralized business logic + strong security.
+--- Atomic execution within the database.
+-----------------------------
+Cons:
+--- Harder to test and debug (compared to application code).
+--- Version control and deployment difficulties.
+--- Vendor lock-in.
+--- Can make the database a "logic monolith".
 #### questionlist storedobjects
+#####
+3. Business Logic in DB vs Application Layer
+--- In Database (Stored Procedures): Good for simple, high-performance,
+security-sensitive operations.
+--- In Application: Preferred for complex logic, easier testing (unit tests),
+better maintainability, language features, and microservices architecture.
+--- Modern Recommendation: Keep most business logic in the application.
+Use stored procedures sparingly for performance or security-critical parts.
+----------------------------
+4. Comparison Across RDBMS
+--- PostgreSQL: Excellent support, very powerful (PL/pgSQL), functions and procedures are first-class.
+--- MySQL: Basic stored procedures, more limited features.
+--- SQL Server: Very mature with T-SQL, strong tooling, CLR procedures.
+------------------------------
+For your project: Use stored procedures lightly in the SQL part
+(e.g., for complex data migration scripts).
+Keep core business logic in the application layer for easier migration to MongoDB and Neo4j.
 
 
 
-## Stored Procedure
 
+## storedobjects: Stored Functions: incl.
+1: Use cases.
+2: Pros and cons.
+3: Business logic in DB vs application solution.
+4: Comparison across different RDBMS
+###
+1. Use Cases
+--- Reusable calculations (e.g., calculate_discount(), format_address(), tax computation).
+--- Data transformation and derived values in queries.
+--- Complex validation logic that returns boolean or scalar values.
+--- Custom aggregation or string processing.
+--- Improving query readability by encapsulating logic.
+-------------------
+2. Pros and Cons
+Pros:
+--- Can be used directly inside SELECT, WHERE, ORDER BY clauses like built-in functions.
+--- Better performance than application-level logic for computation-heavy operations.
+--- Centralized and consistent business rules.
+--- Reduced code duplication.
+---------------------
+Cons:
+--- Limited to returning a single value (scalar, table-valued in some DBMS).
+--- Harder to test and maintain than application code.
+--- Debugging is more difficult.
+--- Can hurt portability across databases.
 #### questionlist storedobjects
+#####
+3. Business Logic in DB vs Application
+--- Database (Stored Functions): Ideal for pure,
+deterministic calculations that are frequently used
+in queries and benefit from running close to the data.
+--- Application Layer: Preferred for complex, evolving,
+or non-deterministic logic, easier unit testing,
+better version control, and when logic needs external data/services.
+--- Recommendation: Use stored functions for small, stable,
+performance-critical computations. Keep major business logic in the application.
+--------------------------
+4. Comparison Across RDBMS
+--- PostgreSQL: Excellent support for stored functions (PL/pgSQL, PL/Python, etc.), very powerful and flexible.
+--- MySQL: Supports functions but more limited than PostgreSQL.
+--- SQL Server: Strong support with scalar and table-valued functions in T-SQL.
+--- For your project: Use stored functions sparingly in the SQL database for reusable calculations.
+This approach keeps the logic portable when migrating data to MongoDB and Neo4j.
 
 
 
-## Stored Function
 
+## storedobjects: View: incl.
+1: Use cases.
+2: Pros and cons.
+3: Business logic in DB vs application solution.
+4: Comparison across different RDBMS
+###
+1. Use Cases
+--- Simplify complex queries (hide joins, aggregations, calculations).
+--- Provide a security layer (give users access to views instead of base tables).
+--- Implement logical data abstraction / denormalized presentation.
+--- Support legacy applications without changing underlying schema.
+--- Row/column level security (especially with materialized or updatable views).
+--------------------------
+2. Pros and Cons
+Pros:
+--- Encapsulate complex logic in one place.
+--- Improved security (limit direct table access).
+--- Code reusability and easier maintenance.
+--- Can be indexed (materialized views).
+---------------------------
+Cons:
+--- Performance overhead (especially non-materialized views).
+--- Updatable views are limited and complex.
+--- Can hide underlying performance problems.
+--- Harder to debug when nested.
 #### questionlist storedobjects
+#####
+3. Business Logic in DB vs Application
+--- In Database (Views): Good for read-oriented logic, data presentation, and security. Materialized views are excellent for performance.
+--- In Application: Better for dynamic, frequently changing logic, complex business rules, or when you need full programming language features.
+--- Recommendation: Use views for stable, reusable read queries and security. Keep heavy business logic in the application layer.
+-----------------------------
+4. Comparison Across RDBMS
+--- PostgreSQL: Very powerful (materialized views, updatable views, recursive views).
+--- MySQL: Basic views, materialized views only since 8.0 (limited).
+--- SQL Server: Strong support with indexed (materialized) views and good performance.
+-------------------------------
+For your project:
+Create views in the SQL database to simplify data access before migrating to MongoDB (embedded documents) and Neo4j (graph patterns). This demonstrates good abstraction skills.
 
 
 
-## View
 
+
+
+## storedobjects: Triggers: incl.
+1: Use cases.
+2: Pros and cons.
+3: Business logic in DB vs application solution.
+4: Comparison across different RDBMS
+###
+1. Use Cases
+--- Automatic auditing (log changes to an audit table).
+--- Maintain derived/denormalized data (e.g., update total price when order items change).
+--- Enforce complex business rules and data consistency.
+--- Automatic timestamp management (created_at, updated_at).
+--- Data synchronization or cascading actions beyond simple FK constraints.
+---------------------------------
+2. Pros and Cons
+Pros:
+--- Logic is always executed (cannot be bypassed by application).
+--- Centralized data integrity enforcement.
+--- Good for auditing and reactive actions.
+--------------------------------------
+Cons:
+--- Difficult to debug and test.
+--- Can cause performance overhead and unexpected side effects (trigger cascades).
+--- Hidden logic — makes maintenance and schema changes harder.
+--- Can complicate migrations between databases.
 #### questionlist storedobjects
+#####
+3. Business Logic in DB vs Application
+--- Database (Triggers): Suitable for simple, low-level, must-always-run data rules and auditing.
+--- Application Layer: Strongly preferred for complex business rules, easier unit/integration testing, better visibility, and portability.
+--- Modern Best Practice: Minimize triggers. Handle most logic in the application for better maintainability.
+-----------------------------------------
+4. Comparison Across RDBMS
+--- PostgreSQL: Most powerful (row/statement level, BEFORE/AFTER/INSTEAD OF, many languages).
+--- MySQL: Basic support (row-level only, BEFORE/AFTER).
+--- SQL Server: Strong, with DML + DDL triggers and good tooling.
+--- For your project: Use triggers sparingly in the SQL part (e.g., for auditing).
+When migrating to MongoDB and Neo4j, move this logic into application code
+or database-specific features (e.g., MongoDB change streams).
 
 
 
-## Trigger
 
+
+
+## storedobjects: Events: incl.
+1: Use cases.
+2: Pros and cons.
+3: Business logic in DB vs application solution.
+4: Comparison across different RDBMS
+###
+1. Use Cases
+--- Automated scheduled tasks (e.g., daily cleanup, archiving old data, generating reports).
+--- Periodic data maintenance (purge old logs, update statistics, refresh materialized views).
+--- Batch processing jobs (send notifications, calculate aggregates).
+--- Time-based workflows (expire offers, close inactive accounts).
+-------------------------
+2. Pros and Cons
+Pros:
+--- Runs directly inside the database (no external scheduler needed).
+--- Reliable execution close to the data.
+--- Can handle complex SQL logic efficiently.
+--- Built-in scheduling and logging in some DBMS.
+-------------------------
+Cons:
+--- Limited programming capabilities compared to application code.
+--- Hard to debug, monitor, and version control.
+--- Can impact database performance if poorly written.
+--- Vendor-specific and hard to migrate.
 #### questionlist storedobjects
+#####
+3. Business Logic in DB vs Application Solution
+--- In Database (Events): Good for simple, periodic maintenance and housekeeping tasks that must run reliably near the data.
+--- In Application: Strongly preferred for complex logic, integration with external services (email, APIs), better monitoring, retry logic, and observability (use cron, Quartz, Airflow, Celery, Kubernetes CronJobs).
+--- Best Practice: Keep business-critical or complex scheduled logic in the application layer.
+----------------------------
+4. Comparison Across RDBMS
+--- MySQL: Excellent built-in Event Scheduler (very easy to create scheduled events).
+--- PostgreSQL: No native events scheduler (use pg_cron extension or external tools).
+--- SQL Server: Powerful SQL Server Agent jobs (very mature with rich scheduling and alerting).
+--- For your project:
+Use database events sparingly in the SQL part (e.g., for simple cleanup). For production-grade solutions, implement scheduled tasks in the application layer — this makes migration to MongoDB (change streams / TTL) and Neo4j much easier.
 
 
-## Event
-
-#### questionlist storedobjects
 
 
-## Implementation (of auditing)
 
+
+## auditing: Implementation
+###
+Implementation:
+- The project implements database-level auditing for SQL databases using MySQL triggers.
+- Triggers (e.g., `trg_players_update_audit`, `trg_matches_after_insert`, `trg_matches_after_update`, `trg_matches_after_delete`) automatically capture changes (INSERT, UPDATE, DELETE) and log them into the `audit_log` table.
+- The `audit_log` table stores the table name, operation type, record ID, and the old and new values in JSON format.
+- This provides a structured audit trail of changes for critical data entities like Players and Matches.
 #### questionlist auditing
 
 
-## what is auditing used for?
 
+## auditing: what is auditing used for?
+###
+Auditing is the systematic recording and monitoring of database activities and changes.
+--------------------
+Main Purposes:
+--- Security & Compliance
+Track who accessed or modified sensitive data (GDPR, HIPAA, PCI-DSS, SOX compliance).
+Detect unauthorized access or insider threats.
+--- Accountability
+Provide non-repudiation: prove which user performed which action and when.
+Essential for regulatory audits and legal investigations.
+--- Forensic Analysis
+Investigate security incidents, data breaches, or errors.
+Reconstruct what happened (who changed what and when).
+--- Troubleshooting & Monitoring
+Identify performance issues (slow queries, unusual patterns).
+Monitor schema changes, privilege escalations, and configuration modifications.
+--- Operational Control
+Track backup/restore activities.
+Monitor data quality and business rule violations.
+----------------------------
+What is typically audited?
+--- Login/logout and failed login attempts
+--- DDL (CREATE, ALTER, DROP)
+--- DML on sensitive tables (INSERT, UPDATE, DELETE)
+--- Privilege changes (GRANT, REVOKE)
+--- Access to critical data
+-----------------------
+In your project: Enable auditing in the SQL database (and equivalent logging in MongoDB & Neo4j) to demonstrate proper operational security practices. This is a frequent oral exam question.
+Auditing is a key part of operational security and governance.
+#### questionlist auditing
+#####
+This is a list of the main types of database operations that are typically audited for security and compliance.
+------------------------------
+Breakdown:
+DDL = Data Definition Language
+These commands change the structure of the database:
+--- CREATE → creates tables, indexes, views, etc.
+--- ALTER → modifies existing objects (add column, change type, etc.)
+--- DROP → deletes objects
+→ Auditing DDL is important because structural changes can have major impact on the system.
+------------------------------
+DML = Data Manipulation Language
+These commands work with the actual data inside tables:
+--- INSERT → adding new records
+--- UPDATE → modifying existing records
+--- DELETE → removing records
+→ Especially important to audit DML on sensitive tables (e.g. users, payments, personal data, orders) to track who changed what and when.
+--------------------------------
+Summary:
+In auditing context, we log these operations to have a clear history of:
+--- Who changed the database structure (DDL)
+--- Who modified important business data (DML)
+--- This helps with security, troubleshooting, and meeting legal/compliance requirements.
+
+
+
+
+## auditing: Soft deletes vs Audit tables
+###
+--- Soft Deletes
+Instead of physically deleting a row, you mark it as deleted (e.g. add deleted_at timestamp or is_deleted flag).
+--- Use Cases:
+- Recover accidentally deleted records.
+- Keep historical relationships intact.
+- Regulatory requirements to retain data.
+--- Pros:
+- Simple to implement.
+- Fast "undelete".
+- Preserves foreign key relationships.
+--- Cons:
+- Tables grow forever (need cleanup jobs).
+- Queries must always filter WHERE deleted_at IS NULL.
+- Not a full audit solution (doesn’t track old values or who deleted).
+-----------------------
+Audit Tables (Change Log / History Tables)
+Separate table(s) that record every change (INSERT, UPDATE, DELETE) with old/new values, user, timestamp, etc.
+--- Use Cases:
+- Full compliance auditing.
+- Track who changed what and when.
+- Forensic analysis and point-in-time reconstruction.
+--- Pros:
+- Complete history and accountability.
+- Doesn’t pollute main tables.
+- Powerful for analytics and debugging.
+--- Cons:
+- More complex to implement and maintain.
+- Higher storage and performance overhead.
+- Requires triggers or application logic.
+-----------------------------
+Recommendation:
+--- Use Soft Deletes for business-level “remove from view” functionality.
+--- Use Audit Tables for real auditing and compliance.
+--- Many projects use both together.
 #### questionlist auditing
 
 
-## Soft deletes vs Audit tables
 
+
+
+## auditing: What information should an audit table contain?
+###
+What Information Should an Audit Table Contain?
+A well-designed audit table (also called history/change log table) should capture enough context to support security, compliance, and forensic needs.
+-------------------------
+Essential Columns:
+--- audit_id — Primary key (surrogate)
+--- table_name — Name of the affected table
+--- record_id — Primary key of the modified row (or composite key)
+--- operation_type — INSERT, UPDATE, DELETE (sometimes SELECT for sensitive reads)
+--- changed_at — Timestamp of the change (with timezone)
+--- changed_by — User ID / username / application that performed the change
+--- old_values — JSON / TEXT of the previous state (before change)
+--- new_values — JSON / TEXT of the new state (after change)
+--- ip_address — (optional) Client IP
+--- transaction_id — (optional) Database transaction ID
+--- reason / description — (optional) Business reason or comment
+----------------------------
+Additional Good Practices:
+--- Index on changed_at, table_name, and record_id
+--- Use JSONB (PostgreSQL) or equivalent for flexible old_values / new_values
+--- Consider partitioning the audit table by time
+----------------------------
+Recommendation for your project:
+--- Implement audit tables in the SQL database using triggers (for automatic capture) or application-level logic.
+--- This approach works well when migrating to MongoDB (use change streams) or Neo4j (transaction logs + custom auditing).
 #### questionlist auditing
 
 
-## What information should an audit table contain?
 
+
+
+## auditing: Auditing vs. logging
+###
+Auditing vs Logging
+Auditing
+--- Purpose: Security, compliance, accountability, and forensic analysis.
+--- Records who changed what data, when, and how.
+--- Focuses on important database operations (especially DML on sensitive tables, DDL, privilege changes).
+--- Usually stored in a dedicated audit table or external system.
+--- Long-term retention, tamper-resistant, and often legally required.
+---------------------
+Logging
+--- Purpose: Debugging, monitoring, troubleshooting, and understanding system behavior.
+--- Records application events, errors, warnings, performance info, and user actions at a technical level.
+--- More general and higher volume (INFO, WARN, ERROR, DEBUG levels).
+--- Usually written to log files, ELK stack, or tools like Splunk.
+---------------------------
+Best Practice for Your Project:
+--- Use Auditing for critical data (users, orders, payments).
+--- Use Logging for everything else (application events, API calls, errors).
+--- Combine both: log general events and audit important data mutations.
 #### questionlist auditing
 
 
-## Auditing vs. logging
 
+
+## auditing: Performance impact of auditing.
+###
+Performance Impact of Auditing
+Auditing adds overhead because every tracked operation generates extra work.
+------------------
+Main Performance Costs:
+--- Increased I/O: Every audited DML (INSERT/UPDATE/DELETE) causes additional writes to audit tables or logs.
+--- CPU Overhead: Triggers or application logic must capture old/new values, format JSON, and record metadata.
+--- Lock Contention: Triggers can extend transaction duration, increasing lock hold time.
+--- Storage Growth: Audit tables grow rapidly and can become very large if not partitioned or purged.
+--- Query Impact: Large audit tables can slow down the entire database if not properly indexed or maintained.
+-----------------------
+When the Impact is Highest:
+--- High-frequency write tables (orders, transactions, user activity).
+--- Auditing every column with full old/new values.
+--- Using row-level triggers on busy tables.
+------------------------
+Mitigation Strategies:
+--- Audit only sensitive/critical tables and columns.
+--- Use asynchronous auditing (write to queue → background process).
+--- Partition audit tables by time (changed_at).
+--- Limit auditing to UPDATE/DELETE on important data (skip routine INSERT).
+--- Use efficient storage (JSONB in PostgreSQL).
+--- Monitor with slow query logs and pg_stat_statements.
+----------------------------
+Recommendation for your project:
+--- Enable auditing on key tables in the SQL database, but keep it lightweight. In MongoDB and Neo4j, use built-in change streams / logs selectively.
+--- Balance: Auditing is essential for security and compliance, but over-auditing can noticeably degrade performance. Always measure impact with realistic load.
 #### questionlist auditing
 
 
-## Performance impact of auditing.
-
-#### questionlist auditing
 
 
-## What problems does good modelling solve?
+
+## dbmodelling: What problems does good modelling solve?
 
 #### questionlist dbmodelling
 
 
-## Explain the purpose of:
+## dbmodelling: Explain the purpose of:
 1: Conceptual model.
 2: Logical model.
 3: Physical model.
@@ -2448,7 +3080,7 @@ Trade-off:
 
 
 
-## ERD:
+## dbmodelling: ERD:
 1: Standard diagram notations.
 2: Cardinailty and modality.
 
