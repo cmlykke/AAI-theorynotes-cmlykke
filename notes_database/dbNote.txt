@@ -1874,73 +1874,429 @@ how many players or users exist in the system.
 
 ## Compare the general complexity and speed / scalability
 (of a certain query senario from the project)
-
+###
+1. MySQL (Relational)
+--- **Complexity:** Moderate. Joins (`JOIN`) depend heavily on indexed foreign keys.
+--- **Speed:** Fast on structured data with proper indexing. Execution plan complexity grows with the number of joined tables and data volume.
+--- **Scalability:** Strong vertical scaling. Horizontal scaling (sharding) is complex due to maintaining referential integrity across nodes.
+------------------------------------
+2. MongoDB (Document)
+--- **Complexity:** Low to Moderate. Requires either multiple round-trips from the application or an aggregation pipeline (`$lookup`).
+--- **Speed:** Very fast for single-document retrieval. Aggregation `$lookup` can become slower than SQL joins on large datasets if not properly modeled.
+--- **Scalability:** Excellent. Designed for horizontal scaling via built-in sharding, making it superior for massive, distributed datasets.
+------------------------------------
+3. Neo4j (Graph)
+--- **Complexity:** Lowest (Path Traversal). You simply follow pre-existing pointers (edges).
+--- **Speed:** Exceptional, especially as data grows. Traversal time is proportional to the size of the *traversed path*, not the total database size.
+--- **Scalability:** Excellent for relationship-heavy data. Adding more data doesn't degrade performance of traversals if the graph remains localized.
+-------------------------------------
+*Note: The choice depends on the workload. Use MySQL for strict consistency, MongoDB for high-write distributed workloads, and Neo4j for highly connected, relationship-heavy data.*
 #### questionlist query
+#####
+querries:
+"""
+for the three querries you mentioned:
+SELECT p.rating, c.name AS country_name
+FROM Players p
+JOIN Users u ON p.user_id = u.id
+JOIN Countries c ON p.countries_id = c.id
+WHERE u.username = 'target_username';
+""""""
+// 1. Find the User document to get the ID
+const user = db.users.findOne({ "username": "target_username" });
+// 2. Query the Players collection using that ID
+const player = db.players.findOne({ "user": new DBRef("users", user._id) });
+// Result includes: player.rating and player.country (the string)
+""""""
+MATCH (u:User {username: 'target_username'})-[:HAS_USER]->(p:Player)-[:IN_COUNTRY]->(c:Country)
+RETURN p.rating, c.name AS country_name
+"""
+
+
 
 
 ## Which database technologies do you know?
 (https://db-engines.com/en/ranking_categories)
-
+###
+Database Technologies I Know (Based on DB-Engines Categories)
+I am familiar with the major database models ranked on DB-Engines.com:
+-------------------------
+Core Categories:
+--- Relational DBMS (RDBMS): PostgreSQL, MySQL, SQL Server, Oracle, MariaDB.
+--- Document Stores: MongoDB, CouchDB, Firebase, DynamoDB.
+--- Graph DBMS: Neo4j, Amazon Neptune, ArangoDB, OrientDB.
+--- Key-Value Stores: Redis, Memcached, DynamoDB, Riak.
+--- Wide Column Stores: Cassandra, HBase, ScyllaDB.
+--- Search Engines: Elasticsearch, Solr, Meilisearch.
+--- Time Series DBMS: InfluxDB, TimescaleDB, Prometheus.
+--- Vector DBMS: Pinecone, Weaviate, Milvus (rising fast for AI).
+--- Multi-Model DBMS: ArangoDB, OrientDB, Azure Cosmos DB.
+------------------------------
+Others:
+--- Columnar / Analytical: ClickHouse, Snowflake.
+--- Object-oriented, RDF, Spatial, Event Stores, etc.
 #### questionlist dbtechnologies
+
+
+
+
 
 
 ## Discuss the differences between Relational DBs,
 Document DBs, and Graph DBs, and the
 other technologies that you know.
-
+###
+Relational Databases (RDBMS)
+--- Data Model: Tables with fixed schema (rows & columns), strong normalization.
+--- Strengths: ACID transactions, complex joins, referential integrity, powerful SQL querying, excellent for structured data with relationships.
+--- Weaknesses: Schema changes are rigid, joins can become expensive at scale, less flexible for unstructured or rapidly evolving data.
+--- Best for: Financial systems, ERP, inventory — where consistency and complex reporting matter.
+--- Examples: PostgreSQL, MySQL, SQL Server.
+-------------------------------
+Document Databases
+--- Data Model: Flexible, schema-less JSON-like documents (BSON in MongoDB). Data is denormalized and self-contained.
+--- Strengths: High flexibility, fast development, horizontal scaling, good for hierarchical/semi-structured data.
+--- Weaknesses: Weaker joins (application-level or limited), consistency trade-offs in distributed setups, duplication of data.
+--- Best for: Content management, e-commerce catalogs, user profiles, mobile apps, logs.
+--- Example: MongoDB.
+--------------------------------
+Graph Databases
+--- Data Model: Nodes (entities), relationships (edges) with properties. Relationships are first-class citizens.
+--- Strengths: Extremely efficient for traversing deep, complex relationships. Pattern matching and recommendations are natural.
+--- Weaknesses: Less efficient for bulk tabular data or simple CRUD without relationships.
+--- Best for: Social networks, fraud detection, recommendation engines, knowledge graphs, network analysis.
+--- Example: Neo4j.
+-----------------------------------
+Other Technologies You Should Know
+--- Key-Value Stores (Redis): Ultra-fast, simple, great for caching, sessions, leaderboards.
+--- Wide-Column Stores (Cassandra): Massive scale, high write throughput, time-series data.
+--- Search Engines (Elasticsearch): Full-text search, analytics, logging.
+--- Time-Series (InfluxDB, TimescaleDB): Optimized for metrics and time-based data.
+--- Vector Databases: Similarity search for AI/ML (embeddings).
 #### questionlist dbtechnologies
+
+
 
 
 ## Multi-model databases
-
+###
+Definition:
+Multi-model databases support multiple data models (relational, document, graph, key-value, etc.) within a single database engine. This allows storing and querying different data types without needing separate specialized databases.
+-------------------------------------
+Key Advantages
+--- Flexibility: Use the best model for each part of the application.
+--- Simplified architecture: One system to manage, backup, secure, and scale.
+--- Reduced data duplication and easier cross-model queries.
+--- Faster development and lower operational costs.
+-------------------------------------
+Popular Examples
+--- ArangoDB: Native support for document, graph, and key-value. Strong AQL query language.
+--- OrientDB: Document + Graph focus, with SQL-like queries.
+--- Azure Cosmos DB: Multi-API (MongoDB, Gremlin for graphs, Cassandra, etc.) on a unified backend.
+--- MarkLogic: Document, graph (RDF), and relational views.
+--- Others: SurrealDB, SingleStore, and even PostgreSQL with extensions (JSONB + graph extensions).
+---------------------------------------
+Trade-offs
+--- May not match the performance of a single-purpose database for extreme workloads.
+--- Higher complexity in some cases.
+--------------------------------------
+Relevance to Your Project:
+--- Instead of migrating data between SQL → MongoDB → Neo4j, a multi-model DB like
+--- ArangoDB could handle all three models in one system. This is a modern trend
+--- that reduces migration effort while preserving ACID where needed.
 #### questionlist dbtechnologies
+
+
 
 
 
 
 ## Use cases for each technology
-
+###
+Relational Databases (RDBMS)
+--- Financial systems and banking (strong ACID, complex transactions).
+--- ERP, CRM, and inventory management.
+--- E-commerce order processing with strict consistency.
+--- Reporting and analytics requiring complex joins and aggregations.
+--- Any application needing high data integrity and normalization.
+-----------------------------------------
+Document Databases (MongoDB)
+--- Content Management Systems (CMS) and blogs.
+--- User profiles and personalization data.
+--- Mobile and web applications with rapidly changing schemas.
+--- E-commerce product catalogs (varying attributes).
+--- Logging, event storage, and real-time analytics.
+--- IoT data ingestion.
+---------------------------------------------
+Graph Databases (Neo4j)
+--- Social networks and relationship mapping.
+--- Recommendation engines (“people who bought this also bought…”).
+--- Fraud detection and money laundering analysis.
+--- Knowledge graphs and semantic search.
+--- Network and IT infrastructure management.
+--- Supply chain and logistics route optimization.
+--- Master Data Management with complex hierarchies.
+---------------------------------------------
+Other Technologies
+--- Key-Value Stores (Redis): Caching, sessions, real-time leaderboards, pub/sub messaging, rate limiting.
+--- Wide-Column Stores (Cassandra): High-velocity write workloads, time-series data, large-scale logging.
+--- Search Engines (Elasticsearch): Full-text search, log analysis, product search, observability.
+--- Time-Series DBs: Monitoring metrics, sensor/IoT data, financial tick data.
+--- Vector Databases: AI/ML semantic search, RAG applications, image/audio similarity.
 #### questionlist dbtechnologies
+
+
 
 
 
 ## Explain sharding. What problems does it solve.
 What is the price of using it?
-
+###
+What is Sharding?
+Sharding is a horizontal scaling technique that partitions data across multiple database servers (shards). Each shard holds a subset of the data, and the system routes queries to the appropriate shard(s).
+------------------------------
+What Problems Does It Solve?
+--- Scalability limits of a single server (CPU, RAM, disk I/O).
+--- Handles massive data volumes and high read/write throughput.
+--- Improves performance by distributing load.
+--- Increases storage capacity and availability (if replicas are used per shard).
+-------------------------------
+How it Works
+--- Data is split using a shard key (e.g., user_id, region). Common strategies: range-based, hash-based, or directory-based.
+--- In Your Project Databases:
+- MongoDB: Native sharding support with very good tooling.
+- PostgreSQL: Manual or with Citus extension.
+- Neo4j: Causal Clustering with sharding in Enterprise edition.
+--------------------------------
+The Price of Using Sharding (Drawbacks)
+--- Increased Complexity: Query routing, data distribution, and rebalancing logic.
+--- Distributed Transactions: Harder and slower (or limited) across shards.
+--- Joins and Aggregations: Often expensive or impossible across shards — requires application-level handling.
+--- Operational Overhead: Monitoring, backup, recovery, and schema changes become much harder.
+--- Hotspots: Poor shard key choice leads to uneven load.
+--- Higher Costs: More servers, network traffic, and management effort.
+--- Eventual Consistency risks in some setups.
+--- Recommendation: Shard only when you actually outgrow a single powerful server (or replica set). Prefer vertical scaling and good data modeling first.
 #### questionlist distributed
+
+
+
 
 
 ## Explain replication. What problems does it solve.
 What is the price of using it?
-
+###
+What is Replication?
+Replication is the process of copying and maintaining database data across multiple servers (replicas). Changes made on a primary node are automatically propagated to secondary nodes.
+-------------------------------
+What Problems Does It Solve?
+--- High Availability & Fault Tolerance: If the primary server fails, a replica can take over (failover).
+--- Read Scalability: Offload read queries to replicas, reducing load on the primary.
+--- Disaster Recovery: Replicas act as live backups in different locations/zones.
+--- Data Locality: Place replicas closer to users for lower latency.
+--- Backup without performance impact: Backups can run on replicas.
+-------------------------------
+Types:
+--- Synchronous: Strong consistency, but slower.
+--- Asynchronous: Better performance, but possible replication lag.
+-------------------------------
+The Price of Using Replication (Drawbacks)
+--- Consistency Lag: Replicas may not have the latest data (especially async).
+--- Increased Complexity: Managing failover, conflict resolution (in multi-master), and monitoring.
+--- Higher Resource Costs: More servers, storage, and network bandwidth.
+--- Write Overhead: Every write is duplicated across replicas.
+--- Potential for Split-Brain scenarios in certain failures.
+--- Recommendation: Use replication for production systems. Combine with sharding for extreme scale. This is a fundamental topic for your oral exam.
 #### questionlist distributed
 
 
 
-## Explain partitioning. How is it different from sharding?
 
+## Explain partitioning. How is it different from sharding?
+###
+Partitioning
+Partitioning (also called table partitioning) splits a large table into smaller, logical sub-tables (partitions) within the same database instance.
+The database engine manages partitions transparently.
+------------------------------
+Main Benefits:
+--- Faster queries (partition pruning — only relevant partitions are scanned).
+--- Easier maintenance (drop old partitions, rebuild indexes faster).
+--- Better data management for time-series or large datasets.
+--- Improved performance on very large tables.
+--- Types: Range, List, Hash partitioning.
+--------------------------------
+Sharding
+Sharding distributes data across multiple separate database servers (shards). Each shard is an independent database instance.
+Key Difference:
+--- Partitioning: Same server, same database engine. Transparent to the application.
+--- Sharding: Multiple servers. Requires a shard key and routing logic (often handled by the database or application).
+------------------------------------
+Summary:
+Use partitioning when one powerful server is not enough for a single table’s performance/maintenance.
+Use sharding when you need to scale beyond one server’s capacity (horizontal scaling).
+--------------------------------------
+In Your Project:
+--- SQL (PostgreSQL/MySQL): Excellent built-in partitioning support.
+--- MongoDB: Combines both (sharding + collections can be partitioned).
+--- Neo4j: Uses partitioning internally in clusters.
+--- Partitioning is easier and has lower complexity than sharding.
 #### questionlist distributed
 
 
 
 ## Explain vertical vs. horizontal scaling of databases.
-
+###
+Vertical Scaling (Scaling Up)
+Increasing the resources (CPU, RAM, storage) of a single database server.
+Example: Upgrading from a 16-core/64GB machine to a 64-core/512GB machine.
+Advantages:
+--- Simpler to implement and manage.
+--- No changes to application code.
+--- Better performance for complex joins and transactions.
+--- Easier consistency (single instance).
+------------------------------------
+Disadvantages:
+--- Hardware limits (maximum server size/cost).
+--- Single point of failure.
+--- Downtime possible during upgrades.
+--- Expensive at very high scale.
+------------------------------------
+Horizontal Scaling (Scaling Out)
+Adding more database servers and distributing the workload across them (sharding + replication).
+Advantages:
+--- Virtually unlimited scale.
+--- Better fault tolerance and high availability.
+--- Cost-effective (use commodity hardware/cloud instances).
+--- Handles massive read/write throughput.
+------------------------------------
+Disadvantages:
+--- Increased complexity (data distribution, routing, consistency).
+--- Harder joins and distributed transactions.
+--- Application changes often required.
+--- Operational overhead (monitoring, rebalancing).
 #### questionlist distributed
+#####
+Suitability: Horizontal vs Vertical Scaling
+Relational Databases (SQL)
+--- Vertical Scaling: Excellent. Strong single-node performance for complex joins, transactions, and ACID guarantees. Easy to scale up hardware.
+--- Horizontal Scaling: Moderate / Challenging. Possible via read replicas, partitioning, or extensions (e.g., Citus for PostgreSQL). Distributed transactions and cross-shard joins are expensive and complex. Best for moderate scale.
+--------------------------------
+MongoDB (Document DB)
+--- Vertical Scaling: Good for smaller workloads, but limited by single-node capacity.
+--- Horizontal Scaling: Highly suitable and designed for it. Excellent built-in sharding + replica sets. Easy to add shards for massive scale. Supports flexible data model that works well with distributed systems. Preferred choice for horizontal growth.
+----------------------------------
+Neo4j (Graph DB)
+--- Vertical Scaling: Very good. Performs well on powerful single servers for deep traversals.
+--- Horizontal Scaling: Good in Enterprise edition via Causal Clustering (core servers + read replicas). Sharding is more limited and complex than MongoDB. Graph queries spanning many shards can be expensive.
+
+
+
 
 
 ## CAP Theorem.
-
+###
+--- CAP Theorem (Eric Brewer, 2000) states that in a distributed data store, it is impossible to simultaneously guarantee all three of the following properties:
+--- Consistency (C): Every read receives the most recent write or an error. All nodes see the same data at the same time.
+--- Availability (A): Every request receives a (non-error) response, without guarantee that it contains the most recent write.
+--- Partition Tolerance (P): The system continues to operate despite network partitions (communication failures between nodes).
+--- Key Insight
+You can only choose two out of the three in a distributed system.
 #### questionlist distributed
+#####
+The Three Combinations
+CP (Consistency + Partition Tolerance)
+Sacrifices Availability.
+System may become unavailable during network partitions to maintain consistency.
+Examples: Traditional RDBMS in distributed mode, Neo4j Causal Cluster (strong consistency focus), MongoDB with strong write concerns.
+-------------------------------
+AP (Availability + Partition Tolerance)
+Sacrifices strong Consistency (eventual consistency).
+System remains available but may return stale data.
+Examples: Cassandra, DynamoDB, many MongoDB configurations.
+----------------------------------
+CA (Consistency + Availability)
+Sacrifices Partition Tolerance.
+Only possible in non-distributed (single-node) systems.
+Not realistic for modern distributed databases.
+------------------------------
+--- Relational (SQL): Often prioritizes C (strong ACID) → harder horizontal scaling.
+--- MongoDB: Flexible — can tune toward CP or AP depending on configuration.
+--- Neo4j: Strong emphasis on Consistency + Partition Tolerance in clusters.
+--- Modern Note: Most systems aim for Eventual Consistency and use techniques
+like CRDTs or quorum reads/writes to balance the trade-offs.
+
+
+
 
 
 ## Consistency vs. availability trade-off.
-
+###
+Consistency vs. Availability Trade-off
+This is one of the fundamental trade-offs in distributed systems, directly related to the CAP Theorem.
+-------------------------
+Consistency
+--- Every read returns the most recent write (or an error).
+--- All nodes see the same data at the same time.
+--- Strong consistency = ACID-style guarantees.
+--- Pros: Predictable, correct results. Critical for banking, inventory, bookings.
+--- Cons: Higher latency, lower availability during network issues or high load.
+--------------------------
+Availability
+--- Every request gets a response (even if it might be stale).
+--- The system remains responsive even during failures or partitions.
+--- Pros: High throughput, low latency, better user experience.
+--- Cons: Risk of stale or conflicting data (eventual consistency).
+---------------------------
+The Trade-off
+--- In distributed databases, you often cannot have both strong consistency and full availability during network partitions.
+You must choose:
+--- Strong Consistency (CP systems) → May return errors or delay responses during partitions.
+--- High Availability (AP systems) → Returns responses quickly, but data may be eventually consistent.
 #### questionlist distributed
+#####
+Real-World Application in Your Databases
+--- Relational (SQL): Usually prioritizes Consistency (strong ACID). Better vertical scaling.
+--- MongoDB: Tunable — can choose strong consistency (majority write concern) or higher availability (eventual consistency).
+--- Neo4j: Strong consistency focus in Causal Clustering.
+--------------------------------------
+Best Practice:
+Choose based on business needs. Use strong consistency for critical data (money, orders)
+and eventual consistency for non-critical data (caches, analytics, user feeds).
+This trade-off is essential for understanding modern database design and your project’s migration decisions.
+
+
+
+
 
 
 ## Example of eventual consistency.
-
+###
+Eventual Consistency means that if no new updates are made to a data item,
+eventually all accesses will return the last updated value.
+The system becomes consistent “eventually,” but may return stale data temporarily.
+------------------------------
+Classic Real-World Example: Social Media “Like” Counter
+--- User A likes a post → write goes to one replica (Node 1).
+--- User B reads the same post a second later → might still see the old count because the update hasn’t propagated to Node 2 yet.
+--- After a short delay (milliseconds to seconds), the replication process updates Node 2.
+--- Eventually, both users see the same correct like count.
+-------------------------------
+Other Common Examples
+--- DNS propagation after changing a domain record.
+--- Shopping cart in a large e-commerce site (temporary inconsistency between services).
+--- User profile updates across multiple regions.
+--------------------------------
+In Your Project Databases
+--- MongoDB: Default behavior in replica sets is eventual consistency for secondary reads. You can tune it with readConcern and writeConcern.
+--- Neo4j: Usually strong consistency, but can show eventual behavior in very large clusters.
+--- Relational: Rarely uses eventual consistency (prefers strong consistency).
+--------------------------------
+Trade-off:
+--- Gives high availability and low latency, but requires careful application design (e.g., “refresh to see latest” messages) for cases where temporary staleness is acceptable.
+--- This example clearly illustrates the Consistency vs Availability trade-off from CAP Theorem.
 #### questionlist distributed
+
+
 
 
 ## Show the data layer in your backend. (models, repositories).
