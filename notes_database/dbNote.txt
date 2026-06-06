@@ -980,80 +980,415 @@ like MongoDB and Neo4j for large-scale, read-heavy applications."
 
 
 ## Name Concurrency issues that transactions solve.
-
+###
+Transactions address problems arising when multiple users/processes
+access and modify shared data simultaneously (concurrency anomalies).
+------------------------------
+Main issues solved by transactions (via Isolation):
+--- Dirty Read
+A transaction reads data written by another transaction that has not yet been committed.
+If the writing transaction rolls back, the reader has seen invalid ("dirty") data.
+--- Lost Update
+Two transactions read the same data, both modify it, and then both write back. The first update is overwritten and lost.
+--- Non-repeatable Read (Inconsistent Analysis)
+A transaction reads the same row twice and gets different values because another transaction updated and committed the row in between.
+--- Phantom Read
+A transaction re-executes a query with the same search condition and sees new ("phantom") rows that were inserted by another transaction.
+------------------------------------
+Additional related problems:
+Inconsistent retrievals / dirty writes
+Deadlocks (transactions block each other indefinitely)
+-------------------------------------
+How transactions help:
+They guarantee ACID properties, especially Isolation (through locking, MVCC, or timestamps).
+Different isolation levels (Read Uncommitted, Read Committed, Repeatable Read, Serializable)
+trade off consistency vs. performance by controlling which anomalies are prevented.
 #### questionlist transactions
+
+
 
 
 ## Isolation levels and which anomalies they prevent
-
+###
+Isolation levels (ANSI SQL standard) control the degree of concurrency vs. consistency in transactions.
+Higher levels prevent more anomalies but reduce concurrency/performance.
+Isolation levels define how strictly a transaction is isolated from other concurrent transactions.
+They represent a trade-off between data consistency and system performance/concurrency. The ANSI SQL standard defines four main levels:
+--- Read Uncommitted is the lowest isolation level. It allows dirty reads (reading uncommitted data from other transactions),
+lost updates, non-repeatable reads, and phantom reads. It offers the highest concurrency but the lowest consistency.
+--- Read Committed prevents dirty reads by ensuring only committed data can be read. However,
+it still permits lost updates, non-repeatable reads, and phantom reads.
+This is the default isolation level in many database systems such as PostgreSQL and SQL Server.
+--- Repeatable Read prevents dirty reads, lost updates, and non-repeatable reads.
+A transaction is guaranteed to see the same values when reading the same row multiple times.
+It still allows phantom reads (new rows appearing in range queries). This level is commonly used by MySQL with InnoDB.
+--- Serializable is the highest isolation level. It prevents all major anomalies: dirty reads,
+lost updates, non-repeatable reads, and phantom reads. Transactions appear to execute one after another (serially),
+providing the strongest consistency but with the lowest concurrency and highest risk of deadlocks.
+--- Key anomalies include: dirty read, lost update, non-repeatable read, and phantom read.
+Different database systems may implement these levels slightly differently or offer additional
+models like Snapshot Isolation (MVCC), which behaves similarly to Repeatable Read or better in practice.
+------------------------------------
 #### questionlist transactions
+#####
+Key Notes:
+--- Dirty Read: Reading uncommitted changes.
+--- Lost Update: Two transactions update the same row based on earlier read → one update is lost.
+--- Non-repeatable Read: Same row read twice returns different committed values.
+--- Phantom Read: Range query returns different set of rows due to inserts/deletes by another transaction.
+---------------------------------
+Real DBMS variations:
+--- Many systems use Snapshot Isolation / MVCC (e.g. PostgreSQL) which prevents most anomalies but can still allow write skew.
+--- Neo4j and MongoDB have their own concurrency models (often closer to Serializable or Snapshot).
+--- Trade-off: Higher isolation → fewer anomalies, more locking, risk of deadlocks, lower throughput.
+
+
+
 
 
 ## Transaction boundaries and scope: incl:
 1: start -> end of a transaction.
 2: What work and resources are included?
-
+###
+. Start → End of a Transaction
+--- Start: A transaction begins explicitly with BEGIN TRANSACTION / START TRANSACTION (or BEGIN in some DBMS).
+It can also start implicitly when the first DML statement (SELECT, INSERT, UPDATE, DELETE) is executed and autocommit is disabled.
+--- End: A transaction ends successfully with COMMIT (changes are permanently saved and visible to others) or with ROLLBACK (all changes are undone).
+--- The transaction ends automatically in some cases: DDL statements (CREATE, ALTER, DROP),
+certain errors, connection close, or when switching to autocommit mode.
+--- A transaction is therefore a bounded sequence of operations that starts at one point and ends at COMMIT or ROLLBACK.
+-------------------------------------------
+2. What work and resources are included?
+--- Work included: All DML statements (reads and writes) executed between the start and end of the transaction. The entire group is treated as a single atomic unit — all succeed or all fail together (Atomicity).
+--- Resources:
+- Locks: Row-level, page-level, or table-level locks acquired on data being read or modified.
+- Memory buffers / caches: Changes are held in transaction logs and buffers until commit.
+- Temporary data: Session-specific temporary tables or variables created inside the transaction.
+- Indexes and constraints: Any modifications to indexes, foreign keys, or triggers fired during the transaction.
+- Cursor and result sets: In some cases, cursors opened within the transaction.
+--- The scope is usually limited to the current session/connection. Changes made inside a transaction are not visible to other transactions until COMMIT (depending on isolation level).
+------------------------------------------
+In the context of your project:
+--- SQL (e.g. PostgreSQL/MySQL): Strong ACID transaction boundaries.
+--- MongoDB: Multi-document transactions (since v4.0) with similar startSession / commitTransaction.
+--- Neo4j: Uses Cypher BEGIN, COMMIT, ROLLBACK with ACID guarantees.
+--- This ensures consistency even when migrating data between these systems.
 #### questionlist transactions
+
+
+
 
 
 ## Compare transactions in RDBMS,
 Document database, and graph database.
-
+###
+Transactions Comparison: RDBMS vs Document DB (MongoDB) vs Graph DB (Neo4j)
+--- RDBMS (SQL databases)
+Fully ACID compliant with strong, mature transaction support. Transactions can span multiple tables, rows, and complex joins. Support all standard isolation levels. Excellent for strict consistency needs (banking, ERP). Use explicit BEGIN / COMMIT / ROLLBACK. Very robust locking and concurrency control.
+------------------------------------
+MongoDB (Document Database)
+--- Single-document operations: Always atomic (ACID) by design — no explicit transaction needed.
+--- Multi-document transactions: Supported since v4.0 (full ACID). Can span multiple documents, collections, and even databases. Uses snapshot isolation.
+--- In sharded clusters (v4.2+): Distributed transactions available but with performance cost and limitations.
+--- Best practice: Keep transactions short; prefer embedding/denormalization to avoid them when possible.
+------------------------------------
+Neo4j (Graph Database)
+Fully ACID compliant. Transactions are native and very efficient for graph operations.
+Uses snapshot isolation + locking on nodes/relationships. Changes are invisible until commit.
+Strong support for complex traversals and relationship updates within a transaction.
+Excellent for maintaining relationship consistency. Supports BEGIN, COMMIT, ROLLBACK in Cypher.
 #### questionlist transactions
+#####
+Summary of Differences
+--- RDBMS: Most mature, broadest transaction scope, highest consistency overhead.
+--- MongoDB: Flexible but encourages avoiding multi-doc transactions via data modeling.
+--- Neo4j: ACID with graph-optimized performance — ideal when relationships are central.
+--- All three support ACID, but implementation and performance characteristics differ based on data model. For your project migration, ensure transactional integrity during data transfer.
+
 
 
 ## Transactions in a single database server vs
 distributed transactions.
-
+###
+Single Database Server (Local Transactions)
+--- Involve operations within one single database instance/server.
+--- Fully ACID compliant with strong guarantees.
+--- Simple implementation using internal locking, logging, and MVCC.
+--- Easy to manage: BEGIN / COMMIT / ROLLBACK.
+--- High performance, lower overhead, fewer failure points.
+--- Example: All tables in one PostgreSQL/MySQL instance, or one MongoDB replica set member, or single Neo4j instance.
+-------------------------------
+Distributed Transactions
+--- Span multiple databases, servers, shards, or heterogeneous systems (e.g., SQL + MongoDB, or across shards).
+--- Much more complex due to network latency, partial failures, and coordination needs.
+--- Usually follow the Two-Phase Commit (2PC) protocol:
+- Prepare Phase: All participants vote “ready to commit”.
+- Commit Phase: Coordinator tells everyone to commit (or rollback on any failure).
+--- Higher overhead, slower, risk of blocking (if coordinator fails).
+--- Weaker consistency in practice (CAP theorem trade-offs).
 #### questionlist transactions
+#####
+Comparison
+--- Single server: Simpler, faster, stronger consistency, easier rollback.
+--- Distributed: Harder to achieve full ACID, risk of heuristic outcomes (some commit, some rollback). Modern systems try to avoid them when possible.
+---------------------------------------
+In your project context:
+
+--- SQL (PostgreSQL/MySQL): Excellent single-server support.
+--- MongoDB: Multi-document + distributed (sharded) transactions available but costly.
+--- Neo4j: Strong in single instance / causal cluster; full distributed is more advanced (Causal Clustering).
+-------------------------------------------
+Recommendation: Prefer modeling data to stay within single-server transactions when possible.
+
+
+
 
 
 ## Performance and resource costs: incl.
 Why are long-running transactions not recommended?
-
+###
+Performance and Resource Costs of Transactions
+Transactions consume significant resources to guarantee ACID properties:
+--- Locks: Row/table/page locks held until commit/rollback.
+--- Memory: Undo/redo logs, transaction buffers, and snapshot data (MVCC).
+--- I/O and CPU: Write-ahead logging (WAL), index maintenance, constraint checks.
+--- Network (in distributed cases): Coordination overhead.
+-----------------------------------------
+Why long-running transactions are strongly discouraged:
+--- Lock Contention: Locks are held for the entire duration → other transactions block or wait, reducing concurrency and overall throughput.
+--- Increased Deadlock Risk: Longer lock duration raises the chance of circular waits between transactions.
+--- Resource Exhaustion: Consumes more memory for logs/snapshots and can cause transaction log bloat.
+--- Higher Failure Probability: Network glitches, timeouts, deadlocks, or errors force full rollback of all work done so far.
+--- Poor Scalability: Blocks vacuuming/cleanup processes (e.g., in PostgreSQL) and slows down the entire system.
+--- Snapshot bloat (MVCC systems): Old row versions accumulate, increasing storage and read costs.
 #### questionlist transactions
+#####
+Best Practices:
+--- Keep transactions as short as possible (do all reads first, then quick writes).
+--- Avoid user interaction or heavy computation inside transactions.
+--- Use smaller batches when migrating large data (as in your project).
+--- In MongoDB and Neo4j the same principles apply — long transactions hurt performance and increase abort rates.
+
+
+
 
 
 ## Error handling and transaction behaviour -
 compare MySQL, PostgreSQL, and SQL server.
-
+###
+MySQL (InnoDB)
+--- Errors are often statement-level: A failing statement rolls back only that statement; the transaction continues.
+--- Some serious errors (e.g. deadlock, duplicate key in certain cases) cause full transaction rollback.
+--- autocommit=1 is default → implicit transactions.
+--- Less strict: you can continue after many errors. Good for high availability, but can lead to partial updates if not handled carefully.
+--------------------------------
+PostgreSQL
+--- Very strict: Almost any error puts the transaction into an aborted state.
+--- You must issue ROLLBACK before starting a new transaction. No partial continuation.
+--- All changes are rolled back on error.
+--- Excellent consistency, but requires careful error handling in application code (retry logic). Uses SAVEPOINTs for partial rollback.
+---------------------------------
+SQL Server
+--- Behaviour controlled by SET XACT_ABORT ON/OFF.
+--- OFF (default): Similar to MySQL — some errors (e.g. constraint violations) roll back only the statement; transaction continues.
+--- ON: Most runtime errors cause full transaction rollback (like PostgreSQL).
+--- Supports TRY...CATCH blocks for sophisticated error handling inside transactions.
+-----------------------------------
+Summary
+--- PostgreSQL: Strictest (full rollback on error).
+--- MySQL: Most lenient (statement-level rollback).
+--- SQL Server: Configurable via XACT_ABORT.
+--- For your exam project, always check the transaction state after errors and use explicit BEGIN/COMMIT/ROLLBACK with proper try-catch or retry mechanisms.
 #### questionlist transactions
 
 
 ## How can we secure our database?
-
+###
+Database security involves protecting data confidentiality, integrity, and availability through multiple layers.
+1. Authentication & Authorization
+--- Use strong user authentication (password policies, multi-factor authentication where possible).
+--- Implement Role-Based Access Control (RBAC): Grant minimum privileges (Principle of Least Privilege).
+--- Create separate users/roles for applications, admins, and read-only access.
+--- Disable or remove default accounts (e.g., root, postgres, admin).
+-----------------------------------------
+2. Encryption
+--- At Rest: Use Transparent Data Encryption (TDE) or filesystem-level encryption (PostgreSQL pgcrypto, MySQL InnoDB encryption, MongoDB WiredTiger encryption, Neo4j native encryption).
+--- In Transit: Always enforce TLS/SSL for client-server communication.
+--- Sensitive Fields: Column-level encryption for passwords, PII, credit cards.
+-------------------------------------------
+3. Access Control & Hardening
+--- Use database firewalls or network segmentation.
+--- Restrict IP addresses allowed to connect.
+--- Regularly patch and update the database server.
+--- Disable unnecessary features and services.
 #### questionlist security
+#####
+4. Auditing & Monitoring
+--- Enable detailed audit logging of DDL, DML, and privilege changes.
+--- Monitor for suspicious activity (failed logins, unusual queries).
+--- Use tools like pgAudit (PostgreSQL), MongoDB audit log, or Neo4j security logs.
+----------------------------------------------
+5. Additional Best Practices
+--- Parameterized queries / prepared statements to prevent SQL/NoSQL injection.
+--- Data masking and anonymization for non-production environments.
+--- Regular backups with secure offsite storage and tested recovery.
+--- Implement Row-Level Security (RLS) where supported.
+----------------------------------------------
+In Your Project Context:
+--- SQL (PostgreSQL/MySQL): Strong RBAC, RLS, and encryption features.
+--- MongoDB: Use X.509 certificates, role-based privileges, field-level encryption.
+--- Neo4j: Enterprise edition offers advanced auth, LDAP/SSO, and role-based security.
+--- Security is a continuous process — combine technical controls with policies and regular reviews.
 
 
 ## Authentication and authorization: incl:
 Roles, privileges, and access granularity -
 also compare main RDBMS like
 MySQL, Postgres, SQL Server.
-
+###
+Authentication verifies user identity (who you are).
+Authorization controls what authenticated users can do (permissions).
+Key Concepts
+--- Privileges: Individual permissions (e.g., SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, EXECUTE).
+--- Roles: Named groups of privileges. Roles can be granted to users or other roles (role hierarchy). This simplifies management.
+--- Access Granularity:
+--- Database / Schema level
+--- Table / View level
+--- Column level
+--- Row level (Row-Level Security - RLS)
+--- Function / Procedure level
+--- Principle of Least Privilege: Grant only the minimum required access.
+--------------------------------------------
 #### questionlist security
+#####
+Comparison of Main RDBMS
+MySQL (InnoDB)
+--- Supports roles (since 8.0).
+--- Privileges at global, database, table, column, and routine level.
+--- No native Row-Level Security (workarounds via views).
+--- Simpler model, good for web apps.
+--- GRANT and REVOKE commands.
+--------------------------------------------
+PostgreSQL
+--- Very powerful and granular.
+--- Excellent role system (roles and users are the same concept).
+--- Supports Row-Level Security (RLS) policies (highly recommended for multi-tenant apps).
+--- Column-level privileges and schema-level control.
+--- Inheritance of roles and SET ROLE.
+--- Best for fine-grained access control.
+------------------------------------------------
+SQL Server
+--- Strong role support: Fixed server roles, fixed database roles, and user-defined roles.
+--- Highly granular: Table, column, row (via Security Policies), and schema level.
+--- Advanced features like Row-Level Security, Dynamic Data Masking, and fine-grained auditing.
+--- Good integration with Windows/Active Directory authentication.
+------------------------------------------------------
+Summary
+PostgreSQL offers the most flexible and powerful role + RLS model. SQL Server is enterprise-strong with excellent integration. MySQL is simpler but slightly less granular.
+In your project, define dedicated application roles with minimal privileges for SQL, MongoDB, and Neo4j.
+
+
 
 
 ## Application Access: incl:
 1: What privileges to give to the application user account?
 2: Least Privilege principle.
 3: Development vs production environment.
-
+###
+1. Privileges for the Application User Account
+The application should connect using a dedicated, non-admin database user.
+--- Recommended privileges: SELECT, INSERT, UPDATE, DELETE on required tables/collections only.
+--- EXECUTE on stored procedures/functions (preferred over direct table access).
+--- Never grant: CREATE, ALTER, DROP, INDEX, GRANT, SUPER or admin roles.
+--- In MongoDB: Specific roles with readWrite on designated databases/collections only.
+--- In Neo4j: Assign specific roles with restricted graph access.
+--------------------------------
+2. Least Privilege Principle
+Grant the minimum permissions necessary for the application to function.
+--- Reduces damage if credentials are compromised (attack surface minimization).
+--- Easier auditing and compliance.
+--- Enforced by creating custom roles (e.g., app_readwrite_role) and granting them only needed objects.
+---------------------------------
+3. Development vs Production Environment
+--- Development / Testing: More permissive — allow CREATE TABLE, DROP, TRUNCATE, test data insertion. Use separate dev database instances.
+--- Production: Strict least privilege. Use read-only accounts where possible. Separate application user from admin/developer accounts. Enable auditing and stricter connection limits.
+--- Never use the same credentials or full-privilege accounts in production as in development.
+---------------------------------------
+Recommendation for your project: Create an app_user role with minimal DML rights in SQL, MongoDB, and Neo4j. This is a key security practice examined in both project and oral parts.
 #### questionlist security
+
 
 
 ## Query Security: incl:
 1: SQL injection
 2: Prevention techniques.
-
+###
+1. SQL Injection
+SQL Injection is a critical security vulnerability where an attacker manipulates user input to alter the intended SQL query.
+Examples:
+--- Classic: ' OR '1'='1 in a login form → bypasses authentication.
+--- Union-based: Injects UNION SELECT to dump data.
+--- Blind / Time-based: Extracts data through boolean or delay responses.
+--- It can lead to data theft, modification, deletion, or full server compromise.
+--------------------------------------------
+2. Prevention Techniques
+--- Primary Defense: Use parameterized queries / prepared statements.
+--- Example (in most languages): Bind parameters instead of string concatenation.
+"""SELECT * FROM users WHERE username = ? AND password = ?;"""
+--- Use Stored Procedures with parameters (reduces direct query construction).
+--- ORMs (e.g., Hibernate, SQLAlchemy, Mongoose): Use them correctly with safe APIs.
+--- Input Validation & Sanitization: Whitelist allowed characters, validate data types and formats.
+--- Least Privilege: Run application with minimal DB permissions (no DROP/ALTER).
+--- Web Application Firewall (WAF) and query monitoring for suspicious patterns.
+--- Escape special characters only as a secondary measure (not sufficient alone).
+---------------------------------------------
+--- Apply these in the SQL part.
+--- For MongoDB: Use parameterized queries / drivers’ safe methods (avoid $where).
+--- For Neo4j: Use Cypher parameters.
+--- Best Practice: Never trust user input. Always treat it as potentially malicious. This is a very common exam question.
 #### questionlist security
+
 
 
 ## Data security: incl:
 1: Data at Rest: hashing and encryption + use cases
 2: Data in Transit: TLS/SSL for database connections.
-
+###
+1. Data at Rest: Hashing and Encryption + Use Cases
+--- Hashing (one-way, irreversible):
+--- Used for passwords and sensitive non-reversible data.
+--- Store hashed values with salt (e.g., bcrypt, Argon2, PBKDF2).
+--- Use case: User passwords, API keys, verification tokens. Never store plain text.
+--------------------------------------------
+Encryption (reversible with key):
+--- Column-level / Field-level: Encrypt specific sensitive columns (e.g., credit cards, PII, health data).
+--- Transparent Data Encryption (TDE): Encrypts entire database files/tablespaces.
+--- Full Disk Encryption: OS-level (LUKS, BitLocker).
+-----------------------------------------
+Use cases:
+--- Personal data (GDPR compliance)
+--- Financial information
+--- Secrets and keys
+-------------------------------------------
+In your databases:
+--- PostgreSQL: pgcrypto extension for column encryption.
+--- MySQL: InnoDB tablespace encryption.
+--- MongoDB: Field-level encryption + WiredTiger encryption.
+--- Neo4j: Enterprise encryption at rest.
+-------------------------------------------------
 #### questionlist security
-
+#####
+2. Data in Transit: TLS/SSL for Database Connections
+--- Always encrypt communication between application and database.
+--- Prevents eavesdropping, man-in-the-middle attacks.
+------------------------------------------------
+How to enforce:
+--- Configure server to require SSL/TLS certificates.
+--- Reject unencrypted connections (require_ssl in PostgreSQL, require_secure_transport in MySQL).
+--- Use trusted CA certificates in client connections.
+----------------------------------------------------
+Best Practice: Enable TLS everywhere in production. Most modern drivers (JDBC, MongoDB driver, Neo4j) support it easily.
+This is essential for compliance and protecting against network-level attacks.
 
 
 
