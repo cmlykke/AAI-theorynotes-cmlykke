@@ -3067,23 +3067,111 @@ Recommendation for your project:
 
 
 ## dbmodelling: What problems does good modelling solve?
-
+###
+What Problems Does Good Data Modelling Solve?
+Good data modeling (in any database paradigm) is foundational and solves many critical issues:
+-----------------------
+1. Data Integrity & Consistency
+--- Prevents anomalies (insertion, update, deletion) through proper normalization (in SQL).
+--- Enforces relationships and business rules via constraints, keys, and references.
+----------------------
+2. Performance
+--- Reduces data duplication → smaller storage and faster queries.
+--- Optimizes joins, indexes, and aggregations.
+--- Avoids expensive scans and improves cache efficiency.
+---------------------
+3. Maintainability & Scalability
+--- Easier to evolve schema as requirements change.
+--- Simplifies application code and reduces bugs.
+--- Makes horizontal scaling and sharding more predictable.
+--------------------------
+4. Query Simplicity & Readability
+--- Clear, intuitive structure → simpler and faster queries.
+--- Reduces the need for complex workarounds.
+-----------------------------
+5. Migration & Multi-Model Support
+--- Easier migration between SQL → MongoDB → Neo4j.
+--- SQL: Normalization
+--- MongoDB: Denormalization / embedding
+--- Neo4j: Relationship-focused modeling
+---------------------------
+6. Security & Compliance
+Easier implementation of access control and auditing.
+---------------------
+Summary:
+Poor modeling leads to slow queries, data inconsistency, high maintenance costs, and migration nightmares.
+Good modeling improves performance, reliability, developer productivity, and long-term flexibility —
+especially important in your exam project that spans three different database types.
 #### questionlist dbmodelling
+
+
+
 
 
 ## dbmodelling: Explain the purpose of:
 1: Conceptual model.
 2: Logical model.
 3: Physical model.
-
+###
+1. Conceptual Model
+--- Purpose: High-level, business-oriented view of the data.
+--- Focuses on what data is needed and how entities relate to each other.
+--- Technology-independent.
+--- Main audience: Business stakeholders, analysts.
+--- Usually represented as Entity-Relationship (ER) Diagram.
+--- Contains: Entities, Relationships, Cardinalities (1:1, 1:N, M:N).
+--- Does not include attributes, keys, or data types.
+----------------------
+2. Logical Model
+--- Purpose: Detailed representation of data structure independent of any specific DBMS.
+--- Translates conceptual model into formal structure.
+--- Defines tables, columns, primary & foreign keys, relationships, constraints, and normalization.
+--- Main audience: Developers and DB designers.
+--- Still DBMS-agnostic (works for any relational DB).
+-----------------------
+3. Physical Model
+--- Purpose: Describes how the logical model is actually implemented in a specific database system.
+--- Technology-specific details for performance and storage.
+--- Includes: Data types, indexes, partitioning, storage parameters, triggers, views, etc.
+--- Main audience: DBAs and developers implementing the system.
+--- Optimized for a particular DBMS (PostgreSQL, MySQL, etc.).
+----------------------------
+Summary for your project:
+Conceptual → Understand business needs → Logical → Design normalized structure →
+Physical → Implement in SQL, then adapt for MongoDB (denormalized) and Neo4j (nodes/relationships).
 #### questionlist dbmodelling
+#####
+
 
 
 
 ## dbmodelling: ERD:
 1: Standard diagram notations.
 2: Cardinailty and modality.
-
+###
+1. Standard Diagram Notations
+--- Entities: Represented as rectangles (e.g., User, Order).
+--- Attributes: Listed inside the entity rectangle (key attributes underlined or marked with *).
+--- Relationships: Represented as diamonds (Chen notation) or lines connecting entities (Crow’s Foot notation – most common today).
+--- Primary Key: Usually marked with PK or underlined.
+--- Foreign Key: Marked with FK.
+--- Most Popular Notations:
+- Crow’s Foot (widely used in tools like Lucidchart, draw.io, MySQL Workbench).
+- Chen Notation (academic, uses diamonds for relationships).
+- UML Class Diagram (sometimes used as alternative).
+------------------------------
+2. Cardinality and Modality
+Cardinality = Maximum number of instances that can participate in the relationship.
+--- 1:1 (One-to-One)
+--- 1:N (One-to-Many) – most common
+--- N:M (Many-to-Many) – usually resolved with a join table
+--- Modality (Participation / Optionality):
+- Mandatory (Total Participation): Shown as a straight line or filled circle. The entity must participate in the relationship.
+- Optional (Partial Participation): Shown as a circle (O) or dashed line. The entity can exist without participating.
+--------------------------------
+Example:
+--- One Customer must have at least one Address → 1:N, mandatory on Address side.
+--- One Order can have many OrderItems → 1:N, mandatory on OrderItem side.
 #### questionlist dbmodelling
 
 
@@ -3097,28 +3185,116 @@ Recommendation for your project:
 ## Normalization:
 1: Explain first 3 normal forms without using formal definitions.
 2: What problems does normalization prevent?
-
+###
+Normalization: First 3 Normal Forms (Simple Explanation)
+--- 1NF (First Normal Form)
+Each column contains only atomic (single) values. No repeating groups or multiple values in one cell. Every row must be unique.
+--- 2NF (Second Normal Form)
+The table is in 1NF, and every non-key column depends on the whole primary key, not just part of it. Removes partial dependencies.
+--- 3NF (Third Normal Form)
+The table is in 2NF, and no non-key column depends on another non-key column (no transitive dependencies). Every column depends only on the primary key.
+-----------------------------
+What Problems Does Normalization Prevent?
+--- Update Anomalies — Changing one fact requires updating many rows (risk of inconsistency).
+--- Insertion Anomalies — Cannot insert certain data without creating fake/dummy records.
+--- Deletion Anomalies — Deleting a record removes unrelated valid information.
+--- Redundancy — Saves storage and reduces inconsistency risk.
 #### questionlist dbmodelling
+
+
 
 
 
 ## Denormalization:
 1: When is denomalization useful?
 2: Trade-offs.
-
+###
+1. When is Denormalization Useful?
+--- Read-heavy applications where query speed matters more than write speed.
+--- When you want to avoid expensive JOINs (e.g., product catalog with category info, user profiles with addresses).
+--- In Document Databases like MongoDB — embedding related data is natural denormalization.
+--- High-traffic features with frequent reads (dashboards, recommendations, APIs).
+--- When data is mostly accessed together and rarely updated.
+---------------------------
+2. Trade-offs
+Advantages:
+--- Significantly faster read performance.
+--- Simpler and fewer queries.
+--- Better scalability for read operations.
+---------------------------
+Disadvantages:
+--- Data duplication → higher storage consumption.
+--- Update anomalies (must update multiple places to keep data consistent).
+--- Higher risk of inconsistencies.
+--- More complex write operations and maintenance.
+-----------------------------
+Key Insight for your project:
+Normalize in the SQL part for data integrity,
+then deliberately denormalize when migrating to MongoDB (embedding)
+and adapt for Neo4j (relationships). Always balance based on access patterns.
 #### questionlist dbmodelling
 
 
-## Modeling across database types - RDBMS Document, GraphDB
 
+
+
+## Modeling across database types - RDBMS, Document, GraphDB
+###
+RDBMS (SQL)
+--- Normalized structure using tables, columns, primary keys, and foreign keys.
+--- Strong emphasis on data integrity, constraints, and normalization (1NF–3NF).
+--- Relationships are modeled via foreign keys and join tables.
+--- Best for: Strict consistency, complex reporting, transactional systems.
+------------------------
+Document Database (MongoDB)
+--- Denormalized and flexible schema.
+--- Data is stored as rich, self-contained JSON-like documents.
+--- Common patterns: Embedding (1:N data inside the document) and Referencing (linking documents).
+--- Best for: Read-heavy apps, hierarchical data, rapid schema evolution.
+------------------------
+Graph Database (Neo4j)
+--- Nodes (entities) + Relationships (first-class citizens with properties and direction).
+--- Focuses on connections rather than tables or documents.
+--- Excellent for: Deep traversals, recommendations, social networks, knowledge graphs.
+-------------------------
+Migration Insight for Your Project:
+--- Start normalized in SQL.
+--- Denormalize/embed when moving to MongoDB.
+--- Convert foreign keys into explicit relationships in Neo4j.
+-------------------------------
+Each paradigm optimizes for different access patterns. Choosing the right modeling approach per database is key to performance and maintainability.
 #### questionlist dbmodelling
+
+
+
 
 
 ## Referential integrity: incl:
 1: How is it enforced in RDBMS?
 2: How is it with referential integrity in document and graph databases?
 3: What is an orphaned record?
-
+###
+1. How is it enforced in RDBMS?
+In relational databases, referential integrity is enforced using Foreign Key (FK) constraints.
+--- The FK column must reference a valid Primary Key (or Unique) value in the parent table.
+--- The database automatically prevents invalid inserts/updates and can handle deletes via rules like:
+"""
+ON DELETE CASCADE
+ON DELETE RESTRICT / NO ACTION
+ON DELETE SET NULL
+"""
+-----------------------------
+2. Referential Integrity in Document and Graph Databases
+--- MongoDB (Document DB): No automatic enforcement.
+--- You must handle it in the application code. Common approaches: embedding data instead of referencing, or manual checks + schema validation.
+--- Neo4j (Graph DB): Stronger than MongoDB.
+--- Relationships are first-class objects. You cannot have a relationship pointing to a non-existent node. Use DETACH DELETE when removing nodes.
+-------------------------
+3. What is an Orphaned Record?
+--- An orphaned record is a child record that references a parent record that no longer exists (a dangling reference).
+--- Example: An Order that still points to a deleted Customer.
+--- Key Point for your project: SQL provides strong automatic protection,
+while MongoDB and Neo4j shift more responsibility to the application layer.
 #### questionlist dbmodelling
 
 
@@ -3127,17 +3303,86 @@ Recommendation for your project:
 1: You got a new requirement which causes your schema to change -
 for example you need to add a new entity. How will you do it for the 3 databases?
 2: Schema migration in SQL and backward compatibility.
+###
+1. Adding a New Entity (Example: New Review entity)
+SQL (RDBMS):
 
+--- Create new table: CREATE TABLE reviews (...).
+--- Add foreign keys to related tables (user_id, product_id).
+--- Use migrations (Flyway, Liquibase) for version control.
+--- May require adding indexes and updating existing queries.
+----------------------
+MongoDB (Document):
+--- Very flexible. Just start inserting documents with new structure into a reviews collection.
+--- No strict schema. Use embedding (store reviews inside Product/User) or referencing.
+--- Schema validation can be added later if needed.
+-------------------------
+Neo4j (Graph):
+--- Create new :Review nodes and relationships (:WROTE, :FOR).
+--- Use Cypher: CREATE (r:Review {...}).
+--- Extremely flexible for adding new relationship types.
 #### questionlist dbmodelling
+#####
+2. Schema Migration in SQL & Backward Compatibility
+--- Use migration tools (Flyway/Liquibase) to version schema changes.
+--- Add new columns with NULL or default values.
+--- Never delete/rename columns immediately — use soft changes first.
+--- Maintain backward compatibility: Old application versions should still work (add columns, avoid dropping until all code is updated).
+--- Use views or new tables during transition.
+-------------------------------
+Best Practice:
+--- SQL is most rigid (requires careful planning).
+--- MongoDB and Neo4j are much more agile for evolving requirements.
+--- This topic is very important for both your project and the oral exam.
+
+
+
 
 
 ## How to handle existing production data during the schema migration?
-
+###
+Plan Carefully
+--- Use version-controlled migration tools (Flyway, Liquibase for SQL).
+--- Always test migrations on a copy of production data first.
+-----------------------
+Common Strategies:
+--- Additive Changes (Safest): Add new columns/tables with default values or NULL. Old data remains valid.
+--- Backfill Data: Run scripts to populate new fields based on existing data (e.g., set default values, calculate new fields).
+--- Data Transformation: Use scripts or ETL tools to transform old data into the new schema.
+--- Dual Write: Temporarily write to both old and new structures during transition.
+--- Blue-Green Deployment: Run new schema in parallel and switch traffic after validation.
+------------------------
+For Your Three Databases:
+--- SQL: Use migrations with ALTER TABLE + backfill scripts. Maintain backward compatibility.
+--- MongoDB: Much easier — just start writing new document structure. Use aggregation pipelines or scripts for data migration.
+--- Neo4j: Add new nodes/relationships. Use Cypher scripts to migrate existing data.
+-----------------------
+Key Rules:
+--- Never lose data (always backup first).
+--- Minimize downtime (zero-downtime techniques).
+--- Monitor after migration.
+--- Have a rollback plan.
 #### questionlist dbmodelling
 
 
-## Data migration cost?
 
+
+
+
+## Data migration cost?
+###
+Main Cost Factors:
+--- Time & Development Effort: Designing target models, writing ETL/migration scripts, data transformation logic, and handling edge cases.
+--- Performance & Downtime: Large datasets take hours/days to migrate; may require downtime or complex zero-downtime strategies.
+--- Testing & Validation: Ensuring data integrity, completeness, consistency, and correctness across all three databases (very time-consuming).
+--- Infrastructure: Temporary storage, extra compute resources, and tools for migration.
+--- Application Changes: Updating code, queries, and business logic for the new data models.
+--- Risk & Rework: Data loss, inconsistencies, or bugs can lead to expensive fixes.
+--------------------------
+Summary:
+--- Data migration is often one of the most expensive and risky parts of a project. SQL → MongoDB (denormalization) and SQL → Neo4j (graph modeling) transformations add significant complexity and cost.
+--- Best Practice for your exam project:
+Migrate in small batches, automate as much as possible, and thoroughly test data consistency. Always calculate migration cost when choosing architectures.
 #### questionlist dbmodelling
 
 
@@ -3148,15 +3393,69 @@ for example you need to add a new entity. How will you do it for the 3 databases
 
 ## Schema migration in NoSQL databases?
 ###
+MongoDB (Document DB)
+--- Very flexible due to schema-less nature.
+--- You can insert documents with new fields without changing any schema.
+--- Old and new document versions can coexist in the same collection.
+--- Migration techniques:
+- Background scripts using updateMany() or aggregation pipelines.
+- Add a version field to documents for compatibility.
+- Use JSON Schema Validation (optional) to gradually enforce structure.
+--------------------------------
+Neo4j (Graph DB)
+--- Highly agile and schema-flexible.
+--- Migration techniques:
+- Add new properties to existing nodes/relationships on the fly.
+- Create new relationship types or node labels.
+- Use Cypher scripts (MATCH ... SET ... CREATE ...) to transform data.
+--- No structural locking issues.
+-------------------------------
+Advantages vs SQL:
+--- Much faster, lower risk, and minimal downtime.
+--- No need for complex migration tools like Flyway/Liquibase.
+--- Easier to evolve schema as requirements change.
+----------------------------------
+Best Practice:
+Always migrate data in small batches, keep backward compatibility, and thoroughly validate after changes.
+This flexibility is one of the biggest advantages of NoSQL in your project.
 #### questionlist dbmodelling
 #####
-###### AI:
+######
+
+
+
 
 ## How to migrate schema and production data between database technologies?
 ###
+General Strategy (SQL → MongoDB → Neo4j)
+--- Extract from Source (SQL)
+- Use pg_dump, mysqldump, or custom SELECT queries.
+- Export in structured format (CSV, JSON).
+------------------------
+Transform
+--- Map relational model to target model:
+- MongoDB: Denormalize → Embed related data (e.g., orders inside user document).
+- Neo4j: Convert tables to nodes, foreign keys to relationships.
+--- Handle data cleaning, type conversion, and enrichment.
+------------------------------
+Load into Target
+--- MongoDB: Use mongoimport, custom scripts, or MongoDB drivers with bulk inserts.
+--- Neo4j: Use LOAD CSV, Cypher scripts, or APOC procedures for batch import.
 #### questionlist dbmodelling
 #####
-###### AI:
+Best Practices
+--- Migrate in small batches or by domain (customers → orders → products).
+--- Use id mapping to maintain relationships across systems.
+--- Implement dual write during transition if zero-downtime is needed.
+--- Validate data integrity (row counts, checksums, sample queries).
+--- Always backup source data first.
+----------------------
+--- Tools: Custom ETL scripts (Python + Pandas), Apache Airflow, Talend, or database-specific tools.
+--- Key Challenge: Transforming normalized SQL data into denormalized documents and connected graph structures.
+######
+
+
+
 
 //// questionlist
 List of questions we have been provided
