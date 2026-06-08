@@ -439,7 +439,7 @@ RETURN u;
 """
 FOR (u:User) REQUIRE u.username IS UNIQUE;
 """
-#### questionlist indexes
+#### questionlist indexes project
 #####
 Mysql-username-index-and-emailindex:
 """
@@ -1875,7 +1875,7 @@ RETURN p.rating, c.name AS country_name
 Key Point: This is a direct traversal. The performance is highly efficient because
 it follows the physical pointers (edges) stored in the database, regardless of
 how many players or users exist in the system.
-#### questionlist query
+#### questionlist query project
 
 
 
@@ -2324,7 +2324,7 @@ Neo4j
 Handles graph-based data relationships.
 - **Models**: Located in `com.example.arimaabackend.model.neo4j`, classes typically end with `Node` (e.g., `MatchNode`, `PlayerNode`, `PuzzleNode`, `UserNode`).
 - **Repositories**: Located in `com.example.arimaabackend.repository.neo4j`, interfaces typically end with `Neo4jRepository` (e.g., `MatchNeo4jRepository`, `PlayerNeo4jRepository`).
-#### questionlist datalayer
+#### questionlist datalayer project
 #####
 Migration Process
 The backend includes a migration system designed to populate MongoDB and Neo4j databases using MySQL as the source of truth.
@@ -2443,7 +2443,7 @@ If transactions were not used:
 --- Without these declarative boundaries, manual transaction management would be required. This would involve explicitly starting, committing, and rolling back transactions in the code (e.g., using PlatformTransactionManager or direct database connection APIs).
 --- This manual approach is more error-prone, increases boilerplate code significantly, and makes it harder to ensure consistency across complex business logic spanning multiple repository calls.
 --- Declarative transaction management is the recommended practice in Spring applications for maintaining consistency and simplifying code maintenance.
-#### questionlist datalayer
+#### questionlist datalayer project
 
 
 
@@ -2462,7 +2462,7 @@ If the Repository pattern were not used:
 - We would have to manually implement data access using raw SQL, Neo4j Query Language (Cypher), or MongoDB drivers in the service layer or separate DAO classes.
 - This would result in significant code duplication, increased complexity, and reduced maintainability, as any changes to the database schema or technology would require extensive changes across the application.
 - The Repository pattern is crucial for maintaining a clean architecture and separation of concerns in modern Spring applications.
-#### questionlist datalayer
+#### questionlist datalayer project
 
 
 
@@ -2879,7 +2879,7 @@ Implementation:
 - Triggers (e.g., `trg_players_update_audit`, `trg_matches_after_insert`, `trg_matches_after_update`, `trg_matches_after_delete`) automatically capture changes (INSERT, UPDATE, DELETE) and log them into the `audit_log` table.
 - The `audit_log` table stores the table name, operation type, record ID, and the old and new values in JSON format.
 - This provides a structured audit trail of changes for critical data entities like Players and Matches.
-#### questionlist auditing
+#### questionlist auditing project
 
 
 
@@ -3328,7 +3328,7 @@ Neo4j (Graph):
 --- Create new :Review nodes and relationships (:WROTE, :FOR).
 --- Use Cypher: CREATE (r:Review {...}).
 --- Extremely flexible for adding new relationship types.
-#### questionlist dbmodelling
+#### questionlist dbmodelling project
 #####
 2. Schema Migration in SQL & Backward Compatibility
 --- Use migration tools (Flyway/Liquibase) to version schema changes.
@@ -3463,7 +3463,10 @@ Best Practices
 
 
 
-
+//// project
+questions that suggests that
+we should use examples from out project,
+rather than talk abstractly
 //// questionlist
 List of questions we have been provided
 //// performance
