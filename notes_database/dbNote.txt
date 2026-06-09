@@ -1014,7 +1014,11 @@ They guarantee ACID properties, especially Isolation (through locking, MVCC, or 
 Different isolation levels (Read Uncommitted, Read Committed, Repeatable Read, Serializable)
 trade off consistency vs. performance by controlling which anomalies are prevented.
 #### questionlist transactions
-
+#####
+CHR:
+--- non-comitted read === T.a make a change (dont commit), T.b reads change, T.a reverts.
+--- non-repeatable read === T.b reads value, T.a make a change (and commit), T.b reads change (value not different).
+--- phantom read === T.b count rows, T.a insertORdele rows, T.b count rows again (number has chanegd).
 
 
 
@@ -1051,8 +1055,13 @@ Real DBMS variations:
 --- Many systems use Snapshot Isolation / MVCC (e.g. PostgreSQL) which prevents most anomalies but can still allow write skew.
 --- Neo4j and MongoDB have their own concurrency models (often closer to Serializable or Snapshot).
 --- Trade-off: Higher isolation → fewer anomalies, more locking, risk of deadlocks, lower throughput.
-
-
+######
+CHR:
+4 isolation levels:
+--- non-committed read === allow all 3 annomalies
+--- committed read === forbid uncommitted read.
+--- repeatable read === also forbid non-repeatable read.
+--- serializable === also forbids phantom reads.
 
 
 
@@ -1084,7 +1093,20 @@ In the context of your project:
 --- Neo4j: Uses Cypher BEGIN, COMMIT, ROLLBACK with ACID guarantees.
 --- This ensures consistency even when migrating data between these systems.
 #### questionlist transactions
-
+#####
+CHR:
+Scope of the Transaction (What is Included)
+Database operations:
+--- All reads (SELECT) and writes (INSERT, UPDATE, DELETE, MERGE, etc.).
+--- DDL in some databases (e.g., CREATE TABLE inside a transaction in PostgreSQL, but not always in MySQL).
+--- Calls to stored procedures, functions, triggers that execute within the transaction.
+-----------------------------------------------------
+Resources managed:
+--- Locks: Row-level, page-level, or table-level locks to ensure isolation.
+--- Temporary data: Changes to data are visible only within the transaction (until commit) for other sessions, depending on isolation level.
+--- Undo/Redo logs: Used for rollback and recovery.
+--- Cursors, prepared statements, and session state tied to the transaction.
+######
 
 
 
@@ -1114,6 +1136,13 @@ Summary of Differences
 --- MongoDB: Flexible but encourages avoiding multi-doc transactions via data modeling.
 --- Neo4j: ACID with graph-optimized performance — ideal when relationships are central.
 --- All three support ACID, but implementation and performance characteristics differ based on data model. For your project migration, ensure transactional integrity during data transfer.
+######
+CHR:
+--- RDBMS: full support for ACID.
+--- Mongo: originalt: kun ACID for hvert document. I dag: ACID selv for replica sets og sharded clusters. (Mongo Uses snapshot isolation by default for transactions).
+--- Snapshot Isolation means: When your transaction starts, it takes a "snapshot" (photo) of the data at that moment. It works with that consistent view even if other users are changing data meanwhile.
+--- At commit time, MongoDB checks for write conflicts. If another transaction has modified the same documents you changed, your transaction aborts (fails) to avoid inconsistency.
+--- Neo4j: Neo4j is fully ACID-compliant and treats transactions as fundamental, especially important for graph traversals and relationship integrity. (works on nodes and relationships).
 
 
 
@@ -1138,17 +1167,43 @@ Distributed Transactions
 --- Weaker consistency in practice (CAP theorem trade-offs).
 #### questionlist transactions
 #####
-Comparison
---- Single server: Simpler, faster, stronger consistency, easier rollback.
---- Distributed: Harder to achieve full ACID, risk of heuristic outcomes (some commit, some rollback). Modern systems try to avoid them when possible.
----------------------------------------
-In your project context:
---- SQL (PostgreSQL/MySQL): Excellent single-server support.
---- MongoDB: Multi-document + distributed (sharded) transactions available but costly.
---- Neo4j: Strong in single instance / causal cluster; full distributed is more advanced (Causal Clustering).
--------------------------------------------
-Recommendation: Prefer modeling data to stay within single-server transactions when possible.
 
+CHR:
+Two-Phase Commit (2PC) protocol: (used mostly for shards)
+Roles in 2PC
+--- Coordinator (usually the transaction manager): Leads the protocol.
+--- Participants (resource managers): The databases, services, or nodes that do actual work.
+-----------------------------------
+Phase 1: Prepare (Voting Phase)
+--- Coordinator sends PREPARE request to all participants.
+--- Each participant:
+Checks if it can commit the transaction (acquires locks, writes undo/redo logs, validates constraints, etc.).
+If yes → writes a "prepared" record to its durable log and replies YES (ready to commit).
+If no (or crash, timeout, etc.) → replies NO.
+--- Coordinator collects all votes:
+If all say YES → move to commit phase.
+If any says NO, or timeout occurs → decide to abort.
+--------------------------------------
+Phase 2: Commit / Abort Phase
+--- Success case (all voted YES):
+Coordinator writes "commit" record to its log.
+Sends COMMIT to all participants.
+Each participant applies the changes permanently, releases locks, and sends ACK.
+Coordinator completes the transaction after all ACKs.
+--- Failure case:
+Coordinator writes "abort" record.
+Sends ABORT to all.
+Participants rollback using their logs and release locks.
+Recommendation: Prefer modeling data to stay within single-server transactions when possible.
+######
+CHR:
+MongoDB Replica Set: (an example of quorum-based consensus protocols, which are mostly for replica sets)
+--- One node is the leader (primary).
+--- The leader receives a write/transaction.
+--- It replicates the change (as a log entry) to followers.
+--- Followers acknowledge (vote) that they have received and stored the log entry.
+--- Once the leader gets acknowledgments from a majority of the replica set → it commits the change.
+--- The leader then notifies followers to apply the committed entry.
 
 
 
@@ -1295,6 +1350,17 @@ SQL Server
 Summary
 PostgreSQL offers the most flexible and powerful role + RLS model. SQL Server is enterprise-strong with excellent integration. MySQL is simpler but slightly less granular.
 In your project, define dedicated application roles with minimal privileges for SQL, MongoDB, and Neo4j.
+######
+CHR:
+backend users with roles, and a db-user with minimal privileges. (har vi allerede)
+-----------------------------------------
+Row-Level Security (RLS)
+RLS lets the database automatically filter rows based on the current user/session context. A regular user only sees their own data.
+(to prevent a "hacker" user from seeing other users data through an SQL injection, for example).
+-----------------------------------------
+Database Auditing / Logging:
+You need the database itself to record who did what, when, and from where — independently of your application logs.
+(can make sure that a programmer in you company will get caught if they try to delete the dataabse (as long as they are not a superuser)).
 
 
 
@@ -1325,6 +1391,18 @@ Grant the minimum permissions necessary for the application to function.
 ---------------------------------------
 Recommendation for your project: Create an app_user role with minimal DML rights in SQL, MongoDB, and Neo4j. This is a key security practice examined in both project and oral parts.
 #### questionlist security
+#####
+CHR:
+backend users with roles, and a db-user with minimal privileges. (har vi allerede)
+-----------------------------------------
+Row-Level Security (RLS)
+RLS lets the database automatically filter rows based on the current user/session context. A regular user only sees their own data.
+(to prevent a "hacker" user from seeing other users data through an SQL injection, for example).
+-----------------------------------------
+Database Auditing / Logging:
+You need the database itself to record who did what, when, and from where — independently of your application logs.
+(can make sure that a programmer in you company will get caught if they try to delete the dataabse (as long as they are not a superuser)).
+
 
 
 
@@ -1356,6 +1434,21 @@ Examples:
 --- For Neo4j: Use Cypher parameters.
 --- Best Practice: Never trust user input. Always treat it as potentially malicious. This is a very common exam question.
 #### questionlist security
+CHR:
+--- Row-Level Security (RLS)
+RLS lets the database automatically filter rows based on the current user/session context. A regular user only sees their own data.
+(to prevent a "hacker" user from seeing other users data through an SQL injection, for example).
+--- only use Stored function to interact with database (så DB bruger kun behøver EXECUTE privilege).
+--- Views (Especially Instead-Of Triggers on Views).
+Create views that expose only the necessary data/columns, then grant access to the views instead of base tables.
+For write operations, use INSTEAD OF triggers on views to control exactly what modifications are allowed.
+This adds another enforcement layer inside the database.
+Benefit: Even if an injection succeeds, the attacker is limited to what the view allows. This complements least privilege nicely.
+------------------------------
+INSTEAD OF allows your view to act like a proper table for write purposes,
+so the backend only see the columns it needs both when trying to read (thats what a view is normally for) and write.
+
+
 
 
 
@@ -1398,6 +1491,21 @@ How to enforce:
 ----------------------------------------------------
 Best Practice: Enable TLS everywhere in production. Most modern drivers (JDBC, MongoDB driver, Neo4j) support it easily.
 This is essential for compliance and protecting against network-level attacks.
+######
+CHR:
+TLS (Transport security layer)
+--- Encrypting everything (confidentiality)
+--- Authenticating the server (so you know you're really talking to your real database, not a fake one)
+--- Detecting tampering (if someone tries to change the data in transit, both sides will notice)
+---------------------------------------------
+How It's Done in Practice (Server Side (Database))
+--- You give the database a digital certificate (like an ID card) issued by a trusted Certificate Authority (CA).
+--- You configure the database to require encrypted connections only.
+--- PostgreSQL: require_ssl = on or sslmode=require
+--- MySQL: require_secure_transport = ON
+--- Unencrypted connections are rejected.
+
+
 
 
 
@@ -1430,8 +1538,20 @@ Firewall Rules:
 Best Practice for Your Project:
 --- Run databases in private subnets/VPCs with IP whitelisting and strict firewall rules. Use bastion hosts or private endpoints if needed.
 --- This layer is crucial for overall database security.
-
-
+######
+CHR:
+Private networks / VPC (virtual private cloud):
+Key features of a VPC:
+--- Your database and application servers live inside this VPC (in the cloud, set up by Amazon, or Google ect).
+--- They get private IP addresses (not reachable from the public internet).
+--- You control exactly who or what can connect using security groups (like firewalls) and network access control lists.
+--- You can connect your company office, other servers, or specific services to the VPC securely.
+--------------------------------------------------
+The database is accidentally exposed to the internet:
+Many companies (especially startups) put their database on a server with a public IP address
+and leave the database port open (e.g. port 5432 for PostgreSQL, 3306 for MySQL).
+→ Attackers scan the internet constantly looking for open database ports.
+Once they find one, they try to log in with weak passwords, default credentials, or stolen credentials.
 
 
 
@@ -1469,6 +1589,28 @@ Best Practices for Your Project
 --- Neo4j: neo4j-admin dump with encryption.
 ----------------------------------------
 Secure backups are critical for availability and compliance (GDPR, etc.). A compromised backup = full data breach.
+######
+CHR:
+Backup access control:
+--- Least Privilege Principle: Only a very small number of people (usually DBAs and security team) should have access to backup files or the backup storage location. Developers should almost never have direct access to production backups.
+--- Separate Backup Accounts: Use dedicated service accounts or roles for backup processes — never use the same credentials as your application.
+--- Strict Storage Permissions: Store backups in encrypted buckets (S3, GCS, etc.) with tight IAM policies. Block public access and use bucket policies to allow only backup systems and authorized recovery accounts.
+--- Audit Logging: Enable detailed logging of who accesses, downloads, or views backup files. Any access should trigger alerts.
+--- Short Retention + Rotation: Keep backups for the minimum required time (compliance + recovery needs) and automatically delete old ones to reduce risk
+---------------------------------
+Backup Encryption (5 key points)
+--- Always Encrypt at Rest: Backups should be encrypted using strong algorithms (AES-256) before or during storage. Never store unencrypted backups.
+--- Encryption Keys Management: Use proper key management (AWS KMS, HashiCorp Vault, or cloud-native services). Keys should be rotated regularly and never stored alongside the backups.
+--- In-Transit Encryption: When moving backups (to storage or during replication), always use TLS/HTTPS or secure protocols.
+--- Two-Layer Encryption (Best Practice): Many teams encrypt the backup inside the database tool (e.g. pg_dump --encrypt) and then let the storage service add another layer.
+--- Key Access Control: Only the recovery team should have decryption rights. Developers working on application code should not have access to backup decryption keys.
+------------------------------------------
+Backup Restoration (5 key points)
+--- Test Restores Regularly: The most important rule — a backup you haven’t successfully restored is worthless. Schedule periodic restore tests (quarterly at minimum).
+--- Documented & Automated Process: Have clear, step-by-step, and ideally automated restoration procedures. Include who is authorized to trigger a restore.
+--- Point-in-Time Recovery (PITR): Prefer databases that support PITR (PostgreSQL WAL, MySQL binary logs) so you can restore to a specific moment rather than just the last full backup.
+--- Restore in Isolated Environment: When testing or doing emergency recovery, restore to a separate network/VPC first to avoid accidental impact on production.
+--- Verify Data Integrity: After restoration, always validate the data (row counts, checksums, critical business checks) before switching traffic back to the restored database.
 
 
 
@@ -1687,7 +1829,12 @@ Recommendation for your project:
 --- Use composite keys sparingly (e.g., pure junction tables with no extra attributes).
 --- This design choice significantly affects normalization, performance, and ease of data migration.
 #### questionlist join
-
+#####
+CHR:
+--- composite keys are good for join tables (many to many)
+--- or fx. price tables (composite primary key or product id and date)
+-------------------------
+bad for: ordinary tables (composite of username and email) because every table  that reference it must now use both colums as foreign key.
 
 
 
@@ -1783,7 +1930,7 @@ In graph databases, relationships are first-class citizens.
 --- In the provided codebase, this is implemented using the `@Relationship` annotation on fields within the model class (e.g., `PlayerNode` having a `@Relationship(type = "IN_COUNTRY")` to a `CountryNode`).
 --------------------------------------
 Summary: Join tables disappear, replaced by structural nesting in Document databases or direct connection edges in Graph databases.
-#### questionlist join
+#### questionlist join project
 #####
 Your project uses a consistent, standard approach to modeling relationships across three distinct database paradigms: Relational (MySQL),
 Document (MongoDB), and Graph (Neo4j). Here is an analysis of your implementation, highlighting strengths and areas for potential refinement.
@@ -1909,7 +2056,7 @@ SELECT p.rating, c.name AS country_name
 FROM Players p
 JOIN Users u ON p.user_id = u.id
 JOIN Countries c ON p.countries_id = c.id
-WHERE u.username = 'target_username';
+WHERE u.username = 'bot_ShallowBlue';
 """"""
 // 1. Find the User document to get the ID
 const user = db.users.findOne({ "username": "target_username" });
@@ -1920,6 +2067,22 @@ const player = db.players.findOne({ "user": new DBRef("users", user._id) });
 MATCH (u:User {username: 'target_username'})-[:HAS_USER]->(p:Player)-[:IN_COUNTRY]->(c:Country)
 RETURN p.rating, c.name AS country_name
 """
+######
+CHR:
+SQL:
+--- One index seek on Users.username → O(log N_users)
+--- One index lookup (or nested-loop) into Players using the foreign key → O(log N_players)
+--- One index lookup into Countries → O(log N_countries)
+--- Since the number of joins is fixed (only two joins) and the query returns typically one row, the total complexity is still O(log N)
+--------------------
+Mongo:
+--- The first findOne() on the users collection by username (assuming an index on that field) does a single B-tree index seek → O(log N_users).
+--- The second findOne() on the players collection using a DBRef does another index lookup (typically on the referenced _id) → O(log N_players).
+--- Like the SQL version, the overall complexity remains O(log N) because the number of operations is a small constant (here, 2) and the query returns typically one document.
+----------------------
+Neo4J:
+leder alle brugere igennem og finder herefter player tabellen.
+"Full table scan" skyldes mangel på index for brugernavn.
 
 
 
