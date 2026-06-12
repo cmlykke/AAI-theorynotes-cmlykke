@@ -1,0 +1,290 @@
+
+
+
+
+
+1. What would be a good choice of performance metric in a binary classifica￾tion scenario with far more negative than positive samples?
+
+
+2. When training an auto-encoder for anomaly detection, how should the
+data set be split?
+
+
+3. What are examples of activation functions in a deep neural network, and
+what are their characteristics?
+
+
+4. What is a common use of this expression: -(1/m) Σ [hθ(X) - Y]²
+(This is a cost / loss function (specifically a variant of the Mean Squared Error used in linear regression or similar supervised learning models).)
+
+
+5. Why are Genetic Algorithms a viable choice for the Traveling Salesman
+Problem?
+
+
+6. What are the requirements for an activation function for a deep neu￾ral network, if the network must be able to approximate any non-linear
+function?
+
+
+7. Can a latent space be interpreted directly? Why or why not?
+
+
+8. What is the data type of these examples: a) monetary value, b) Olympic
+medals, c) accuracy of a binary classification model.
+
+
+9. Why do we want generalized models rather than perfectly fit models?
+
+
+10. Explain supervised vs unsupervised learning.
+
+
+11. Explain the concepts of bias and variance.
+
+
+12. What is a common use of this expression:  (λ / 2m) Σ θ²
+(This is the L2 regularization term (Ridge regularization penalty), commonly added to the cost function in linear/logistic regression to prevent overfitting.)
+
+
+13. True or false: correlation implies causation?
+
+
+14. When would you use a Random Forest model rather than a deep neural
+network?
+
+
+15. What kind of problem are Genetic Algorithms well suited for?
+
+
+16. What is Gradient Descent, and how does it work?
+
+
+17. Explain the structure of an auto-encoder.
+
+
+18. What kind of nodes can we find in a Decision Tree model?
+
+
+19. What is a common use of this expression:  -(1/m) Σ [Y log(hθ(X)) + (1 - Y) log(1 - hθ(X))]
+(This is the Binary Cross-Entropy Loss (also called Log Loss), the standard cost function for Logistic Regression.)
+
+
+20. What performance metrics are relevant when working with classification
+problems?
+
+
+21. What performance metrics are relevant when working with regression
+problems?
+
+
+22. True or false: Deep Neural Networks can only solve non-linear problems.
+
+
+23. What is the purpose of mutation in Genetic Algorithms?
+
+
+24. Explain why we need a complex model like a deep neural network to solve
+the XOR problem.
+
+
+25. Explain why the decision boundary of K-Means always result in a Voronni
+tessellation.
+
+
+26. How to turn a 100 dimensional data set into 8 dimensions with minimal
+loss of variance.
+
+
+27. What is a confusion matrix?
+
+
+28. True or false: When doing correlational analysis on parametric data, we
+should use Pearson’s r rather than Spearman’s rho?
+
+
+29. Explain the difference between Gini and Entropy.
+
+
+30. What two categories do the four data types fall into?
+
+
+31. In an article, what is the purpose of the method section?
+
+
+32. What makes good references for an article?
+
+
+33. Explain SIMD makes machine learning faster.
+
+
+34. Explain convolutions and pooling layers in a CNN.
+
+
+35. What is the output range of sigmoid, and why is this important?
+
+
+36. What is the purpose of an activation function in a deep neural network?
+
+
+37. True or false: erroneously classifying a pregnant woman as not pregnant is
+a Type 1 error.
+
+
+38. True or false: to establish a baseline for the performance of machine
+learning models, it is a good idea to compare with human performance?
+
+
+39. How can we use Monte Carlo simulations in machine learning?
+
+
+40. True or false: All good models are wrong.
+
+
+41. What is the difference between descriptive and inferential statistics?
+
+
+42. When using an auto-encoder for anomaly detection, how can we establish
+a baseline to discriminate between positive and negative samples?
+
+
+43. Explain the use of training, validation, and test sets in supervised learning.
+
+
+44. Explain the structure of a deep neural network.
+
+
+45. Explain the procedure of training a model in supervised learn   ing using a
+training set, validation set, and test set.
+
+
+46. What is an ensemble algorithm?
+
+
+47. In Genetic Algorithms, how does the phenotype relate to the genotype?
+
+
+48. What are two common use cases of principal component analysis?
+
+
+49. What are the data types of the target value in classification and regression
+problems?
+
+
+50. True or false: XOR is a linear problem that can be solved using linear
+models.
+
+
+51. Explain hyper-parameters vs learning coefficients in a machine learning
+model.
+
+
+52. True or false: when training Batch Gradient Descent, the cost of approxi￾mation is expected to fluctuate during training?
+
+
+53. What are two ways of doing regularization in a deep neural network?
+
+
+54. Which variation of K-Means is appropriate for non-parametric data?
+
+
+55. In Genetic Algorithms, what is the purpose of the fitness function?
+
+
+56. Name three centrality measures in statistics. What are their strengths and
+weaknesses?
+
+
+57. Most problems suited for Genetic Algorithms could also be solved using
+which kind of AI?
+
+
+58. What can we say about a model with 0.997 accuracy on the training set
+and 0.874 accuracy on the validation set?
+
+
+59. True or false: when training Stochastic Gradient Descent, the cost of
+approximation is expected to fluctuate during training?
+
+
+60. Name a clustering algorithm that is able to work with concave data sets.
+
+
+61. A model deciding by flipping a coin is used to predict the outcome of
+flipping a coin. What is the expected accuracy and Youden’s index of this
+model’s performance?
+
+
+62. What is a decision boundary?
+
+
+63. What is the purpose of grid-search? Name an alternative approach.
+
+
+64. What operation must always be performed on a data set before applying
+principal component analysis?
+
+
+65. Explain RMSE vs MAE.
+
+
+66. True or false: ratio data is preferable over interval data?
+
+
+67. You are training a Genetic Algorithm but the models does not seem to
+improved over generations. How would you try to solve the problem?
+
+
+68. True or false: when training a Reinforcement Learning model with contin￾uous action and state space, you should use Q-Learning with a Q-table.
+
+
+69. True or false: a problem must be falsifiable to be a scientific question.
+
+
+70. Explain how the null-hypothesis relates to a hypothesis.
+
+
+71. Which of these are more sensitive to outliers: MSE or MAE.
+
+
+72. Explain the softmax function.
+
+
+73. You want to design a deep neural network for a Genetic Algorithm to
+play the classic 8-bit game Lunar Lander. The State space is defined
+as follows: S = {x, y, vx, vy} for x-position, y-position, x-velocity, and
+y-velocity, respectively. All state space variables are relative to the center
+of the landing platform. The Action space is defined as follows: A =
+{tmain, tlef t, tright} for main-thruster, left-thruster, and right-thruster,
+respectively. How would you design the deep neural network?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
