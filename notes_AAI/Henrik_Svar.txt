@@ -1,290 +1,950 @@
+1. What would be a good choice of performance metric in a binary classification scenario with far more negative than positive samples?
 
+In highly imbalanced binary classification with far more negative samples, overall accuracy is a misleading metric.
+It can be high simply by always predicting the negative class, ignoring the rare positive cases entirely.
+Precision is useful because it focuses on the quality of positive predictions among all predicted positives.
+Recall (sensitivity) is critical as it measures the model's ability to catch the scarce positive samples.
+The F1-score, as the harmonic mean of precision and recall, provides a single balanced score.
+The area under the precision-recall curve (PR-AUC) is often preferred over ROC-AUC for severe imbalance.
+Matthews Correlation Coefficient (MCC) gives a robust single value considering all four confusion matrix entries.
+You should also report the confusion matrix and per-class metrics to understand error distribution.
+Consider using class weighting or resampling techniques and evaluate with threshold tuning on the positive class.
+Domain costs of false negatives versus false positives should guide the final choice of primary metric.
 
+2. When training an auto-encoder for anomaly detection, how should the data set be split?
 
+For auto-encoder anomaly detection the training set must contain only normal samples with no anomalies present.
+This forces the model to learn an accurate reconstruction of the normal data manifold exclusively.
+Split the normal data into training and validation portions to monitor reconstruction error during training.
+Anomalous samples must be held out completely and appear only in the validation or test sets.
+The test set should contain a realistic mixture of normal samples and various types of anomalies.
+Use the validation normal data to determine a suitable reconstruction error threshold for flagging anomalies.
+Avoid any form of data leakage where anomalous patterns could influence the learned normal representation.
+Time-based or random splits of normal data are acceptable provided anomalies stay strictly out of training.
+If labeled anomalies exist they can be used for threshold calibration or final performance reporting only.
+This unsupervised setup mimics real-world scenarios where anomalies are rare and previously unseen.
 
+3. What are examples of activation functions in a deep neural network, and what are their characteristics?
 
-1. What would be a good choice of performance metric in a binary classifica￾tion scenario with far more negative than positive samples?
-
-
-2. When training an auto-encoder for anomaly detection, how should the
-data set be split?
-
-
-3. What are examples of activation functions in a deep neural network, and
-what are their characteristics?
-
+Common activation functions include the sigmoid, which squashes input to the (0, 1) range and is differentiable.
+The hyperbolic tangent (tanh) is similar but outputs in (-1, 1) and is zero-centered, aiding gradient flow.
+Rectified Linear Unit (ReLU) outputs max(0, x), is computationally cheap and helps mitigate vanishing gradients.
+ReLU can suffer from the dying ReLU problem where neurons become inactive for negative inputs permanently.
+Leaky ReLU and Parametric ReLU (PReLU) allow a small gradient for negative inputs to avoid dying neurons.
+Exponential Linear Unit (ELU) and Scaled ELU (SELU) produce negative outputs for negative inputs with self-normalizing properties.
+Softmax is typically used in the output layer for multi-class classification to produce a probability distribution.
+Swish and GELU are modern smooth alternatives that often yield better empirical performance in deep networks.
+All activation functions must introduce non-linearity; otherwise the entire network collapses to a linear model.
+Choice depends on task, depth, and need to avoid vanishing or exploding gradients during backpropagation.
 
 4. What is a common use of this expression: -(1/m) Σ [hθ(X) - Y]²
-(This is a cost / loss function (specifically a variant of the Mean Squared Error used in linear regression or similar supervised learning models).)
 
+The expression is the mean squared error (MSE) loss function used in regression problems.
+It quantifies the average squared difference between the model's predictions hθ(X) and the true targets Y.
+Dividing by m (number of examples) gives the average loss per training instance for stable gradient magnitudes.
+A common use is as the cost function to be minimized when training linear regression via gradient descent.
+MSE penalizes larger errors more heavily because of the squaring operation, which can be sensitive to outliers.
+It is differentiable everywhere, making it convenient for gradient-based optimization methods.
+In neural networks MSE is often applied to continuous output regression tasks or as an auxiliary loss.
+Minimizing this loss leads the model parameters θ toward values that produce predictions closest to reality.
+Variants include adding regularization terms or using it inside more complex loss combinations.
+The parenthetical note correctly identifies it as a variant of mean squared error for supervised regression.
 
-5. Why are Genetic Algorithms a viable choice for the Traveling Salesman
-Problem?
+5. Why are Genetic Algorithms a viable choice for the Traveling Salesman Problem?
 
+The Traveling Salesman Problem (TSP) is a combinatorial optimization task with a vast discrete search space.
+Genetic algorithms are well suited because they perform population-based global search without gradients.
+TSP solutions can be encoded naturally as permutations of city visit orders that the GA can evolve.
+Crossover operators such as ordered or partially mapped crossover preserve useful subsequences between parents.
+Mutation operators like swap, inversion or insertion introduce small changes to escape local optima.
+The fitness function is simply the inverse of the total tour length, directly guiding selection pressure.
+GA can discover good solutions for large instances where exact methods like dynamic programming become intractable.
+Parallel evaluation of many candidate tours in a population makes GA efficient on modern hardware.
+Elitism and diverse selection strategies help maintain solution quality across generations.
+While not guaranteed to find the absolute optimum, GA reliably produces high-quality approximate solutions quickly.
 
-6. What are the requirements for an activation function for a deep neu￾ral network, if the network must be able to approximate any non-linear
-function?
+6. What are the requirements for an activation function for a deep neural network, if the network must be able to approximate any non-linear function?
 
+To satisfy the universal approximation theorem the activation must be non-constant and non-linear.
+It must be continuous or at least allow the network to form sufficiently complex decision surfaces.
+A bounded activation like sigmoid works in theory for a single hidden layer with enough neurons.
+In practice modern networks prefer unbounded activations like ReLU that scale better to many layers.
+The function must be differentiable almost everywhere so that backpropagation can compute useful gradients.
+It should not saturate too easily across wide input ranges to avoid vanishing gradient problems.
+The activation needs to enable the network to represent both simple linear and highly non-linear mappings.
+Zero-centered or near zero-centered outputs (tanh, SELU) often improve convergence speed and stability.
+Piecewise linear activations such as ReLU have proven empirically sufficient for universal approximation power.
+Without a non-linear activation the whole deep network would mathematically reduce to a single linear transform.
 
 7. Can a latent space be interpreted directly? Why or why not?
 
+Latent space in models such as auto-encoders or VAEs is usually a compressed lower-dimensional representation.
+It cannot be interpreted directly in most cases because the dimensions lack explicit semantic meaning.
+Each latent dimension typically encodes a mixture of entangled factors of variation in the data.
+Without additional constraints or supervision the axes of the latent space are arbitrary and non-intuitive.
+Techniques like PCA on the latent vectors or supervised disentanglement methods can improve interpretability.
+In VAEs the latent space has a known prior (usually standard normal) which helps somewhat with structure.
+Direct inspection of coordinates rarely corresponds to human-understandable concepts like "age" or "color".
+Visualization techniques such as t-SNE or UMAP are often applied to make the latent space explorable.
+Some models add interpretability losses or use concept vectors to align latent directions with known attributes.
+In general, latent spaces are useful for generation and interpolation but require extra work to interpret meaningfully.
 
-8. What is the data type of these examples: a) monetary value, b) Olympic
-medals, c) accuracy of a binary classification model.
+8. What is the data type of these examples: a) monetary value, b) Olympic medals, c) accuracy of a binary classification model.
 
+Monetary value is ratio data: it has a true absolute zero and supports meaningful ratios (twice as expensive).
+Olympic medals are ordinal data: they have a natural order (gold > silver > bronze) but intervals are unequal.
+Medals are not interval because the difference between gold and silver is not numerically equal to silver-bronze.
+Accuracy of a binary classification model is ratio data when expressed as a proportion between 0 and 1.
+Accuracy has a true zero (no correct predictions) and a meaningful "twice as accurate" interpretation.
+If accuracy is reported as a percentage it remains ratio scaled because the zero and ratios are preserved.
+The four classic data types are nominal, ordinal, interval and ratio; two are qualitative, two quantitative.
+Monetary value and accuracy fall into the quantitative-ratio category while medals are qualitative-ordinal.
+Choosing the correct type guides which statistics (mean, median, mode) and visualizations are appropriate.
+Misclassifying data type can lead to invalid operations such as averaging ordinal ranks as if they were interval.
 
 9. Why do we want generalized models rather than perfectly fit models?
 
+Perfectly fit models have usually memorized the training data including noise and idiosyncrasies.
+Such models exhibit high variance and fail to generalize to new unseen examples from the same distribution.
+Generalized models capture the underlying patterns rather than instance-specific details.
+Generalization is the ultimate goal in machine learning because the model must perform in the real world.
+Overly complex models that fit training data perfectly tend to overfit and produce brittle predictions.
+Techniques such as regularization, early stopping, and cross-validation are used to encourage generalization.
+A model that generalizes well maintains low error on both training and previously unseen validation data.
+The bias-variance tradeoff shows that some bias may be acceptable to achieve much lower variance.
+In practice we prefer a model with 85% train and 83% validation accuracy over 100% train and 60% validation.
+Generalization enables reliable deployment and trustworthy performance estimates on future data.
 
 10. Explain supervised vs unsupervised learning.
 
+Supervised learning uses labeled training data where each input has a corresponding known target output.
+The algorithm learns a mapping from inputs to outputs by minimizing prediction error on the labeled examples.
+Common supervised tasks include classification (discrete labels) and regression (continuous targets).
+Unsupervised learning works with unlabeled data and tries to discover hidden structure or patterns.
+Typical unsupervised methods include clustering, dimensionality reduction, and density estimation.
+Self-supervised learning is a hybrid where labels are generated automatically from the data itself.
+Supervised methods generally require expensive human annotation while unsupervised methods do not.
+Reinforcement learning sits somewhat between the two, using rewards instead of explicit labels.
+Many real problems combine both: unsupervised pre-training followed by supervised fine-tuning.
+The choice depends on data availability, the nature of the task, and whether ground-truth targets exist.
 
 11. Explain the concepts of bias and variance.
 
+Bias refers to the error introduced by approximating a complex real-world problem with a simple model.
+High bias models make strong assumptions and tend to underfit the training data systematically.
+Examples of high bias include linear regression on highly non-linear data or a shallow decision stump.
+Variance is the model's sensitivity to small fluctuations in the training set; high variance means overfitting.
+High variance models memorize noise and idiosyncrasies present in the particular training sample drawn.
+The bias-variance tradeoff states that decreasing bias often increases variance and vice versa.
+Irreducible error remains even with perfect models due to inherent noise in the data generating process.
+We visualize the concepts with learning curves that plot training and validation error versus model complexity.
+Regularization techniques primarily reduce variance while flexible models like deep nets can reduce bias.
+The goal is to find the sweet spot of model complexity that minimizes total expected error on new data.
 
-12. What is a common use of this expression:  (λ / 2m) Σ θ²
-(This is the L2 regularization term (Ridge regularization penalty), commonly added to the cost function in linear/logistic regression to prevent overfitting.)
+12. What is a common use of this expression: (λ / 2m) Σ θ²
 
+The expression is the L2 regularization (Ridge) penalty term added to the model's cost function.
+It penalizes the squared magnitude of the parameter vector θ, shrinking large weights toward zero.
+Dividing by 2m yields a convenient derivative while λ controls the strength of the regularization.
+A common use is to combat overfitting by discouraging the model from relying on any single large weight.
+When added to linear or logistic regression the closed-form solution or gradient descent stays tractable.
+L2 regularization is equivalent to placing a Gaussian prior on the weights in a Bayesian interpretation.
+It is computationally cheap and differentiable everywhere, making it easy to incorporate into any optimizer.
+Unlike L1 it does not produce exact zeros and therefore keeps all features in the model.
+The hyper-parameter λ is usually tuned via cross-validation to balance fit against model simplicity.
+The parenthetical note correctly describes it as the Ridge regularization penalty for preventing overfitting.
 
 13. True or false: correlation implies causation?
 
+False. Correlation between two variables does not imply that one causes changes in the other.
+A classic example is the strong correlation between ice cream sales and drowning incidents in summer.
+Both are caused by a confounding third variable (hot weather) rather than one causing the other.
+Spurious correlations are easy to find in large data sets even when no causal relationship exists.
+Establishing causation requires controlled experiments, temporal precedence, and ruling out confounders.
+Observational data alone can suggest hypotheses but cannot prove causal links without further evidence.
+Techniques like randomized controlled trials, instrumental variables, or causal graphical models are needed.
+Correlation is still useful for prediction even when causation is absent or unknown.
+Mistaking correlation for causation leads to ineffective or harmful policy and business decisions.
+Always investigate possible confounding factors and alternative explanations before claiming causality.
 
-14. When would you use a Random Forest model rather than a deep neural
-network?
+14. When would you use a Random Forest model rather than a deep neural network?
 
+Random Forests are preferable when the data set is small to medium and tabular with mixed feature types.
+They require very little preprocessing, no feature scaling, and handle missing values and outliers gracefully.
+Random Forests provide built-in feature importance and are far less prone to overfitting than single trees.
+They train quickly on CPUs and are easy to interpret compared with deep neural networks.
+Use Random Forest when you need a strong baseline fast without extensive hyper-parameter search or GPU.
+Deep neural networks shine on high-dimensional data such as images, audio, text, or when massive data exists.
+DNNs can learn hierarchical feature representations automatically, which tree ensembles cannot do as effectively.
+If the problem involves raw pixels, sequences, or graphs, a deep network is usually the better architectural fit.
+Random Forests are also attractive when model interpretability and regulatory auditability are required.
+Many production systems start with Random Forest and only move to deep learning if clear accuracy gains justify the cost.
 
 15. What kind of problem are Genetic Algorithms well suited for?
 
+Genetic Algorithms excel at combinatorial optimization problems with large discrete search spaces.
+They are well suited for problems where the objective function is noisy, non-differentiable or multimodal.
+Classic examples include the traveling salesman problem, job-shop scheduling, and feature selection.
+GA can optimize neural network architectures or hyper-parameters when gradient information is unavailable.
+They are useful in engineering design problems where candidate solutions are evaluated by expensive simulators.
+Any problem that can be encoded as chromosomes with a meaningful crossover and fitness function is a candidate.
+GA are population-based and therefore naturally parallelizable across many candidate solutions.
+They are less appropriate when a smooth gradient exists and can be exploited by faster methods.
+When the search space is enormous and exhaustive or greedy search fails, evolutionary methods become attractive.
+In short, difficult discrete or black-box optimization problems with no obvious polynomial algorithm are ideal.
 
 16. What is Gradient Descent, and how does it work?
 
+Gradient descent is an iterative first-order optimization algorithm used to minimize a differentiable loss function.
+It works by computing the gradient (partial derivatives) of the loss with respect to each model parameter.
+Parameters are then updated in the opposite direction of the gradient by a step size called the learning rate.
+The process repeats over many iterations until the parameters converge to a local minimum.
+Batch gradient descent uses the entire training set for each update, giving a stable but slow direction.
+Stochastic gradient descent (SGD) uses a single random example per step, producing noisy but fast updates.
+Mini-batch gradient descent strikes a balance by using small random subsets of the data for each update.
+Learning rate, momentum, and adaptive methods (Adam, RMSprop) are used to improve convergence speed and stability.
+Gradient descent can get stuck in local minima or saddle points, motivating more advanced optimizers.
+It is the foundation of training virtually all modern neural networks via backpropagation of gradients.
 
 17. Explain the structure of an auto-encoder.
 
+An auto-encoder is a neural network trained to reconstruct its input as closely as possible.
+It consists of an encoder network that compresses the input into a lower-dimensional latent representation.
+The decoder network then attempts to reconstruct the original input from this compressed latent code.
+The bottleneck layer in the middle forces the model to learn the most salient features of the data.
+Training minimizes reconstruction error, typically measured by mean squared error or binary cross-entropy.
+When the latent dimension is smaller than the input, the auto-encoder performs dimensionality reduction.
+Variants include denoising auto-encoders that learn robust features from corrupted inputs.
+Variational auto-encoders add a probabilistic latent space with a regularization term on the distribution.
+Auto-encoders can be used for anomaly detection, pre-training, data compression, and image denoising.
+The architecture is symmetric: the decoder is often a mirror image of the encoder in terms of layer sizes.
 
 18. What kind of nodes can we find in a Decision Tree model?
 
+A decision tree contains internal (split) nodes and leaf (terminal) nodes.
+Internal nodes perform a test on a single feature and route examples down the appropriate branch.
+Each internal node stores the feature index and threshold (or set membership for categorical features).
+Leaf nodes contain the final prediction: a class label for classification or a numeric value for regression.
+Some implementations also store class probability distributions or sample counts at the leaves.
+The tree can be seen as a piecewise constant function defined over rectangular regions of feature space.
+Decision trees are grown greedily by choosing splits that maximize information gain or minimize impurity.
+Pruning techniques remove branches after growth to reduce overfitting and improve generalization.
+Nodes may also contain metadata such as the number of training examples that reached that node.
+In ensemble methods such as Random Forest many such trees are trained and their predictions aggregated.
 
-19. What is a common use of this expression:  -(1/m) Σ [Y log(hθ(X)) + (1 - Y) log(1 - hθ(X))]
-(This is the Binary Cross-Entropy Loss (also called Log Loss), the standard cost function for Logistic Regression.)
+19. What is a common use of this expression: -(1/m) Σ [Y log(hθ(X)) + (1 - Y) log(1 - hθ(X))]
 
+This expression is the binary cross-entropy (log loss) cost function used for binary classification.
+It measures the dissimilarity between the true binary label Y and the predicted probability hθ(X).
+When the prediction matches the label the loss contribution approaches zero; otherwise it grows large.
+The logarithm penalizes confident wrong predictions very heavily, which is desirable for probability calibration.
+A common use is as the loss function for logistic regression and for the final layer of binary classifiers.
+The formula is averaged over m examples to obtain a stable per-example loss suitable for gradient descent.
+It is the negative log-likelihood under a Bernoulli distribution, giving it a solid probabilistic foundation.
+For multi-class problems the generalization is categorical cross-entropy using softmax probabilities.
+Binary cross-entropy is usually paired with a sigmoid output activation to produce valid probabilities.
+The parenthetical note in the file correctly identifies it as the standard loss for logistic regression.
 
-20. What performance metrics are relevant when working with classification
-problems?
+20. What performance metrics are relevant when working with classification problems?
 
+Accuracy is the most basic metric but can be misleading on imbalanced data sets.
+Precision quantifies how many of the positive predictions were actually correct.
+Recall measures the fraction of actual positives that the model successfully retrieved.
+The F1-score is the harmonic mean of precision and recall and is useful when a single number is desired.
+The confusion matrix itself provides the raw counts of TP, TN, FP, FN for detailed error analysis.
+ROC-AUC summarizes the trade-off between true positive rate and false positive rate across thresholds.
+Precision-recall AUC is often more informative than ROC-AUC when the positive class is rare.
+Specificity (true negative rate) and Youden's index are useful when both classes matter equally.
+For multi-class problems one can report macro or weighted averages of per-class precision, recall and F1.
+Domain-specific costs should guide which metric is optimized and reported as the primary performance measure.
 
-21. What performance metrics are relevant when working with regression
-problems?
+21. What performance metrics are relevant when working with regression problems?
 
+Mean Absolute Error (MAE) is the average absolute deviation between predictions and true values.
+Mean Squared Error (MSE) squares the deviations, penalizing large errors more than small ones.
+Root Mean Squared Error (RMSE) is the square root of MSE and has the same unit as the target variable.
+R-squared (coefficient of determination) indicates the proportion of variance explained by the model.
+Mean Absolute Percentage Error (MAPE) expresses error as a percentage of the true value, useful for scale comparison.
+Median Absolute Error is robust to outliers compared with mean-based metrics.
+Residual plots and error distribution analysis are essential complements to any scalar metric.
+When outliers are common or costly, robust metrics such as MAE or Huber loss are preferable to MSE.
+For time-series regression one may also track metrics that respect temporal ordering and autocorrelation.
+Always report several complementary metrics because no single number fully describes regression performance.
 
 22. True or false: Deep Neural Networks can only solve non-linear problems.
 
+False. Deep neural networks can solve both linear and non-linear problems.
+A network with no hidden layers or with linear activations is mathematically equivalent to linear regression.
+Even deep networks can learn to approximate linear functions when that is the best solution.
+The power of depth and non-linear activations lies in their ability to also represent highly complex functions.
+Universal approximation theorems guarantee that sufficiently wide or deep networks can represent any continuous function.
+In practice we use DNNs for non-linear problems because simpler linear models are faster and more interpretable.
+Linear models remain competitive baselines on many tabular data sets with limited samples.
+One can always add a linear "skip" connection or use a final linear layer to retain linear capacity.
+The statement is therefore too strong; DNNs are general function approximators, not restricted to non-linearity.
+However, their main practical advantage appears when the target function is indeed highly non-linear.
 
 23. What is the purpose of mutation in Genetic Algorithms?
 
+Mutation introduces random small changes to individuals in the population each generation.
+Its primary purpose is to maintain genetic diversity and prevent premature convergence to local optima.
+Without mutation the population can become genetically identical and stop exploring new regions.
+Typical mutation operators for permutations include swap, inversion, or scramble of a few elements.
+For real-valued genomes mutation usually adds Gaussian noise or performs uniform random replacement.
+The mutation rate must be tuned: too high and the search becomes random; too low and diversity collapses.
+Adaptive mutation schedules that decrease over time are common in practical GA implementations.
+Mutation complements crossover by providing the "innovation" that crossover alone cannot create.
+In some problems mutation alone (evolutionary strategies) can be surprisingly effective.
+Proper mutation is essential for escaping plateaus and saddle regions in the fitness landscape.
 
-24. Explain why we need a complex model like a deep neural network to solve
-the XOR problem.
+24. Explain why we need a complex model like a deep neural network to solve the XOR problem.
 
+The XOR problem is the classic example of a function that is not linearly separable.
+No single straight line (or hyperplane) can separate the four points into the correct two classes.
+A linear model such as logistic regression or a single perceptron will always misclassify at least one point.
+A small multi-layer network with a hidden layer and non-linear activations can form the required non-linear boundary.
+The hidden units learn to detect the individual patterns (e.g., "both true" or "exactly one true").
+The output layer then combines these intermediate features with appropriate weights to produce the XOR result.
+This demonstrates why depth and non-linearity are necessary for certain simple but non-linear logical problems.
+Historically the inability of single-layer perceptrons to solve XOR led to the first AI winter.
+Modern deep networks routinely solve far more complex versions of the same non-linear separability challenge.
+The XOR example remains the minimal pedagogical case showing the necessity of hidden layers and non-linearities.
 
-25. Explain why the decision boundary of K-Means always result in a Voronni
-tessellation.
+25. Explain why the decision boundary of K-Means always result in a Voronoi tessellation.
 
+K-Means assigns every point to the nearest of k cluster centers using Euclidean distance.
+The resulting partition of space consists of Voronoi cells, one per centroid.
+A Voronoi tessellation is the division of space into regions closer to one site (centroid) than any other.
+Because K-Means uses hard nearest-centroid assignment, the boundaries are exactly the perpendicular bisectors.
+These bisectors are the edges of the Voronoi diagram generated by the final set of cluster centers.
+No other clustering algorithm that uses different distance or assignment rules produces pure Voronoi cells.
+If K-Means is initialized with different seeds the resulting Voronoi diagram will also differ.
+The tessellation property holds only for Euclidean distance; other metrics produce different geometric partitions.
+Understanding this helps visualize why K-Means produces convex, roughly spherical clusters.
+Algorithms such as DBSCAN or spectral clustering can produce non-convex regions precisely because they violate this Voronoi assumption.
 
-26. How to turn a 100 dimensional data set into 8 dimensions with minimal
-loss of variance.
+26. How to turn a 100 dimensional data set into 8 dimensions with minimal loss of variance.
 
+Principal Component Analysis (PCA) is the standard linear technique for this task.
+First standardize the data (zero mean, unit variance) so that all dimensions contribute equally.
+Compute the covariance matrix of the standardized data or perform singular value decomposition (SVD).
+Select the top eight eigenvectors (principal components) that capture the largest amount of variance.
+Project the original 100-dimensional points onto these eight components to obtain the reduced representation.
+The retained variance is the sum of the eight largest eigenvalues divided by the total sum of all eigenvalues.
+If eight components are insufficient one can examine the cumulative explained variance curve to choose k.
+Kernel PCA or auto-encoders can be used when the relationship between dimensions is highly non-linear.
+t-SNE or UMAP are alternatives for visualization but do not preserve global variance as PCA does.
+After projection one should verify that the retained variance is acceptable for the downstream task.
 
 27. What is a confusion matrix?
 
+A confusion matrix is a table that summarizes the performance of a classification model on a data set.
+For binary classification it is a 2x2 matrix with rows representing actual classes and columns predicted classes.
+The four cells are True Positives (TP), False Positives (FP), False Negatives (FN), and True Negatives (TN).
+From these counts one can derive accuracy, precision, recall, specificity, F1 and many other metrics.
+The matrix makes the types of errors the model commits immediately visible.
+In multi-class settings the matrix is N×N where N is the number of classes.
+Row sums give the support (number of true instances) per class; column sums give the number of predictions per class.
+Normalized versions (by row or by column) help when class sizes differ greatly.
+Visual heat-map renderings of the confusion matrix are standard in model evaluation reports.
+It is the most fundamental diagnostic tool before any scalar metric is computed or reported.
 
-28. True or false: When doing correlational analysis on parametric data, we
-should use Pearson’s r rather than Spearman’s rho?
+28. True or false: When doing correlational analysis on parametric data, we should use Pearson’s r rather than Spearman’s rho?
 
+True, provided the data satisfy the assumptions required by Pearson's correlation.
+Parametric data are assumed to be approximately normally distributed and to have a linear relationship.
+Pearson's r measures the strength and direction of the linear association between two continuous variables.
+Spearman's rho is a non-parametric rank correlation that does not assume linearity or normality.
+When the parametric assumptions hold, Pearson's r is more statistically powerful and easier to interpret.
+If the relationship is monotonic but clearly non-linear, Spearman's rho is safer and more appropriate.
+Outliers affect Pearson far more than Spearman because Pearson uses the actual values.
+In practice one often computes both and reports the more conservative or better justified choice.
+The statement is therefore generally correct for truly parametric, linear, normally distributed data.
+Always inspect a scatter plot before deciding which coefficient to trust.
 
 29. Explain the difference between Gini and Entropy.
 
+Both Gini impurity and entropy are measures used to evaluate the quality of a split in decision trees.
+Gini impurity is the probability of incorrectly classifying a randomly chosen element if labeled randomly.
+Entropy quantifies the average amount of information or uncertainty contained in the class distribution.
+Gini is computationally cheaper because it avoids the logarithm required by entropy.
+Entropy tends to produce slightly more balanced trees while Gini is biased toward larger partitions.
+The numerical difference between the two criteria is usually small in practice.
+Information gain is the decrease in entropy after a split; Gini gain is the analogous quantity for Gini.
+Some implementations default to Gini for speed while others prefer entropy for theoretical reasons.
+Neither criterion is universally superior; the choice rarely changes final tree performance dramatically.
+Both are impurity measures that reach zero when a node contains only one class.
 
 30. What two categories do the four data types fall into?
 
+The four classical data types are nominal, ordinal, interval, and ratio.
+They fall into two broad categories: qualitative (categorical) and quantitative (numerical).
+Nominal and ordinal data are qualitative: they describe categories or ranks without numeric distance.
+Interval and ratio data are quantitative: arithmetic operations and distances are meaningful.
+Qualitative data are usually encoded with one-hot or ordinal encoding before feeding to most algorithms.
+Quantitative data can be used directly but may still require scaling or normalization.
+The distinction guides which descriptive statistics and visualizations are appropriate.
+Qualitative data support mode and frequency counts; quantitative data support mean, variance, etc.
+Some algorithms (tree-based) handle both types natively while others require numeric inputs only.
+Understanding the category prevents nonsensical operations such as averaging jersey numbers (nominal).
 
 31. In an article, what is the purpose of the method section?
 
+The method section describes exactly how the study was conducted so that others can evaluate and replicate it.
+It must contain enough detail for a competent researcher to reproduce the experiment and obtain similar results.
+Typical subsections cover participants or data sources, materials, apparatus, and procedures.
+In machine learning papers the method section details data collection, preprocessing, model architecture, and training.
+Hyper-parameter choices, optimization algorithms, and evaluation protocols belong in this section.
+Any statistical tests, software versions, and hardware used should also be reported for reproducibility.
+Clear method descriptions allow reviewers and readers to judge the validity of the claimed results.
+Insufficient methodological detail is one of the most common reasons for paper rejection or replication failure.
+The method section is usually written in past tense because it reports what was actually done.
+It bridges the introduction (why) and the results (what was found) by explaining how the findings were obtained.
 
 32. What makes good references for an article?
 
+Good references are recent, relevant, and from reputable peer-reviewed sources whenever possible.
+They should directly support claims made in the text rather than serve as decorative citations.
+Primary sources are preferable to secondary summaries that may introduce distortion.
+Seminal papers that established a field should be cited even if they are older.
+References must be accurate: authors, year, title, venue, and page numbers must be correct.
+A good reference list demonstrates that the author is familiar with the current state of the art.
+Review articles and meta-analyses are excellent for providing broad context and further reading.
+Avoid citing predatory journals, blog posts, or preprints unless the source is clearly flagged.
+Consistent citation style (APA, IEEE, ACM, etc.) throughout the manuscript is mandatory.
+Over-citing one's own work or citing only papers from the same research group raises red flags.
 
 33. Explain SIMD makes machine learning faster.
 
+SIMD stands for Single Instruction, Multiple Data, a form of parallel computing on modern CPUs and GPUs.
+A single instruction (e.g., multiply) is applied simultaneously to multiple data elements packed in wide registers.
+Machine learning workloads contain abundant data-level parallelism in matrix multiplications and convolutions.
+SIMD units (SSE, AVX on Intel, NEON on ARM) allow several floating-point operations per clock cycle.
+Libraries such as NumPy, TensorFlow, and PyTorch are heavily optimized to exploit SIMD instructions.
+Vectorized code can be an order of magnitude faster than scalar loops written in pure Python.
+GPUs are extreme SIMD machines containing thousands of lightweight cores executing the same kernel.
+Writing explicit SIMD intrinsics or using compiler auto-vectorization both improve throughput dramatically.
+Without SIMD exploitation, training large neural networks would be impractically slow on conventional hardware.
+SIMD is one of the fundamental reasons why deep learning became computationally feasible at scale.
 
 34. Explain convolutions and pooling layers in a CNN.
 
+Convolutional layers apply small learnable filters (kernels) that slide across the input image or feature map.
+Each filter detects a specific local pattern such as edges, textures, or more complex shapes in deeper layers.
+Parameter sharing across spatial locations gives CNNs translation equivariance and drastically reduces parameter count.
+Pooling layers (max or average) downsample feature maps, reducing spatial resolution and computational cost.
+Max pooling selects the strongest activation in each local window, providing a degree of translation invariance.
+Pooling also enlarges the receptive field of subsequent layers so they can see larger regions of the original input.
+Typical modern CNNs interleave several conv+activation blocks followed by a pooling layer or strided convolution.
+Global average pooling at the end often replaces fully-connected layers to reduce overfitting.
+Together, convolutions and pooling allow the network to build hierarchical representations from local to global.
+These two operations are the defining building blocks that make CNNs so successful on grid-like data such as images.
 
 35. What is the output range of sigmoid, and why is this important?
 
+The sigmoid activation function maps any real input to the open interval (0, 1).
+This bounded output range is convenient when the neuron is intended to represent a probability.
+In logistic regression and binary classification output layers, sigmoid produces well-calibrated probabilities.
+However, the sigmoid saturates for large positive or negative inputs, producing near-zero gradients.
+Saturated gradients cause the vanishing gradient problem that slows or stalls learning in deep networks.
+Because of vanishing gradients, sigmoid is rarely used in hidden layers of modern deep architectures.
+It remains useful in the final layer for binary or multi-label classification where probabilities are required.
+The derivative of sigmoid is σ(x)(1-σ(x)), which reaches a maximum of 0.25 at x=0 and quickly decays.
+Tanh is often preferred over sigmoid for hidden units because it is zero-centered and has a steeper slope.
+The (0,1) range is therefore both the main advantage for output interpretation and the main drawback for hidden layers.
 
 36. What is the purpose of an activation function in a deep neural network?
 
+The purpose of an activation function is to introduce non-linearity into the network.
+Without non-linear activations a deep network would be mathematically equivalent to a single linear model.
+Non-linearity allows the network to approximate arbitrary complex functions given sufficient width and depth.
+Activation functions also control the range and distribution of neuron outputs and gradients during training.
+Different activations affect convergence speed, risk of vanishing or exploding gradients, and final performance.
+They enable the network to learn decision boundaries that are highly non-linear and even disconnected.
+The choice of activation influences how information flows forward and how gradients propagate backward.
+Modern activations are designed to keep gradients in a healthy range across many layers.
+Activation functions are applied element-wise after each linear transformation (weighted sum plus bias).
+In short, they are what give neural networks their expressive power beyond linear regression.
 
-37. True or false: erroneously classifying a pregnant woman as not pregnant is
-a Type 1 error.
+37. True or false: erroneously classifying a pregnant woman as not pregnant is a Type 1 error.
 
+The statement is false; this error is a Type II (false negative) error, not Type I.
+Define the positive class as "pregnant" (the condition we are screening for).
+A Type I error is a false positive: declaring the woman pregnant when she is not.
+Erroneously classifying a pregnant woman as not pregnant means we failed to detect the true positive.
+This is a false negative, which corresponds to a Type II error in classical hypothesis testing terms.
+The mapping is not always perfect because medical tests are not always framed as hypothesis tests.
+Nevertheless, the conventional labeling in detection tasks treats missed positives as false negatives.
+The cost of a false negative here (missed pregnancy) is usually considered more serious than a false positive.
+Careful definition of the positive class and error types is essential before applying Type I/II terminology.
+In any case the described mistake is not a Type I error under the standard medical screening convention.
 
-38. True or false: to establish a baseline for the performance of machine
-learning models, it is a good idea to compare with human performance?
+38. True or false: to establish a baseline for the performance of machine learning models, it is a good idea to compare with human performance?
 
+True in many domains, especially when the task is one that humans perform regularly.
+Human performance provides a strong, interpretable baseline that stakeholders immediately understand.
+If a model cannot beat a human expert it may not be ready for deployment regardless of other metrics.
+Comparing against humans also reveals whether the task itself is well-defined or inherently noisy.
+In medical imaging, for example, models are routinely benchmarked against radiologist performance.
+Human baselines help set realistic expectations and avoid over-claiming "superhuman" performance.
+When humans are the current best solution, beating them is a meaningful and motivating research goal.
+However, for some problems (e.g., protein folding at scale) human performance is not a relevant baseline.
+In those cases other references such as previous state-of-the-art algorithms or theoretical limits are used.
+Overall, human comparison is a recommended practice whenever the ultimate user of the model is a human.
 
 39. How can we use Monte Carlo simulations in machine learning?
 
+Monte Carlo simulations can estimate expectations by averaging many random samples from a distribution.
+They are used to approximate intractable integrals that appear in Bayesian inference and reinforcement learning.
+In reinforcement learning Monte Carlo methods estimate value functions by averaging complete episode returns.
+Policy gradient algorithms often rely on Monte Carlo sampling to estimate the gradient of expected reward.
+Monte Carlo dropout at inference time gives a simple way to obtain uncertainty estimates from neural networks.
+They can generate synthetic data sets that mimic the statistical properties of real training data.
+Bootstrap methods are a form of Monte Carlo resampling used for confidence intervals and model evaluation.
+In Bayesian neural networks Monte Carlo sampling approximates the posterior predictive distribution.
+When analytical solutions are impossible, Monte Carlo provides a general and flexible numerical approach.
+The main trade-off is computational cost: more samples yield better estimates but require more runtime.
 
 40. True or false: All good models are wrong.
 
+True. This is a famous aphorism by the statistician George E. P. Box.
+All models are simplifications of reality and therefore necessarily omit some aspects of the real world.
+A model that tried to capture every detail would be as complex as reality and thus useless as a model.
+The value of a model lies in how useful it is for prediction, explanation, or decision making.
+Useful models deliberately ignore irrelevant details while retaining the essential structure of the problem.
+Overly complex models that fit every training point perfectly usually capture noise rather than signal.
+The statement reminds practitioners to remain humble about the limitations of any learned model.
+It also encourages focus on utility and generalization rather than on achieving zero training error.
+Even the best deep networks are still wrong in subtle ways on out-of-distribution or edge-case inputs.
+Good modeling is therefore the art of being wrong in ways that are still useful for the intended purpose.
 
 41. What is the difference between descriptive and inferential statistics?
 
+Descriptive statistics summarize and describe the main features of a collected data set.
+Examples include mean, median, standard deviation, histograms, and correlation coefficients computed on the sample.
+Descriptive statistics make no attempt to infer properties of a larger population beyond the data at hand.
+Inferential statistics use the sample to draw conclusions about an underlying population or data-generating process.
+Hypothesis testing, confidence intervals, and p-values are core tools of inferential statistics.
+Inferential methods rely on probability theory and assumptions about the sampling process and population distribution.
+Descriptive statistics are always valid for the observed data; inferential claims carry uncertainty.
+In machine learning we use descriptive statistics for exploratory data analysis and feature engineering.
+We use inferential statistics when we want to claim that a model will work on future unseen data.
+Both are essential: good description precedes and informs any valid inference.
 
-42. When using an auto-encoder for anomaly detection, how can we establish
-a baseline to discriminate between positive and negative samples?
+42. When using an auto-encoder for anomaly detection, how can we establish a baseline to discriminate between positive and negative samples?
 
+Compute the reconstruction error on a large set of known normal samples that were not used in training.
+Calculate the mean and standard deviation of these normal reconstruction errors.
+A common baseline threshold is mean plus three standard deviations; errors above this are flagged as anomalous.
+The exact multiplier (2σ, 3σ, 4σ) can be tuned on a small validation set containing known anomalies.
+Alternatively, fit a simple distribution (e.g., gamma) to the normal errors and use a percentile cutoff.
+You can also treat the reconstruction error itself as a feature and train a secondary classifier if labels exist.
+The threshold should be chosen to achieve an acceptable trade-off between false positives and false negatives.
+Because the auto-encoder never saw anomalies during training, their reconstruction errors are expected to be higher.
+Always validate the chosen threshold on held-out normal data to ensure the false-positive rate is tolerable.
+This reconstruction-error baseline is the most direct and widely used method for auto-encoder anomaly detection.
 
 43. Explain the use of training, validation, and test sets in supervised learning.
 
+The training set is used to fit the model parameters by minimizing the chosen loss function.
+The validation set is used for hyper-parameter tuning and for decisions such as early stopping or model selection.
+The test set is used only once, after all modeling choices are finalized, to obtain an unbiased performance estimate.
+Using the test set for tuning or early stopping leaks information and produces overly optimistic results.
+A typical split is 60-80% train, 10-20% validation, 10-20% test, adjusted for data set size.
+When data is scarce, k-fold cross-validation on the training portion can provide more stable validation estimates.
+The validation set should be drawn from the same distribution as the training and test sets.
+Temporal or grouped splits are required when data points are not independent (time series, patients, etc.).
+Proper separation of the three sets is one of the most important disciplines in applied machine learning.
+The test set performance is the number you are allowed to report as the model's expected future performance.
 
 44. Explain the structure of a deep neural network.
 
+A deep neural network is a stack of layers, each performing a linear transform followed by a non-linear activation.
+The input layer receives the raw feature vector or tensor (image, sequence, graph, etc.).
+Hidden layers progressively transform the representation, extracting more abstract features at greater depths.
+Each layer consists of neurons (units) whose weights are learned during training via back-propagation.
+Common layer types include fully-connected (dense), convolutional, recurrent, attention, and normalization layers.
+The output layer produces the final prediction: class logits, probabilities, or continuous regression values.
+Skip connections, residual blocks, and batch/layer normalization are often added for training very deep nets.
+The depth (number of hidden layers) is what distinguishes "deep" learning from shallow neural networks.
+The overall architecture (width, depth, connectivity) is a hyper-parameter chosen for the problem at hand.
+Training adjusts millions or billions of parameters so that the network maps inputs to desired outputs accurately.
 
-45. Explain the procedure of training a model in supervised learn   ing using a
-training set, validation set, and test set.
+45. Explain the procedure of training a model in supervised learning using a training set, validation set, and test set.
 
+Split the labeled data into disjoint training, validation, and test sets before any modeling begins.
+Initialize model parameters randomly or with a sensible pre-training scheme.
+On each training epoch, run forward and backward passes on mini-batches from the training set only.
+After each epoch (or every few steps) evaluate the current model on the validation set.
+Use validation performance to tune hyper-parameters, adjust learning rate, or trigger early stopping.
+Continue training until validation performance stops improving for a patience period.
+Once training is finished and all hyper-parameters are chosen, evaluate the final model once on the test set.
+Never go back and adjust the model after seeing the test set results; that would invalidate the estimate.
+Report test-set metrics together with validation curves to demonstrate that overfitting was controlled.
+This disciplined procedure yields a reliable estimate of how well the model will perform on truly unseen data.
 
 46. What is an ensemble algorithm?
 
+An ensemble algorithm combines the predictions of multiple base models to produce a single stronger predictor.
+The base models are usually diverse, either through different algorithms, different data subsets, or different initializations.
+Common ensemble methods include bagging (Random Forest), boosting (Gradient Boosting, AdaBoost), and stacking.
+Bagging reduces variance by averaging models trained on bootstrap samples of the data.
+Boosting reduces bias by sequentially training models that focus on previous mistakes via re-weighting.
+Stacking trains a meta-learner on top of the outputs of several diverse base models.
+Ensembles almost always improve accuracy over any single constituent model at the cost of interpretability.
+They are especially effective when the individual models have uncorrelated errors.
+Modern practice also includes snapshot ensembles from a single training run and deep ensembles of neural nets.
+The core principle is that a committee of weak but diverse experts usually outperforms any one expert.
 
 47. In Genetic Algorithms, how does the phenotype relate to the genotype?
 
+In genetic algorithms the genotype is the internal representation (chromosome, bit string, real vector, tree).
+The phenotype is the actual candidate solution that is evaluated by the fitness function.
+The mapping from genotype to phenotype is called the genotype-phenotype mapping or developmental process.
+For the traveling salesman problem the genotype might be a permutation of city indices (the phenotype itself).
+For neural network evolution the genotype could be a weight vector while the phenotype is the instantiated network.
+A good mapping should be robust: small genotype changes should produce small, meaningful phenotype changes.
+Complex developmental mappings can allow compact genotypes to produce sophisticated phenotypes.
+The fitness function always operates on the phenotype, never directly on the raw genotype.
+Poorly designed mappings can create a disconnect where genetic operators fail to produce useful offspring.
+Understanding this relationship is crucial when designing the representation for any evolutionary algorithm.
 
 48. What are two common use cases of principal component analysis?
 
+One common use is dimensionality reduction: projecting high-dimensional data onto a few principal components.
+The reduced representation can be used for visualization, compression, or as input to downstream models.
+A second common use is noise reduction: discarding low-variance components removes some random noise.
+PCA is also used as a preprocessing step before clustering or before training other machine learning models.
+In exploratory data analysis the loadings of the first few components reveal which original variables co-vary.
+Face recognition systems (Eigenfaces) and image compression are classic applications of PCA.
+In finance PCA is applied to yield curves or to extract uncorrelated risk factors from asset returns.
+When features are highly correlated, PCA can mitigate multicollinearity before linear regression.
+Kernel PCA extends the idea to non-linear manifolds while still using the same linear algebra in feature space.
+PCA remains one of the simplest, fastest, and most interpretable unsupervised dimensionality reduction techniques.
 
-49. What are the data types of the target value in classification and regression
-problems?
+49. What are the data types of the target value in classification and regression problems?
 
+In classification problems the target value is a categorical (discrete) variable.
+The categories may be nominal (no intrinsic order) or ordinal (natural ordering such as low/medium/high).
+The model typically outputs class probabilities or logits that are turned into a predicted category.
+In regression problems the target value is a continuous numeric variable on an interval or ratio scale.
+Regression targets can take any real value (or integer counts in the case of Poisson regression).
+Some problems sit on the boundary, e.g., ordinal regression where the target has ordered categories.
+The choice of loss function, output activation, and evaluation metric all follow from the target data type.
+Mis-specifying the target type (treating ordered classes as nominal, or continuous as classification) hurts performance.
+Understanding the target type also tells you whether accuracy, RMSE, or ranking metrics are appropriate.
+Classification targets are usually encoded as integers or one-hot vectors; regression targets are used as raw numbers.
 
-50. True or false: XOR is a linear problem that can be solved using linear
-models.
+50. True or false: XOR is a linear problem that can be solved using linear models.
 
+False. XOR is the canonical example of a non-linearly separable problem.
+No straight line (or hyperplane in higher dimensions) can correctly separate the four XOR points.
+A linear model will inevitably misclassify at least one of the four possible input combinations.
+Only a model capable of producing a non-linear decision boundary can solve XOR correctly.
+A small neural network with one hidden layer and non-linear activations succeeds easily.
+The historical importance of XOR is that single-layer perceptrons cannot solve it, exposing their limitations.
+Linear models remain useful for linearly separable problems but are fundamentally inadequate for XOR.
+Kernel methods or feature expansion can also make XOR linearly separable in a higher-dimensional space.
+The statement is therefore exactly backwards: XOR is the textbook counter-example to linear separability.
+Any claim that a linear model solves XOR should be treated with immediate skepticism.
 
-51. Explain hyper-parameters vs learning coefficients in a machine learning
-model.
+51. Explain hyper-parameters vs learning coefficients in a machine learning model.
 
+Hyper-parameters are configuration choices set before training begins and are not learned from data.
+Examples include learning rate, number of hidden layers, batch size, regularization strength, and tree depth.
+They control the learning process and the capacity of the model.
+Learning coefficients (or model parameters) are the values adjusted during training by the optimization algorithm.
+In a neural network the weights and biases are the learned parameters; the architecture and optimizer settings are hyper-parameters.
+Hyper-parameters are usually tuned by grid search, random search, or Bayesian optimization on a validation set.
+Learned parameters are found automatically once the hyper-parameters and data are fixed.
+Confusing the two leads to incorrect experimental design, e.g., tuning on the test set.
+The number of learned parameters often determines model capacity while hyper-parameters determine how that capacity is used.
+Good hyper-parameter choices can make the difference between a model that learns and one that does not converge at all.
 
-52. True or false: when training Batch Gradient Descent, the cost of approxi￾mation is expected to fluctuate during training?
+52. True or false: when training Batch Gradient Descent, the cost of approximation is expected to fluctuate during training?
 
+False. In batch gradient descent the loss on the full training set is expected to decrease monotonically (or non-increase).
+Each update uses the exact gradient of the entire data set, producing a stable direction toward a local minimum.
+With a sufficiently small learning rate the cost sequence is smooth and steadily declining.
+Fluctuations would indicate a bug, an excessively large learning rate, or numerical instability.
+Only stochastic or mini-batch gradient descent exhibit noisy, fluctuating cost curves.
+Batch methods are therefore easier to diagnose: if the loss is not consistently dropping something is wrong.
+The price of this stability is high computational cost per update, especially on large data sets.
+In practice pure batch gradient descent is rarely used for deep learning precisely because of this cost.
+The statement confuses batch behavior with the stochastic variants that dominate modern training.
+A steadily decreasing full-batch loss curve is the expected and desired behavior.
 
 53. What are two ways of doing regularization in a deep neural network?
 
+Weight decay (L2 regularization) adds a penalty on the squared magnitude of the weights to the loss.
+It is simple to implement, fully differentiable, and has a clear Bayesian interpretation.
+Dropout randomly zeros a fraction of activations during training, acting as an ensemble regularizer.
+Dropout is especially effective in fully-connected layers and is cheap to apply.
+Early stopping monitors validation loss and halts training before overfitting becomes severe.
+Data augmentation artificially enlarges the training set by applying label-preserving transformations.
+Batch normalization and layer normalization also have a mild regularizing effect by adding noise.
+Label smoothing and mixup are modern techniques that regularize the output distribution or the input space.
+Choosing two complementary methods (e.g., weight decay plus dropout) often yields the best results.
+Regularization is essential for deep networks because their high capacity makes overfitting easy.
 
 54. Which variation of K-Means is appropriate for non-parametric data?
 
+Standard K-Means assumes Euclidean distance and produces spherical clusters.
+For non-parametric data (no assumed distribution, arbitrary shapes) K-Means is usually inappropriate.
+DBSCAN is a common density-based alternative that can discover clusters of arbitrary shape.
+Among algorithms still related to K-Means, K-Medoids (PAM) is more robust because it uses actual data points as centers.
+K-Medoids also works with arbitrary dissimilarity measures, not just Euclidean distance.
+Mean-shift clustering is another non-parametric mode-seeking method that does not require a preset k.
+Spectral clustering can handle highly non-convex clusters by using the spectrum of a similarity graph.
+Gaussian mixture models are parametric (they assume Gaussian components) and therefore not non-parametric.
+The question likely expects either DBSCAN or K-Medoids as the answer among K-Means variants.
+In short, any method that does not force spherical Voronoi partitions and makes fewer distributional assumptions.
 
 55. In Genetic Algorithms, what is the purpose of the fitness function?
 
+The fitness function assigns a numeric score to every candidate solution (individual) in the population.
+It is the sole guide that selection uses to decide which individuals will reproduce.
+A well-designed fitness function directly reflects the quality we ultimately care about in the real problem.
+For the traveling salesman problem the fitness is usually the negative of the total tour length.
+The fitness landscape defined by the function determines how easy or hard the search problem is.
+Deceptive fitness functions can mislead the algorithm toward local optima that are globally poor.
+Fitness evaluation is often the most computationally expensive part of a genetic algorithm.
+When the true objective is expensive, surrogate models are sometimes used to approximate the fitness.
+Fitness may be scaled, ranked, or shared to maintain selection pressure and population diversity.
+Everything in a GA—selection, crossover, mutation—exists to improve the population according to this function.
 
-56. Name three centrality measures in statistics. What are their strengths and
-weaknesses?
+56. Name three centrality measures in statistics. What are their strengths and weaknesses?
 
+The three most common centrality measures are the mean, the median, and the mode.
+The mean is the arithmetic average; it uses all data points and is sensitive to outliers and skewness.
+The median is the middle value after sorting; it is robust to outliers and better represents the center of skewed data.
+The mode is the most frequent value; it is the only measure applicable to nominal data.
+Mean is optimal for symmetric distributions without outliers and when further calculations are needed.
+Median is preferable for income, house prices, or any data set where extreme values are common or unrepresentative.
+Mode is useful for categorical data (favorite color) but can be unstable or multi-modal.
+For any given data set one should examine the distribution and choose the measure that matches the question being asked.
+Reporting all three together often gives a more complete picture than any single number.
+Misuse of the mean on skewed data is one of the most frequent statistical errors in public discourse.
 
-57. Most problems suited for Genetic Algorithms could also be solved using
-which kind of AI?
+57. Most problems suited for Genetic Algorithms could also be solved using which kind of AI?
 
+Most problems that GA solve well are combinatorial optimization or search problems.
+They can often also be tackled by other meta-heuristic search methods such as simulated annealing or tabu search.
+Many can be addressed by integer linear programming or constraint programming solvers when the problem size permits.
+Reinforcement learning and planning algorithms are alternative AI approaches for sequential decision problems.
+Local search, beam search, and A* with good heuristics are classical AI search techniques for similar tasks.
+Particle swarm optimization and ant colony optimization are other population-based evolutionary methods.
+For some problems (small TSP) exact dynamic programming or branch-and-bound can find optimal solutions.
+The question probably expects "search algorithms" or "heuristic search / optimization techniques".
+In modern terms many such problems are also addressed by learned heuristics or neural combinatorial optimization.
+GA are one powerful tool among a family of search and optimization methods in AI.
 
-58. What can we say about a model with 0.997 accuracy on the training set
-and 0.874 accuracy on the validation set?
+58. What can we say about a model with 0.997 accuracy on the training set and 0.874 accuracy on the validation set?
 
+The large gap between training accuracy (0.997) and validation accuracy (0.874) is a classic sign of overfitting.
+The model has memorized idiosyncrasies and noise present in the training set that do not exist in the validation data.
+Such a model will likely perform even worse on truly unseen production data.
+Possible remedies include stronger regularization (dropout, weight decay, data augmentation).
+Reducing model capacity (fewer layers, fewer units, or shallower trees) can also help.
+Early stopping based on validation performance should have been applied during training.
+Collecting more training data, if feasible, is one of the most reliable ways to combat overfitting.
+The training accuracy is suspiciously close to 1.0, suggesting the model may be too powerful for the data size.
+One should also check whether the validation set is drawn from the same distribution as the training set.
+In short, the model is not ready for deployment until the generalization gap is substantially reduced.
 
-59. True or false: when training Stochastic Gradient Descent, the cost of
-approximation is expected to fluctuate during training?
+59. True or false: when training Stochastic Gradient Descent, the cost of approximation is expected to fluctuate during training?
 
+True. Stochastic gradient descent (SGD) updates parameters using the gradient of a single random training example.
+Because each example produces a noisy estimate of the true gradient, the loss curve fluctuates significantly.
+These fluctuations are not a bug; the noise can help the optimizer escape sharp local minima.
+Mini-batch SGD (the most common form) reduces but does not eliminate the fluctuations.
+Learning rate schedules, momentum, and adaptive methods (Adam) are used to tame the noisy trajectory.
+In contrast, full-batch gradient descent produces a smooth, monotonically non-increasing loss curve.
+The characteristic jagged loss plot is therefore the expected visual signature of stochastic training.
+Monitoring a smoothed version of the loss or validation metrics helps see the underlying trend.
+Excessive fluctuation late in training can indicate that the learning rate is still too high.
+Fluctuating cost is normal, healthy behavior when using stochastic or mini-batch gradient descent.
 
 60. Name a clustering algorithm that is able to work with concave data sets.
 
+DBSCAN (Density-Based Spatial Clustering of Applications with Noise) can discover clusters of arbitrary shape.
+It groups points that are closely packed together and marks points in low-density regions as outliers.
+Because it does not assume convex or spherical clusters it works on concave and even interlocking shapes.
+Spectral clustering is another strong candidate that can handle non-convex manifolds via graph cuts.
+Mean-shift clustering also finds non-convex clusters by locating density modes.
+Gaussian mixture models and standard K-Means are limited to elliptical or spherical clusters respectively.
+HDBSCAN is a hierarchical extension of DBSCAN that often performs even better on complex data.
+Any density-based or graph-based method generally succeeds where centroid-based methods fail on concave data.
+The key is to use connectivity or density rather than distance to the nearest centroid.
+DBSCAN is the most commonly cited answer when the question asks for a clustering algorithm for concave sets.
 
-61. A model deciding by flipping a coin is used to predict the outcome of
-flipping a coin. What is the expected accuracy and Youden’s index of this
-model’s performance?
+61. A model deciding by flipping a coin is used to predict the outcome of flipping a coin. What is the expected accuracy and Youden’s index of this model’s performance?
 
+A coin-flip model predicts each outcome by sampling a fair coin, independent of any input features.
+For a fair coin the expected accuracy is exactly 0.5 (50%).
+Youden's index is defined as sensitivity + specificity - 1.
+For a random guesser both sensitivity and specificity are 0.5 on a balanced problem.
+Therefore Youden's index equals 0.5 + 0.5 - 1 = 0.
+An index of zero indicates that the model has no discriminative power whatsoever.
+Any useful classifier should achieve a positive Youden's index on the same task.
+This random baseline is important when evaluating models on balanced binary problems.
+On imbalanced data the accuracy of a random coin-flip model would still be close to the majority class frequency.
+The numbers 0.5 accuracy and 0 Youden's index are the null-model references for a fair coin prediction task.
 
 62. What is a decision boundary?
 
+A decision boundary is the surface in feature space that separates one class from another.
+For a binary classifier it is the set of points where the model outputs a probability of exactly 0.5 (or logit 0).
+Points on one side of the boundary are classified positive; points on the other side negative.
+The shape of the boundary depends on the model: linear for logistic regression, piecewise linear for trees, highly curved for deep nets.
+Visualizing the decision boundary helps diagnose whether the model has captured the right concept.
+In multi-class problems there are multiple boundaries separating each pair of classes.
+Complex models can produce fragmented or highly non-linear boundaries that may overfit the training data.
+The complexity of the learned boundary is directly related to the model's capacity and regularization.
+In two dimensions the boundary is a curve; in higher dimensions it is a hyper-surface.
+Understanding the geometry of the decision boundary is fundamental to understanding what the classifier has learned.
 
 63. What is the purpose of grid-search? Name an alternative approach.
 
+Grid search is an exhaustive hyper-parameter optimization technique that tries every combination in a predefined grid.
+It is simple to implement and perfectly parallelizable across the grid points.
+Its main drawback is the combinatorial explosion: the number of trials grows exponentially with the number of hyper-parameters.
+A common alternative is random search, which samples hyper-parameter combinations from specified distributions.
+Random search often finds good configurations faster because it explores more diverse regions of the space.
+Bayesian optimization is a more sophisticated sequential approach that builds a surrogate model of performance.
+It uses an acquisition function to decide which point to evaluate next, balancing exploration and exploitation.
+Other alternatives include evolutionary search, successive halving, and Hyperband.
+The choice depends on the dimensionality of the hyper-parameter space and the cost of each evaluation.
+In modern practice random search or Bayesian optimization have largely replaced naïve grid search.
 
-64. What operation must always be performed on a data set before applying
-principal component analysis?
+64. What operation must always be performed on a data set before applying principal component analysis?
 
+The data must be centered (mean of each feature subtracted) before PCA.
+Centering ensures that the first principal component captures the direction of maximum variance rather than the mean.
+Standardization (also scaling to unit variance) is almost always performed as well, especially when features have different units.
+Without centering, the principal components can be dominated by the feature with the largest absolute mean.
+If features are on very different scales, the covariance matrix will be dominated by high-variance features.
+Standardization makes each feature contribute equally before the eigen-decomposition.
+Some implementations perform centering and scaling automatically; it is still good practice to verify.
+After centering the data matrix has columns that each sum to zero.
+Only after this preprocessing step should the covariance matrix or SVD be computed.
+Skipping centering is one of the most common beginner mistakes when applying PCA.
 
 65. Explain RMSE vs MAE.
 
+RMSE is the square root of the average squared prediction errors; MAE is the average absolute prediction error.
+Because RMSE squares errors it penalizes large deviations much more heavily than small ones.
+A single large outlier can dramatically increase RMSE while affecting MAE only linearly.
+RMSE has the same unit as the target variable, making it somewhat interpretable.
+MAE is more robust and intuitive: it is the average magnitude of the error in the original units.
+When the cost of an error grows quadratically (large mistakes are very bad), RMSE is the more appropriate metric.
+When all errors are equally costly or when outliers should not dominate, MAE is preferable.
+Both metrics are minimized by different point estimators (mean for MSE/RMSE, median for MAE).
+Reporting both together gives a fuller picture of error distribution and outlier influence.
+Huber loss and other robust losses attempt to combine the best properties of squared and absolute errors.
 
 66. True or false: ratio data is preferable over interval data?
 
+True in the sense that ratio data carries more information and permits more statistical operations than interval data.
+Ratio scales have a true absolute zero, allowing meaningful ratios ("twice as much") and all arithmetic operations.
+Interval scales have an arbitrary zero point, so ratios are meaningless (20 °C is not "twice as hot" as 10 °C).
+Because ratio data support more operations they are generally preferable when the underlying attribute truly has a zero.
+Examples of ratio data include height, weight, age, income, and counts; temperature in Celsius is interval.
+However, the preference is only relevant when both types are plausible for the same attribute.
+Many real attributes naturally have a zero and should be measured on a ratio scale when possible.
+For some attributes (temperature, calendar dates) an interval scale is the only sensible choice.
+The statement is therefore broadly correct as a general principle of measurement theory.
+When designing data collection one should aim for the highest scale type that the attribute logically supports.
 
-67. You are training a Genetic Algorithm but the models does not seem to
-improved over generations. How would you try to solve the problem?
+67. You are training a Genetic Algorithm but the models does not seem to improved over generations. How would you try to solve the problem?
 
+First verify that the fitness function actually rewards incremental progress toward the desired goal.
+Increase the mutation rate temporarily to inject more diversity and escape plateaus.
+Reduce selection pressure (larger tournament size or lower elitism) to preserve diversity longer.
+Check whether the population has lost all genetic diversity; if so, restart with a more diverse initial population.
+Re-examine the genotype-phenotype mapping to ensure small genetic changes produce meaningful phenotypic changes.
+Add new genetic operators or modify existing crossover operators to explore different regions of the space.
+Increase population size so that more candidate solutions are evaluated each generation.
+Consider niching or fitness sharing techniques that explicitly maintain diversity.
+If the problem is deceptive, try a multi-objective formulation or a different representation altogether.
+Systematic diagnosis of the fitness landscape and population statistics is the first step before random tweaking.
 
-68. True or false: when training a Reinforcement Learning model with contin￾uous action and state space, you should use Q-Learning with a Q-table.
+68. True or false: when training a Reinforcement Learning model with continuous action and state space, you should use Q-Learning with a Q-table.
 
+False. Q-Learning with a tabular Q-table is only feasible for discrete, small state and action spaces.
+Continuous spaces have infinitely many states; a table cannot store or visit them all.
+For continuous control one must use function approximation: deep Q-networks (DQN), actor-critic methods, or policy gradients.
+Algorithms such as DDPG, TD3, SAC, and PPO are designed precisely for continuous action spaces.
+Using a Q-table on a continuous problem is impossible without some form of discretization, which usually performs poorly.
+The statement confuses the classic tabular Q-learning algorithm with modern deep reinforcement learning methods.
+Q-learning ideas still apply, but they must be implemented with neural network approximators.
+In continuous spaces one often learns a policy directly rather than a value function over a table.
+The correct answer is therefore false; a Q-table cannot be used for continuous state/action reinforcement learning.
+Tabular methods are mainly of pedagogical and historical interest for small grid-world problems.
 
 69. True or false: a problem must be falsifiable to be a scientific question.
 
+True. This is a central tenet of Karl Popper's philosophy of science.
+A scientific hypothesis or theory must be falsifiable in principle; there must exist some observation that could prove it wrong.
+If no conceivable evidence could ever disprove a claim, the claim is not scientific.
+Falsifiability distinguishes science from pseudoscience, metaphysics, and unfalsifiable dogma.
+A well-formed scientific question therefore makes predictions that can be tested and potentially refuted.
+This criterion does not require that the hypothesis actually be falsified, only that it could be.
+In practice, auxiliary hypotheses and statistical uncertainty complicate strict falsification.
+Nevertheless, the requirement remains a useful heuristic for identifying scientific versus non-scientific claims.
+Machine learning research questions are scientific only when they make testable predictions about model behavior or data.
+The statement is a direct expression of Popper's demarcation criterion between science and non-science.
 
 70. Explain how the null-hypothesis relates to a hypothesis.
 
+The null hypothesis (H0) is the default or "no effect" statement that the researcher seeks to challenge.
+The alternative hypothesis (H1 or Ha) is the research claim that the experimenter actually believes or wants to support.
+Statistical hypothesis testing never proves H1 directly; it attempts to reject H0 at a chosen significance level.
+If the data are sufficiently incompatible with H0 we reject it and conclude there is evidence for H1.
+Failure to reject H0 does not prove H0 is true; it simply means the data were not extreme enough.
+The null is usually formulated as equality (no difference, no correlation, parameter = specific value).
+A good scientific hypothesis is translated into a precise, testable statistical null and alternative pair.
+The relationship is asymmetric: we can only ever reject the null, never accept it with certainty.
+Misunderstanding this asymmetry is the source of many common errors in interpreting p-values.
+Every inferential test therefore begins by clearly stating both the null and the substantive hypothesis under investigation.
 
 71. Which of these are more sensitive to outliers: MSE or MAE.
 
+MSE (mean squared error) is more sensitive to outliers than MAE (mean absolute error).
+Squaring an error turns a deviation of 10 into a penalty of 100, while absolute error treats it as 10.
+A single large outlier can dominate the MSE while affecting MAE only linearly.
+This is why MAE or robust variants (Huber, quantile loss) are preferred when outliers are expected or costly.
+RMSE is still more outlier-sensitive than MAE because it is the square root of MSE.
+The sensitivity of MSE can be desirable when large errors are disproportionately bad.
+In the presence of heavy-tailed noise or data entry errors, MAE gives a more stable picture of typical error.
+One can examine the difference between RMSE and MAE to diagnose the influence of outliers.
+If RMSE >> MAE the errors are likely dominated by a few large deviations.
+The answer is therefore MSE (or equivalently RMSE) is the more outlier-sensitive of the two.
 
 72. Explain the softmax function.
 
+Softmax is a function that converts a vector of raw scores (logits) into a probability distribution.
+It exponentiates each logit and then divides by the sum of all exponentiated values.
+The output is guaranteed to be non-negative and to sum exactly to one, satisfying probability axioms.
+Softmax is the standard activation for the final layer of multi-class classification networks.
+It is a smooth, differentiable generalization of the argmax operation.
+Higher logits receive exponentially higher probability mass, producing a "winner-take-most" effect.
+The temperature parameter (sometimes introduced) can soften or sharpen the resulting distribution.
+The derivative of softmax is simple and can be expressed in terms of the softmax output itself.
+When combined with cross-entropy loss the gradient simplifies nicely, yielding the familiar "prediction minus target" form.
+Softmax is what allows neural networks to output calibrated class probabilities for mutually exclusive categories.
 
-73. You want to design a deep neural network for a Genetic Algorithm to
-play the classic 8-bit game Lunar Lander. The State space is defined
-as follows: S = {x, y, vx, vy} for x-position, y-position, x-velocity, and
-y-velocity, respectively. All state space variables are relative to the center
-of the landing platform. The Action space is defined as follows: A =
-{tmain, tlef t, tright} for main-thruster, left-thruster, and right-thruster,
-respectively. How would you design the deep neural network?
+73. You want to design a deep neural network for a Genetic Algorithm to play the classic 8-bit game Lunar Lander. The State space is defined as follows: S = {x, y, vx, vy} for x-position, y-position, x-velocity, and y-velocity, respectively. All state space variables are relative to the center of the landing platform. The Action space is defined as follows: A = {tmain, tleft, tright} for main-thruster, left-thruster, and right-thruster, respectively. How would you design the deep neural network?
 
+The network is a policy network that maps the 4-dimensional continuous state to action probabilities or Q-values.
+Input layer should have 4 units, one for each state variable (x, y, vx, vy).
+Two or three hidden layers of moderate width (e.g., 64-128 units each) are usually sufficient for this low-dimensional control task.
+Use ReLU or tanh activations in the hidden layers; both work well for continuous control problems.
+The output layer has 3 units, one per discrete action (main, left, right thruster).
+For a genetic algorithm that evolves the network weights, the output can be linear or passed through softmax.
+If the GA evolves a policy directly, softmax produces a valid probability distribution over the three actions.
+If the GA is used inside a reinforcement learning loop, the output can be Q-values or raw action scores.
+Because the state space is tiny, even a modest feed-forward network can represent a good policy.
+The overall design is a small multi-layer perceptron whose weights are the genome optimized by the genetic algorithm.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+--- End of answers ---
