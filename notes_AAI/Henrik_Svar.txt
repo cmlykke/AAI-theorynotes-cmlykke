@@ -1,6 +1,3 @@
-
-
-
 ## 1. What would be a good choice of performance metric in a binary classification scenario with far more negative than positive samples?
 ###
 In highly imbalanced binary classification with far more negative samples, overall accuracy is a misleading metric.
@@ -1371,6 +1368,65 @@ The (0,1) range is therefore both the main advantage for output interpretation a
 
 
 
+## What is the sigmoid activation function (and why its output range matters)?
+###
+Sigmoid is the classic S-shaped function:
+
+    sigmoid(x) = 1 / (1 + exp(-x))
+
+It takes any real number and squashes it into the open interval (0, 1).
+
+Why this is useful:
+- The output can be interpreted as a probability (how confident the model is that the answer is "yes").
+- In the final layer of binary classifiers or logistic regression, this gives well-calibrated probabilities.
+
+Why it is problematic in hidden layers:
+- For large positive or negative inputs the function "saturates" (output very close to 0 or 1).
+- The derivative (gradient) then becomes almost zero: max derivative is only 0.25 at x=0 and decays quickly.
+- This causes the vanishing gradient problem — early layers in a deep network stop learning.
+
+The formula for the derivative is simply σ(x) * (1 - σ(x)).
+
+Modern networks therefore prefer ReLU-family activations in hidden layers and keep sigmoid (or softmax) only for the final probability output.
+
+Tanh is similar but maps to (-1, +1) and is zero-centered, which often helps a bit with gradient flow.
+#### grok
+#####
+
+
+## What does 'well-calibrated probabilities' mean?
+###
+A model that outputs probabilities is well-calibrated when the number it gives actually matches reality.
+
+Example: if the model says "this email is spam with 80% probability" on 100 emails, then roughly 80 of them should really be spam.
+
+Sigmoid (and softmax) outputs are often treated as probabilities, but raw neural nets are frequently over-confident (they say 0.99 when reality is more like 0.70).
+
+Techniques like temperature scaling, Platt scaling, or label smoothing are used to improve calibration.
+
+In the Q35 answer, the point is that the (0,1) range from sigmoid makes the numbers look like probabilities and are often reasonably calibrated for the final output layer.
+#### grok
+#####
+
+
+## What is multi-label classification?
+###
+In multi-label classification each example can have multiple correct labels at the same time (unlike normal multi-class where labels are mutually exclusive).
+
+Examples:
+- An image can contain both a cat and a dog.
+- A movie can belong to "action", "sci-fi", and "comedy" at once.
+- A patient record can have several diseases.
+
+For each possible label the model usually outputs an independent sigmoid (probability for that label being present).
+
+The loss is typically binary cross-entropy applied per label.
+
+This is different from multi-class classification (one softmax over all classes) or multi-task learning.
+#### grok
+#####
+
+
 ## 36. What is the purpose of an activation function in a deep neural network?
 ###
 The purpose of an activation function is to introduce non-linearity into the network.
@@ -1386,6 +1442,68 @@ In short, they are what give neural networks their expressive power beyond linea
 #### henrik
 #####
 
+
+
+## What does 'non-linearity' mean in neural networks?
+###
+A non-linear function is anything that is not a straight line (in math: f(ax + b) ≠ a*f(x) + b for all a,b).
+
+Without non-linear activation functions, no matter how many layers you stack, the whole network collapses mathematically to one single linear transformation (just a big matrix multiply + bias).
+
+Non-linearity is what lets the network create complex, curved decision boundaries, compose features hierarchically ("edges → textures → objects"), and approximate arbitrary functions.
+
+That is why the universal approximation theorem requires non-linear activations.
+#### grok
+#####
+
+
+## What are width and depth in a neural network?
+###
+Depth = number of layers (how many times we apply a linear transform + activation).
+
+Width = number of units (neurons) in a layer (how many parallel computations happen at that level).
+
+A network with many layers is "deep".
+A layer with thousands of units is "wide".
+
+Modern successful networks are both deep (dozens or hundreds of layers) and wide (thousands of units per layer). Depth lets the model build abstract features step by step; width gives capacity to represent many different patterns at each level.
+#### grok
+#####
+
+
+## What are exploding gradients?
+###
+The opposite problem of vanishing gradients.
+
+During backpropagation, if many derivatives are > 1, the gradient signal can grow exponentially as it travels backward through the layers.
+
+Weights then receive huge updates and the loss goes to infinity (or NaN).
+
+Common fixes:
+- Gradient clipping (cap the size of the gradient vector)
+- Better weight initialization
+- Batch / layer normalization
+- Residual connections
+- Careful choice of activation (ReLU can still explode in some cases)
+#### grok
+#####
+
+
+## What is a decision boundary?
+###
+The decision boundary is the surface (line in 2D, curved surface or hyper-surface in higher dimensions) that separates the regions where the model predicts different classes.
+
+For a binary classifier, on one side of the boundary the output > 0.5 (positive), on the other side < 0.5 (negative).
+
+The shape tells you a lot:
+- straight line / flat plane → linear model
+- axis-aligned rectangles → decision tree
+- smooth but curved → neural net with non-linear activations
+- very wiggly or fragmented → likely overfitting
+
+Visualizing the decision boundary (when you only have 2 input features) is one of the best ways to understand what your classifier has actually learned.
+#### grok
+#####
 
 
 ## 37. True or false: erroneously classifying a pregnant woman as not pregnant is a Type 1 error.
@@ -1405,6 +1523,38 @@ In any case the described mistake is not a Type I error under the standard medic
 
 
 
+## What is a Type I error?
+###
+A Type I error (false positive) happens when you reject the null hypothesis even though it is actually true.
+
+In plain terms: you declare "there is an effect / this is positive" when there really isn't.
+
+In a medical test: you tell the patient "you have the disease" when they don't.
+In a spam filter: you send a legitimate email to the spam folder.
+In ML model evaluation: your classifier fires an alarm on a negative example.
+
+The probability of making a Type I error is often called alpha (α) or the significance level. You usually set it low (0.05 or 0.01) because false positives can be costly or embarrassing.
+#### grok
+#####
+
+
+## What is a Type II error?
+###
+A Type II error (false negative) happens when you fail to reject the null hypothesis even though it is actually false.
+
+In plain terms: you say "no effect / this is negative" when there really is something there.
+
+In a medical test: the patient has the disease but your test says they are healthy.
+In fraud detection: a real fraudulent transaction is classified as normal.
+In ML: your model misses the rare positive case it was supposed to catch.
+
+The probability of a Type II error is called beta (β). Power of a test = 1 - β.
+
+In most detection tasks we care more about Type II errors (missed positives) than Type I, which is why recall / sensitivity is emphasized.
+#### grok
+#####
+
+
 ## 38. True or false: to establish a baseline for the performance of machine learning models, it is a good idea to compare with human performance?
 ###
 True in many domains, especially when the task is one that humans perform regularly.
@@ -1420,6 +1570,23 @@ Overall, human comparison is a recommended practice whenever the ultimate user o
 #### henrik
 #####
 
+
+
+## What is a baseline (in machine learning)?
+###
+A baseline is a simple reference model or number that you compare your fancy model against.
+
+Common baselines:
+- Random guessing or "always predict the majority class"
+- A very simple linear model or decision stump
+- Human expert performance (especially when the task is something people do today)
+- The current production system or previous state-of-the-art
+
+If your deep neural net cannot beat a sensible baseline, it is not ready for deployment no matter how low the training loss is.
+
+Baselines keep you honest and help stakeholders understand whether the added complexity is worth it.
+#### grok
+#####
 
 
 ## 39. How can we use Monte Carlo simulations in machine learning?
@@ -1451,6 +1618,68 @@ In ML you see it in:
 - Generating synthetic data that matches a distribution
 
 More samples → better estimate, at linear cost. The law of large numbers guarantees convergence.
+#### grok
+#####
+
+
+## What is Bayesian inference?
+###
+Bayesian inference is a way of updating beliefs about unknown quantities as you see more data, using probability theory (Bayes' rule).
+
+Instead of a single "best" value for a parameter, you maintain a full probability distribution (the posterior) that represents your uncertainty.
+
+In machine learning:
+- Bayesian neural networks keep distributions over weights instead of point estimates.
+- This gives you uncertainty estimates for free.
+- Monte Carlo sampling is one practical way to approximate the integrals that appear in Bayesian calculations when they have no closed form.
+#### grok
+#####
+
+
+## What is an 'episode' in reinforcement learning?
+###
+In RL, an episode is one complete sequence of interaction with the environment from a starting state until a terminal state (or a fixed time limit).
+
+Examples:
+- One full game of Lunar Lander or Chess (from start until win/loss or timeout).
+- One full trajectory of a robot arm trying to pick up an object.
+
+Monte Carlo methods in RL often estimate value functions by averaging the total return (sum of rewards) collected across many complete episodes.
+
+This is in contrast to temporal-difference (TD) methods that learn from incomplete sequences.
+#### grok
+#####
+
+
+## What is Monte Carlo dropout?
+###
+A simple trick to get uncertainty estimates from a normal neural network at inference time.
+
+During training you use dropout (randomly zero some activations).
+
+At test time, instead of turning dropout off, you leave it on and run the network many times (e.g. 30–100 forward passes) on the same input with different random dropout masks.
+
+The variance across those predictions gives you an estimate of the model's uncertainty.
+
+It is surprisingly effective and cheap compared with full Bayesian neural nets.
+#### grok
+#####
+
+
+## What are bootstrap methods?
+###
+Bootstrap = a statistical resampling technique.
+
+You create many new "fake" data sets by sampling with replacement from your original data set (same size as original).
+
+You then train a model (or compute a statistic) on each bootstrap sample.
+
+This lets you estimate:
+- Variability / confidence intervals of your model's performance
+- Feature importance stability
+- Uncertainty without needing a parametric assumption
+
+In the Q39 answer it is listed as one of the Monte Carlo-style uses in ML for confidence intervals and model evaluation.
 #### grok
 #####
 
@@ -1489,6 +1718,39 @@ Both are essential: good description precedes and informs any valid inference.
 
 
 
+## What are descriptive statistics?
+###
+Descriptive statistics just summarize and describe the data you actually have in front of you.
+
+Examples:
+- mean, median, mode, standard deviation, min, max
+- histograms, box plots, correlation coefficients on the sample
+- "Our training set has 12,847 images, 3.2% of them are cats"
+
+They make no claims about anything outside the data you collected. They are always "valid" for the observed data.
+
+In ML we use them heavily during EDA (exploratory data analysis) and to understand our training set before modeling.
+#### grok
+#####
+
+
+## What are inferential statistics?
+###
+Inferential statistics use the sample you have to draw conclusions about a larger population or future data-generating process.
+
+Core tools:
+- Hypothesis testing (null vs alternative)
+- Confidence intervals
+- p-values
+- Prediction intervals for new data
+
+Because you only see a sample, every inferential claim carries uncertainty. You have to make assumptions about how the sample was drawn and what the population looks like.
+
+In ML, when you report "we expect 87% accuracy on future customers", you are doing inferential statistics (using your test set as the sample).
+#### grok
+#####
+
+
 ## 42. When using an auto-encoder for anomaly detection, how can we establish a baseline to discriminate between positive and negative samples?
 ###
 Compute the reconstruction error on a large set of known normal samples that were not used in training.
@@ -1504,6 +1766,46 @@ This reconstruction-error baseline is the most direct and widely used method for
 #### henrik
 #####
 
+
+
+## What does '3 sigma' (or 2σ, 4σ) threshold mean for anomaly detection?
+###
+In a normal distribution, roughly:
+- 68% of data lies within 1 standard deviation (σ) of the mean
+- 95% within 2σ
+- 99.7% within 3σ
+
+So if you compute the mean and std of reconstruction errors on normal training data, then flag anything above mean + 3σ as anomalous, you are using the empirical rule that only ~0.3% of normal points should exceed that threshold.
+
+You can tune the multiplier (2σ is more sensitive / more false positives; 4σ is more conservative).
+
+This is a very common simple baseline for autoencoder anomaly detection when you don't have labeled anomalies for threshold tuning.
+#### grok
+#####
+
+
+## What is a percentile cutoff?
+###
+Instead of using standard deviations, you can directly take a high percentile of the reconstruction errors seen on normal data.
+
+Example: compute reconstruction errors on 10,000 normal validation points, sort them, and say "anything above the 99th percentile is anomalous".
+
+This makes no assumption that the error distribution is Gaussian (bell-shaped). It works for any distribution.
+
+Fitting a gamma or other distribution and taking a theoretical percentile is a middle ground between pure 3σ and pure empirical percentile.
+#### grok
+#####
+
+
+## What is a secondary classifier in anomaly detection?
+###
+Instead of (or in addition to) a simple threshold on reconstruction error, you can treat the reconstruction error (and perhaps other features derived from the autoencoder) as input features to a second, normal supervised classifier.
+
+If you have even a few labeled anomalies, you can train a random forest, logistic regression, etc. on top of the reconstruction error to decide "anomaly or not".
+
+This often performs better than a hand-chosen threshold because the secondary model can learn the right decision surface in the error space.
+#### grok
+#####
 
 
 ## 43. Explain the use of training, validation, and test sets in supervised learning.
@@ -1571,6 +1873,61 @@ Making networks deep (and wide) only became practical after we solved the vanish
 #####
 
 
+## What is a tensor in machine learning?
+###
+In modern ML frameworks (PyTorch, TensorFlow, JAX, NumPy), a tensor is a multi-dimensional array — a generalization of vectors (1D) and matrices (2D) to any number of dimensions.
+
+Examples:
+- Image: usually a 4D tensor (batch, channels, height, width)
+- Sequence of word embeddings: 3D (batch, time steps, embedding dim)
+- A single number is a 0D tensor, a vector is 1D, etc.
+
+Tensors support the same math operations as arrays but are heavily optimized for GPU/TPU execution and automatic differentiation (backprop).
+#### grok
+#####
+
+
+## What are skip connections and residual blocks?
+###
+A skip connection (or residual connection) adds the input of a block directly to its output, bypassing one or more layers:
+
+    output = activation( layers(input) ) + input
+
+This makes it much easier for gradients to flow backward through very deep networks (the +1 in the chain rule prevents vanishing).
+
+Residual blocks (ResNet) are stacks of layers wrapped with such a skip connection.
+
+They were a key innovation that allowed training networks with hundreds of layers instead of ~20.
+#### grok
+#####
+
+
+## What are logits?
+###
+Logits are the raw, unnormalized scores that come out of the last linear layer of a classifier, before any activation (sigmoid or softmax) is applied.
+
+They can be any real numbers, positive or negative, and are not probabilities.
+
+You then usually apply:
+- sigmoid (for binary or multi-label) → turns them into probabilities in (0,1)
+- softmax (for multi-class) → turns them into a probability distribution that sums to 1
+
+Many loss functions (cross-entropy) are mathematically nicer when expressed in terms of logits rather than the probabilities after the activation.
+#### grok
+#####
+
+
+## What are recurrent and attention layers?
+###
+Recurrent layers (RNN, LSTM, GRU) process sequences step by step while maintaining a hidden state that carries information from previous time steps. Good for variable-length sequences but hard to train on long sequences (vanishing gradients).
+
+Attention layers let every position in a sequence "look at" (attend to) all other positions directly, with learned weights. This removes the sequential bottleneck.
+
+Transformers are built almost entirely from attention (plus feed-forward) layers and have replaced most recurrent models for NLP and are now also strong in vision, audio, etc.
+#### grok
+#####
+
+
 ## 45. Explain the procedure of training a model in supervised learning using a training set, validation set, and test set.
 ###
 Split the labeled data into disjoint training, validation, and test sets before any modeling begins.
@@ -1587,6 +1944,63 @@ This disciplined procedure yields a reliable estimate of how well the model will
 #####
 
 
+
+
+## What is an epoch in neural network training?
+###
+One epoch = one complete pass through the entire training set.
+
+If you have 10,000 training examples and a batch size of 100:
+- One epoch = 100 gradient updates (10,000 / 100)
+- After 50 epochs the model has seen every training example 50 times.
+
+You almost never train for a fixed number of epochs anymore. Instead you train for as many epochs as needed until validation performance stops improving (early stopping), often with a maximum cap.
+
+Monitoring training and validation curves vs. epoch is the standard way to diagnose under/overfitting.
+#### grok
+#####
+
+
+## What is a pre-training scheme?
+###
+Pre-training = first training a model on a large, cheap, or related data set (often with a self-supervised objective) before fine-tuning it on the actual smaller labeled task you care about.
+
+Classic examples:
+- Train a language model on billions of words of raw text (predict next word), then fine-tune on a small sentiment classification data set.
+- Train an image model on ImageNet, then fine-tune on your medical images.
+
+A "sensible pre-training scheme" in the Q45 answer means using a reasonable initialization or pre-trained weights instead of starting from completely random weights, which often makes training faster and more stable.
+#### grok
+#####
+
+
+## What are forward and backward passes?
+###
+Forward pass: run the input through the network layer by layer to compute the predictions (and the loss).
+
+Backward pass (backpropagation): start from the loss and propagate the gradient information backward through the layers to compute how much each weight contributed to the error.
+
+Training a neural net almost always alternates:
+- forward on a mini-batch
+- backward to get gradients
+- optimizer step to update weights
+
+The Q45 answer emphasizes that during training you only run these on the training set; validation is used only for monitoring and decisions.
+#### grok
+#####
+
+
+## What is the 'patience' period in early stopping?
+###
+When using early stopping, you monitor validation performance after every epoch (or every N steps).
+
+Patience = how many epochs you are willing to wait for an improvement before you give up and stop training.
+
+Example: patience=10 means "if validation loss has not improved for 10 consecutive checks, stop and restore the best weights seen so far".
+
+Higher patience gives the model more chance to escape temporary plateaus but risks more overfitting. It is a hyperparameter you choose.
+#### grok
+#####
 
 
 ## 46. What is an ensemble algorithm?
@@ -1758,6 +2172,17 @@ You choose or search for good hyperparameter values using the validation set.
 #####
 
 
+## What are 'learning coefficients'?
+###
+In the Q51 answer this is just another name for the actual learned parameters of the model (the weights and biases in a neural net, the split thresholds in a tree, the coefficients in linear regression, etc.).
+
+They are adjusted automatically by the training algorithm (gradient descent, tree growing procedure, etc.).
+
+This is contrasted with hyper-parameters, which are the settings you choose before training starts and that control the training process or model capacity.
+#### grok
+#####
+
+
 ## 52. True or false: when training Batch Gradient Descent, the cost of approximation is expected to fluctuate during training?
 ###
 False. In batch gradient descent the loss on the full training set is expected to decrease monotonically (or non-increase).
@@ -1773,6 +2198,23 @@ A steadily decreasing full-batch loss curve is the expected and desired behavior
 #### henrik
 #####
 
+
+
+## What is batch gradient descent (full-batch GD)?
+###
+Batch gradient descent computes the gradient using the entire training set for every single update.
+
+new_weights = old_weights - learning_rate * gradient_on_all_data
+
+Characteristics:
+- Very stable, smooth decrease in loss (monotonic or non-increasing if lr is small enough)
+- Each update is expensive (you have to process every example)
+- The direction is the true gradient, not a noisy estimate
+- Rarely used in deep learning on large data sets because it is too slow and memory-heavy
+
+In practice we use mini-batch GD (or "SGD" with batches of 32-1024). Pure batch GD is mostly of historical / theoretical interest or for small convex problems where the exact gradient is cheap.
+#### grok
+#####
 
 
 ## 53. What are two ways of doing regularization in a deep neural network?
@@ -1824,6 +2266,73 @@ You still need a proper validation set that the model does not train on.
 #####
 
 
+## What is data augmentation?
+###
+Data augmentation artificially enlarges your training set by creating new, slightly modified versions of the existing examples while keeping the label the same.
+
+For images: random crops, flips, rotations, brightness/contrast jitter, cutout, mixup, etc.
+For text: synonym replacement, back-translation, random insertion/deletion.
+For audio: speed perturbation, noise injection, pitch shift.
+
+It is a very powerful regularizer because it forces the model to become invariant to the transformations you apply.
+
+Almost every strong vision or speech model uses aggressive data augmentation during training (but not during validation/test).
+#### grok
+#####
+
+
+## What is batch normalization?
+###
+Batch normalization (BatchNorm) is a layer that normalizes the activations of the previous layer for each mini-batch.
+
+For each feature it computes:
+    normalized = (x - batch_mean) / sqrt(batch_var + epsilon)
+then applies a learnable scale and shift (gamma, beta).
+
+Benefits:
+- Allows much higher learning rates (training becomes more stable)
+- Reduces sensitivity to weight initialization
+- Has a mild regularizing effect (because the mean/var are noisy estimates from the current batch)
+- Often lets you use less dropout
+
+It is one of the most important practical innovations that made very deep networks trainable. During inference you use running averages of mean/var collected during training instead of the batch statistics.
+#### grok
+#####
+
+
+## What is label smoothing?
+###
+Label smoothing is a regularization technique for classification.
+
+Instead of using hard one-hot targets [0, 0, 1, 0] you use softened targets like [0.1, 0.1, 0.7, 0.1] (the "extra" probability mass is distributed to the other classes).
+
+This prevents the model from becoming over-confident (pushing logits to ±infinity on correct examples) and improves calibration and generalization.
+
+It is especially helpful when you have label noise or when the model has high capacity.
+
+Mixup is a related idea that creates new training examples by linearly interpolating both inputs and labels.
+#### grok
+#####
+
+
+## What is mixup?
+###
+Mixup is a data augmentation / regularization technique.
+
+You create a new synthetic training example by taking a convex combination of two real examples (and their labels):
+
+    x_new = λ * x1 + (1-λ) * x2
+    y_new = λ * y1 + (1-λ) * y2
+
+where λ is sampled from a Beta distribution (usually between 0 and 1).
+
+The model is trained on these mixed examples. It encourages the network to behave linearly between training points and improves generalization and calibration.
+
+It is especially popular in computer vision but the idea applies more broadly.
+#### grok
+#####
+
+
 ## 54. Which variation of K-Means is appropriate for non-parametric data?
 ###
 Standard K-Means assumes Euclidean distance and produces spherical clusters.
@@ -1856,6 +2365,56 @@ Core idea:
 - Points that are not reachable from any core point are labeled as noise
 
 Result: clusters can be concave, rings, interlocking shapes, etc. Outliers are explicitly marked instead of being forced into a cluster. K-Means cannot do any of that.
+#### grok
+#####
+
+
+## What are non-parametric vs parametric models / data?
+###
+Parametric models assume the data comes from a specific family of distributions with a fixed number of parameters (e.g. Gaussian mixture models assume each cluster is Gaussian).
+
+Non-parametric models make fewer assumptions about the shape of the data. The "number of parameters" can grow with the data (e.g. DBSCAN, mean-shift, kernel density estimation, decision trees in the limit).
+
+For clustering, "non-parametric data" in the Q54 answer means data that may have arbitrary shapes, densities, or numbers of clusters — standard K-Means (which forces spherical clusters of roughly equal size) is inappropriate.
+#### grok
+#####
+
+
+## What is K-Medoids (PAM)?
+###
+K-Medoids is a variant of K-Means that is more robust to outliers and works with arbitrary dissimilarity measures (not just Euclidean distance).
+
+Instead of using the mean of the points in a cluster as the center, it chooses an actual data point (a "medoid") as the representative.
+
+PAM = Partitioning Around Medoids is the classic algorithm for it.
+
+Because it uses real points as centers and can use any distance, it is more suitable than plain K-Means for many real-world data sets.
+#### grok
+#####
+
+
+## What is spectral clustering?
+###
+Spectral clustering treats the data points as nodes in a graph, with edges weighted by similarity.
+
+It then looks at the eigenvectors (the "spectrum") of a matrix derived from that graph (usually the Laplacian) and does a simple clustering (e.g. K-Means) in this new space.
+
+This allows it to find clusters that are not convex or spherical — as long as points within a cluster are similar to each other and dissimilar to points in other clusters.
+
+It is more expensive than K-Means but very powerful for complex manifold data.
+#### grok
+#####
+
+
+## What is mean-shift clustering?
+###
+Mean-shift is a non-parametric, mode-seeking clustering algorithm.
+
+It places a kernel (window) at each data point and iteratively shifts the window toward the region of higher density (the mean of the points inside the window moves).
+
+Points that converge to the same mode belong to the same cluster.
+
+It does not require you to choose k in advance and can find clusters of arbitrary shape, but it is slower than K-Means and the bandwidth parameter of the kernel must be chosen carefully.
 #### grok
 #####
 
@@ -1911,6 +2470,62 @@ GA are one powerful tool among a family of search and optimization methods in AI
 
 
 
+## What is simulated annealing?
+###
+Simulated annealing is a probabilistic metaheuristic inspired by annealing in metallurgy (heating metal then slowly cooling it).
+
+It is a local search that sometimes accepts worse solutions, with probability decreasing over time (the "temperature" schedule).
+
+At high temperature it behaves almost like random search (can escape local optima).
+At low temperature it behaves like ordinary hill-climbing (exploits good areas).
+
+It is simpler than genetic algorithms (no population, no crossover) and often works surprisingly well on combinatorial problems. It is one of the classic alternatives when you cannot use gradients.
+#### grok
+#####
+
+
+## What is a metaheuristic?
+###
+A metaheuristic is a high-level strategy for finding good (not necessarily optimal) solutions to hard optimization problems when exact methods are too slow or impossible.
+
+Characteristics:
+- Makes few or no assumptions about the problem (can handle black-box, noisy, non-differentiable objectives)
+- Usually stochastic
+- Trades optimality guarantee for speed and applicability
+
+Examples: genetic algorithms, simulated annealing, tabu search, particle swarm optimization, ant colony optimization, iterated local search, variable neighborhood search, etc.
+
+They sit between exact solvers (ILP, CP, dynamic programming) and problem-specific heuristics.
+#### grok
+#####
+
+
+## What is tabu search?
+###
+Tabu search is a metaheuristic that extends local search.
+
+While searching for better solutions it keeps a short-term memory (the "tabu list") of recently visited solutions or moves and forbids revisiting them for a while.
+
+This prevents the search from cycling between the same few solutions and helps it escape local optima.
+
+It is a classic alternative (or complement) to genetic algorithms and simulated annealing for combinatorial problems.
+#### grok
+#####
+
+
+## What are particle swarm optimization and ant colony optimization?
+###
+Both are population-based metaheuristics like genetic algorithms.
+
+Particle swarm: particles fly through the search space. Each particle has a position and velocity. It is attracted toward its own best position seen so far and toward the global best position found by the swarm. Good for continuous optimization.
+
+Ant colony: artificial ants construct solutions by moving on a graph. They deposit "pheromone" on good paths; future ants prefer paths with more pheromone. Very successful on routing and scheduling problems (TSP, vehicle routing, etc.).
+
+They are other members of the evolutionary / swarm intelligence family of methods.
+#### grok
+#####
+
+
 ## 58. What can we say about a model with 0.997 accuracy on the training set and 0.874 accuracy on the validation set?
 ###
 The large gap between training accuracy (0.997) and validation accuracy (0.874) is a classic sign of overfitting.
@@ -1945,6 +2560,52 @@ Fluctuating cost is normal, healthy behavior when using stochastic or mini-batch
 
 
 
+## What is momentum in gradient descent?
+###
+Momentum is a technique that makes the optimizer remember the previous update direction and continue moving in that general direction, like a ball rolling down a hill with inertia.
+
+Update rule (simplified):
+    velocity = momentum * old_velocity + learning_rate * gradient
+    weights -= velocity
+
+Benefits:
+- Speeds up progress in directions where the gradient is consistently pointing the same way
+- Dampens oscillations in directions where the gradient flips sign a lot
+- Helps escape shallow local minima and saddle points
+
+Most modern optimizers (Adam, RMSprop, etc.) include some form of momentum or adaptive momentum.
+#### grok
+#####
+
+
+## What are learning rate schedules?
+###
+Instead of using a fixed learning rate for the entire training run, you change it according to a schedule.
+
+Common schedules:
+- Step decay: drop the lr by a factor every N epochs
+- Cosine annealing: smoothly go from high to low following a cosine curve
+- Warmup then decay: start low, increase for a few thousand steps, then decay
+- Reduce on plateau: drop lr when validation stops improving
+
+The right schedule often matters as much as the initial learning rate value. Many papers now use very sophisticated schedules.
+#### grok
+#####
+
+
+## What are adaptive methods like Adam?
+###
+Adam (Adaptive Moment Estimation) and similar optimizers (RMSprop, Adagrad, etc.) maintain per-parameter learning rates.
+
+They keep running estimates of the first moment (mean) and second moment (uncentered variance) of the gradients for each weight.
+
+Each weight then gets its own effective step size that is larger for parameters with small or infrequent gradients and smaller for parameters with large or noisy gradients.
+
+This makes training much more robust to the choice of global learning rate and works well across many different problems. Adam is currently the default "go-to" optimizer for most deep learning tasks.
+#### grok
+#####
+
+
 ## 60. Name a clustering algorithm that is able to work with concave data sets.
 ###
 DBSCAN (Density-Based Spatial Clustering of Applications with Noise) can discover clusters of arbitrary shape.
@@ -1977,6 +2638,38 @@ The numbers 0.5 accuracy and 0 Youden's index are the null-model references for 
 #### henrik
 #####
 
+
+
+## What is Youden's index?
+###
+Youden's index (or Youden's J statistic) is a single-number summary of a binary classifier's performance across thresholds.
+
+J = sensitivity + specificity - 1
+   = recall + (true negative rate) - 1
+   = (TP / (TP+FN)) + (TN / (TN+FP)) - 1
+
+It ranges from -1 to +1. 0 means the classifier is no better than random guessing.
+
+It is useful because it explicitly rewards both good detection of positives and good rejection of negatives, and it has a direct interpretation for choosing an operating threshold (the threshold that maximizes J is often a reasonable default).
+#### grok
+#####
+
+
+## What is specificity (true negative rate)?
+###
+Specificity = TN / (TN + FP)
+
+It answers: among all the actual negative examples, what fraction did the model correctly identify as negative?
+
+It is the "recall" but for the negative class.
+
+In medicine: "how good is the test at ruling out the disease when the patient does not have it?"
+
+Together with sensitivity (recall for the positive class) it gives a balanced view. Youden's index is literally sensitivity + specificity - 1.
+
+Many people only look at precision and recall on the positive class; specificity is worth watching when false positives are also costly.
+#### grok
+#####
 
 
 ## 62. What is a decision boundary?
@@ -2062,6 +2755,53 @@ You simply decide "I will try 100 random combinations" and keep the best one acc
 #####
 
 
+## What is Bayesian optimization?
+###
+Bayesian optimization is a smart way to tune hyperparameters (or optimize any expensive black-box function).
+
+Instead of grid search or pure random search it builds a probabilistic surrogate model (usually a Gaussian process or a tree-based model) of how the validation score depends on the hyperparameter settings.
+
+It then uses an "acquisition function" (e.g. Expected Improvement) to decide which point to evaluate next, automatically balancing:
+- Exploration (regions where we are uncertain)
+- Exploitation (regions that look promising)
+
+After each expensive training run it updates the surrogate and picks the next trial. In practice it often finds better configurations with far fewer trials than grid or random search, especially when evaluations are slow (training big models).
+#### grok
+#####
+
+
+## What is an acquisition function in Bayesian optimization?
+###
+In Bayesian optimization the acquisition function is the cheap-to-evaluate function that decides which hyperparameter combination to try next.
+
+It takes into account both:
+- How good the surrogate model thinks that point is (exploitation)
+- How uncertain the surrogate is at that point (exploration)
+
+Popular ones: Expected Improvement (EI), Upper Confidence Bound (UCB), Probability of Improvement.
+
+The acquisition function is what turns the probabilistic surrogate into an actual suggestion for the next expensive experiment (training run).
+#### grok
+#####
+
+
+## What are successive halving and Hyperband?
+###
+Successive halving is a bandit-style hyperparameter search method.
+
+You start many configurations with a small budget (few epochs or small data subset).
+
+After a while you throw away the worst half (or fraction) and give the survivors more budget.
+
+Repeat until only one or a few are left with the full budget.
+
+Hyperband is a more sophisticated version that runs many successive-halving "brackets" with different budgets in parallel to be more robust.
+
+They are much more efficient than random search when the cost of evaluating a configuration varies a lot or when early stopping is possible.
+#### grok
+#####
+
+
 ## 64. What operation must always be performed on a data set before applying principal component analysis?
 ###
 The data must be centered (mean of each feature subtracted) before PCA.
@@ -2080,6 +2820,50 @@ Skipping centering is one of the most common beginner mistakes when applying PCA
 
 
 
+## What is standardization (feature scaling)?
+###
+Standardization transforms a feature so that it has mean 0 and standard deviation 1:
+
+    x_scaled = (x - mean) / std
+
+Why do it before many ML algorithms (especially distance-based, linear models, PCA, neural nets):
+- Features on very different scales would otherwise dominate (a feature in dollars vs. a feature in [0,1])
+- Gradient descent converges faster when features are similarly scaled
+- For PCA it ensures each original dimension contributes according to its correlation structure, not its raw variance
+
+You compute mean and std on the training set only, then apply the same transformation to validation and test (never fit on the whole data).
+#### grok
+#####
+
+
+## What does 'centering' the data mean (for PCA etc.)?
+###
+Centering = subtracting the mean of each feature so that every column has mean exactly zero.
+
+For PCA it is almost always required:
+- Without centering, the first principal component will often just point toward the overall mean vector instead of the direction of maximum variance.
+- After centering, the covariance matrix truly reflects spread around the center.
+
+Many other algorithms (linear regression with intercept, some clustering, etc.) also implicitly or explicitly assume centered data.
+
+In code you usually do both centering and scaling (standardization) together as preprocessing.
+#### grok
+#####
+
+
+## What is the covariance matrix and SVD in the context of PCA?
+###
+After centering (and usually standardizing) the data, the covariance matrix captures how every pair of features varies together.
+
+The eigenvectors of this matrix are the principal components (directions of maximum variance).
+
+Singular Value Decomposition (SVD) is a numerically stable and efficient way to compute the same thing without explicitly forming the covariance matrix (especially useful for very high-dimensional or sparse data).
+
+In practice, libraries (scikit-learn, etc.) use SVD or randomized approximations for large data sets.
+#### grok
+#####
+
+
 ## 65. Explain RMSE vs MAE.
 ###
 RMSE is the square root of the average squared prediction errors; MAE is the average absolute prediction error.
@@ -2095,6 +2879,19 @@ Huber loss and other robust losses attempt to combine the best properties of squ
 #### henrik
 #####
 
+
+
+## What is Huber loss?
+###
+Huber loss is a robust regression loss that is quadratic (like MSE) for small errors and linear (like MAE) for large errors.
+
+It has a hyperparameter δ that controls the transition point.
+
+It gives a nice compromise: differentiable everywhere (or almost), less sensitive to outliers than pure MSE, but still penalizes large errors more than MAE.
+
+Quantile loss is another robust alternative that lets you predict specific percentiles instead of the mean.
+#### grok
+#####
 
 
 ## 66. True or false: ratio data is preferable over interval data?
@@ -2131,6 +2928,56 @@ Systematic diagnosis of the fitness landscape and population statistics is the f
 #####
 
 
+
+
+## What is a fitness landscape?
+###
+The fitness landscape is the (usually imaginary) surface you get when you plot fitness value for every possible candidate solution.
+
+In low dimensions you can visualize it:
+- A nice smooth hill → easy for local search
+- Many peaks and valleys → multimodal, hard
+- Flat plateaus or needle-in-haystack → very difficult
+
+Properties of the landscape (ruggedness, number of local optima, deception, neutrality) largely determine how hard the optimization problem is for a genetic algorithm or any other search method.
+
+When people say a GA is "stuck", they usually mean the population has climbed a mediocre local peak in the fitness landscape.
+#### grok
+#####
+
+
+## What is niching (in genetic algorithms)?
+###
+Niching techniques try to maintain multiple different good solutions in the population instead of letting the whole population converge to one winner.
+
+Common methods:
+- Fitness sharing (individuals that are similar have to "share" the fitness reward)
+- Crowding (new children replace similar individuals rather than the worst overall)
+- Island models / multiple subpopulations with limited migration
+- Explicit speciation
+
+Useful when the problem has multiple distinct good solutions (multimodal landscape) or when you want a diverse set of trade-off solutions instead of one "best".
+#### grok
+#####
+
+
+## What is selection pressure in evolutionary algorithms?
+###
+Selection pressure describes how strongly the algorithm favors the current best individuals when choosing parents.
+
+High selection pressure (e.g. small tournament size, heavy elitism):
+- Fast convergence
+- High risk of premature convergence to a local optimum
+- Loss of diversity
+
+Low selection pressure:
+- Slower progress
+- Maintains more diversity longer
+- May waste time on poor solutions
+
+Good GA practice often starts with lower pressure (to explore) and gradually increases it, or uses explicit diversity preservation mechanisms.
+#### grok
+#####
 
 
 ## 68. True or false: when training a Reinforcement Learning model with continuous action and state space, you should use Q-Learning with a Q-table.
@@ -2184,6 +3031,78 @@ It is neither fully supervised (you don't have the "correct" action for each sta
 #####
 
 
+## What is an actor-critic method?
+###
+Actor-critic is a family of reinforcement learning algorithms that combine two components:
+
+- Actor: the policy (it decides which action to take in a state) — "the actor"
+- Critic: a value function that estimates how good the current policy is (or how good a state/action is) — "the critic"
+
+The critic gives the actor a learning signal (e.g. the advantage: "this action was better or worse than expected").
+
+Modern algorithms such as A2C, A3C, PPO, SAC, DDPG, TD3 are all actor-critic methods (or close relatives). They generally work much better than pure policy gradients or pure Q-learning on continuous control tasks.
+#### grok
+#####
+
+
+## What are policy gradient methods?
+###
+Policy gradient methods directly optimize the policy (the mapping from states to action probabilities or actions) by following the gradient of expected reward.
+
+Instead of learning a value function and then deriving a policy (like Q-learning), you parameterize the policy itself (usually a neural net) and use the REINFORCE trick or more advanced estimators (with a baseline/critic) to get an unbiased gradient estimate.
+
+REINFORCE + many improvements = the foundation of most modern deep RL for games and continuous control (PPO is currently one of the most popular).
+
+They are "on-policy" by nature (you need fresh samples from the current policy) and can suffer from high variance, which is why people combine them with critics and various variance-reduction tricks.
+#### grok
+#####
+
+
+## What is function approximation in reinforcement learning?
+###
+Function approximation means using a model (almost always a neural network today) to represent the value function or policy instead of a giant lookup table.
+
+Tabular Q-learning / tabular DP only works when the number of states × actions is small (a few thousand at most).
+
+For Atari (image states), robotics (continuous states), or any real problem you must approximate:
+- Q(s,a) ≈ neural_net(s, a)
+- or the policy π(a|s) ≈ neural_net(s)
+
+This is what "deep" reinforcement learning (DQN, DDPG, PPO, etc.) means: RL + neural function approximators.
+
+It introduces all the usual headaches of deep learning (non-stationarity, deadly triad, overfitting to recent experience, etc.) but makes RL applicable to interesting problems.
+#### grok
+#####
+
+
+## What is a Deep Q-Network (DQN)?
+###
+DQN = Deep Q-Network = using a neural network to approximate the Q-function in Q-learning, plus several tricks that made it stable:
+
+- Experience replay buffer (store past transitions and sample randomly)
+- Target network (slowly updated copy of the Q-net used for the max target)
+- Sometimes double DQN, dueling DQN, prioritized replay, etc.
+
+DQN (and its descendants) was the algorithm that first learned to play Atari games at super-human level from raw pixels.
+
+For continuous action spaces pure DQN doesn't work (you can't do argmax over a continuous action); that's why actor-critic and policy gradient methods are used instead.
+#### grok
+#####
+
+
+## What does 'discretization' mean in the context of continuous RL?
+###
+When you have continuous state or action spaces but want to use a method that only works with discrete spaces (like classic tabular Q-learning), you have to discretize: chop the continuous range into a finite number of bins.
+
+Example: instead of any steering angle in [-30°, +30°], you only allow -30, -15, 0, +15, +30.
+
+This almost always loses information and performs worse than methods designed for continuous spaces (actor-critic, policy gradients, DDPG, SAC, etc.).
+
+The Q68 answer points out that forcing discretization just to use a Q-table is usually a bad idea.
+#### grok
+#####
+
+
 ## 69. True or false: a problem must be falsifiable to be a scientific question.
 ###
 True. This is a central tenet of Karl Popper's philosophy of science.
@@ -2202,6 +3121,21 @@ The statement is a direct expression of Popper's demarcation criterion between s
 
 
 
+## What does 'falsifiability' mean (in science / ML research)?
+###
+A claim or hypothesis is falsifiable if there exists some conceivable observation or experiment that could prove it wrong.
+
+This is Karl Popper's famous demarcation criterion between science and non-science:
+- "All swans are white" is falsifiable (show me one black swan).
+- "There exists an invisible dragon in my garage that is undetectable" is not falsifiable.
+
+In machine learning research, a paper should make claims that can be tested and potentially refuted by others (new data sets, different hyper-parameters, ablation studies, etc.).
+
+If a claim cannot possibly be shown to be wrong no matter what experiment you run, it is not scientific.
+#### grok
+#####
+
+
 ## 70. Explain how the null-hypothesis relates to a hypothesis.
 ###
 The null hypothesis (H0) is the default or "no effect" statement that the researcher seeks to challenge.
@@ -2217,6 +3151,58 @@ Every inferential test therefore begins by clearly stating both the null and the
 #### henrik
 #####
 
+
+
+## What is the null hypothesis?
+###
+The null hypothesis (H0) is the "no effect / status quo / nothing interesting" statement that you try to disprove with data.
+
+Typical nulls in ML / statistics:
+- "This new model has the same true accuracy as the baseline"
+- "Feature X has zero coefficient in the population regression"
+- "The two populations have the same mean"
+- "There is no correlation between these two variables"
+
+You never "accept" the null; you either reject it (at your chosen significance level) or "fail to reject it" (data was not extreme enough).
+
+This asymmetry is the source of endless confusion with p-values.
+#### grok
+#####
+
+
+## What is a p-value?
+###
+A p-value is the probability, under the assumption that the null hypothesis is true, of obtaining results at least as extreme as the ones you actually observed (or more extreme).
+
+If p is very small (e.g. < 0.05), the data are unlikely under H0, so you have evidence against H0.
+
+Important misconceptions:
+- p is NOT the probability that H0 is true
+- p is NOT the probability that your result is due to chance
+- A non-significant p does not prove H0 is true
+- p does not tell you the size of the effect (use effect sizes + confidence intervals instead)
+
+In ML papers you will see p-values when comparing models, feature importance, ablation studies, etc.
+#### grok
+#####
+
+
+## What is hypothesis testing?
+###
+Hypothesis testing is the formal procedure for deciding whether the data provide enough evidence to reject a null hypothesis.
+
+Steps (simplified):
+1. State H0 and H1 clearly
+2. Choose a significance level α (e.g. 0.05)
+3. Choose a test statistic and its sampling distribution under H0
+4. Compute the p-value from your data
+5. If p < α, reject H0 (result is "statistically significant")
+
+In ML practice we do a lot of informal "is model A better than model B on this test set?" testing. When done rigorously it becomes statistical hypothesis testing (paired t-test, McNemar test, bootstrap confidence intervals, etc.).
+
+Always remember: statistical significance ≠ practical importance.
+#### grok
+#####
 
 
 ## 71. Which of these are more sensitive to outliers: MSE or MAE.
@@ -2273,6 +3259,50 @@ You can divide the logits by a "temperature" T before applying softmax to make t
 #####
 
 
+## What are logits (again, in multi-class context)?
+###
+Same idea as before: the raw scores coming out of the last linear layer.
+
+For multi-class you have one logit per class.
+
+Softmax then turns the vector of logits into a probability distribution.
+
+Many implementations compute cross-entropy loss directly on the logits (numerically more stable than going through the probabilities).
+#### grok
+#####
+
+
+## What is the temperature parameter in softmax?
+###
+You can divide the logits by a temperature T before applying softmax:
+
+    softmax(z / T)
+
+T > 1 → softer distribution (more uniform, more uncertainty)
+T < 1 → sharper distribution (more peaky, more confident on the max)
+T = 1 → normal softmax
+
+It is used for:
+- Knowledge distillation (train a small model to mimic a large model's soft outputs)
+- Controlling exploration in RL
+- Making generated text more or less random in language models
+#### grok
+#####
+
+
+## What is the 'winner-take-most' effect?
+###
+Because softmax uses exp(), a logit that is only a little bit higher than the others gets exponentially more probability mass.
+
+Example: logits [2.0, 1.0, 0.0] after softmax are roughly [0.67, 0.24, 0.09].
+
+A small difference in the raw scores is amplified into a large difference in the output probabilities.
+
+This is useful when you want a clear "this is the answer" but can be undesirable if you want well-calibrated uncertainty.
+#### grok
+#####
+
+
 ## 73. You want to design a deep neural network for a Genetic Algorithm to play the classic 8-bit game Lunar Lander. The State space is defined as follows: S = {x, y, vx, vy} for x-position, y-position, x-velocity, and y-velocity, respectively. All state space variables are relative to the center of the landing platform. The Action space is defined as follows: A = {tmain, tleft, tright} for main-thruster, left-thruster, and right-thruster, respectively. How would you design the deep neural network?
 ###
 The network is a policy network that maps the 4-dimensional continuous state to action probabilities or Q-values.
@@ -2293,4 +3323,91 @@ The overall design is a small multi-layer perceptron whose weights are the genom
 
 //// henrik
 officiell spoergsmaal fra henrik
+
+## What is a policy network?
+###
+A policy network is a neural network that directly outputs actions (or a probability distribution over actions) given the current state.
+
+Input: current observation / state (e.g. 4 numbers for Lunar Lander position+velocity, or an image)
+Output: action logits/probabilities (for discrete actions) or action values (for continuous control)
+
+It represents the agent's "brain": the thing that decides what to do.
+
+In genetic algorithms you can evolve the weights of the policy network directly.
+In deep RL you train it with policy gradients or actor-critic methods.
+
+This is in contrast to value-based methods that learn "how good is this state/action" and then pick the best action by looking at the values.
+#### grok
+#####
+
+
+## What is the state space (in RL / control)?
+###
+The state space is the set of all possible states the environment can be in.
+
+For the Lunar Lander example in the question:
+S = {x, y, vx, vy}   (4 continuous real numbers)
+
+Other examples:
+- Chess: all legal board positions (discrete, huge)
+- Atari Pong: the raw pixels (or RAM state)
+- Robot arm: joint angles + velocities + maybe camera image (continuous + high dimensional)
+
+The size and structure of the state space largely determine which RL algorithms are feasible (tabular methods only work for tiny discrete spaces; everything interesting needs function approximation).
+#### grok
+#####
+
+
+## What is the action space?
+###
+The action space is the set of all possible actions the agent can take.
+
+Discrete action space (as in the Lunar Lander question):
+A = {main thruster, left thruster, right thruster}   — 3 distinct choices
+
+Continuous action space:
+- Robot joint torques (real numbers in some range)
+- Steering angle + acceleration for a car
+- Stock buy/sell quantities
+
+The nature of the action space dictates the algorithm:
+- Small discrete → tabular Q-learning or DQN possible
+- Continuous or large discrete → policy gradients, actor-critic, DDPG, SAC, PPO, etc.
+- Hybrid or structured actions → more specialized methods
+
+In the policy network you design the output layer to match the action space (softmax for discrete, linear or squashed Gaussian for continuous).
+#### grok
+#####
+
+
+## What is a feed-forward network / multi-layer perceptron (MLP)?
+###
+A feed-forward network (also called a multi-layer perceptron or MLP) is the simplest kind of neural network: information flows in one direction only, from input layer through hidden layers to the output. No loops or recurrence.
+
+Each layer is usually "fully connected" (dense): every unit in layer L is connected to every unit in layer L+1.
+
+In the Q73 answer the policy network for Lunar Lander is a small MLP:
+- 4 inputs (state)
+- a couple of hidden layers (e.g. 64 or 128 units each with ReLU/tanh)
+- 3 outputs (one per discrete action)
+
+Even this tiny network can represent a good policy for the game when its weights are optimized by the genetic algorithm.
+#### grok
+#####
+
+
+## What does it mean that 'the weights are the genome'?
+###
+In neuroevolution (using a genetic algorithm to train a neural net), the "individual" in the population is usually the set of all the network's weights (and biases).
+
+The genotype = the flattened vector of numbers that the GA's crossover and mutation operators manipulate.
+
+The phenotype = the actual neural network you get when you load those numbers as weights and run it on the game.
+
+Fitness = how well that network plays the game (average reward over episodes).
+
+This is exactly what the Q73 question is asking you to design: a small MLP whose weights will be evolved by the GA.
+#### grok
+#####
+
 
