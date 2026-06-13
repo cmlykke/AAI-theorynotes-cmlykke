@@ -407,6 +407,84 @@ Without a non-linear activation the whole deep network would mathematically redu
 
 
 
+## What is the universal approximation theorem?
+###
+The universal approximation theorem is a fundamental result in neural network theory.
+
+It says (roughly): a neural network with just one hidden layer and enough neurons, using a suitable non-linear activation, can approximate *any* continuous function to any desired accuracy.
+
+In practice this means that in theory, neural nets are extremely powerful function approximators — they are not limited to simple patterns.
+
+Important caveats (why we still need deep networks):
+- "Enough neurons" can be astronomically large for one hidden layer.
+- Deep networks (many layers) are much more efficient in practice — they need far fewer total parameters to achieve the same power.
+- The theorem assumes infinite data and perfect training, which we never have.
+
+This is why "non-linear activation" is non-negotiable: without it the whole network collapses to a linear model no matter how many layers or neurons you have.
+#### grok
+#####
+
+
+## What is a bounded vs unbounded activation function?
+###
+A bounded activation squashes its output into a fixed limited range, no matter how large the input.
+
+Examples:
+- sigmoid: always outputs something in (0, 1)
+- tanh: always in (-1, 1)
+
+An unbounded activation can produce arbitrarily large positive or negative outputs.
+
+Example:
+- ReLU = max(0, x) → can output 1000, 10000, etc. if the input is large.
+
+Why it matters:
+- Bounded activations (like sigmoid) tend to saturate (gradients → 0) for large inputs → vanishing gradient problems in deep nets.
+- Unbounded activations like ReLU scale better to many layers because the signal doesn't get artificially capped.
+- Modern deep networks almost always prefer unbounded or "mostly unbounded" activations (ReLU, GELU, Swish, etc.) in hidden layers.
+#### grok
+#####
+
+
+## What does 'zero-centered' mean for an activation function?
+###
+An activation is zero-centered (or approximately zero-centered) if its outputs are balanced around zero — roughly half positive, half negative on average, or the mean output is near 0.
+
+Examples:
+- tanh outputs (-1, +1) and is zero-centered.
+- sigmoid outputs (0, 1) — always positive → not zero-centered.
+- ReLU outputs [0, +∞) — never negative → not zero-centered.
+
+Why practitioners care:
+- Zero-centered activations often lead to faster and more stable training because gradients and updates don't have a systematic positive or negative bias.
+- This is one reason tanh was historically preferred over sigmoid for hidden layers (even though both can still saturate).
+- Modern activations like SELU are specifically designed to be self-normalizing and keep activations near zero mean and unit variance across layers.
+#### grok
+#####
+
+
+## What is a piecewise linear activation function?
+###
+A piecewise linear function is defined by different linear pieces in different regions.
+
+ReLU is the classic example:
+- for x < 0: output = 0 (flat line)
+- for x >= 0: output = x (line with slope 1)
+
+It is "linear" in each piece but the overall function is non-linear because of the kink at 0.
+
+Advantages:
+- Very fast to compute (just a max or if-statement)
+- Gradient is exactly 0 or 1 almost everywhere → easy for backprop
+- Empirically works extremely well even though it is only piecewise linear.
+
+Other examples: Leaky ReLU, PReLU, and even the "hard" versions of tanh/sigmoid used in some efficient models.
+
+The universal approximation theorem still holds for many piecewise linear activations.
+#### grok
+#####
+
+
 ## 7. Can a latent space be interpreted directly? Why or why not?
 ###
 Latent space in models such as auto-encoders or VAEs is usually a compressed lower-dimensional representation.
@@ -455,6 +533,111 @@ Misclassifying data type can lead to invalid operations such as averaging ordina
 #### henrik
 #####
 
+
+
+## What is nominal data?
+###
+Nominal data is the most basic categorical type.
+
+The values are just names or labels with no inherent order or numeric meaning.
+
+Examples:
+- Favorite color (red, blue, green)
+- Country of birth
+- Customer ID, jersey number, blood type
+
+You can count frequencies and compute the mode, but you cannot meaningfully add, subtract, or rank them.
+
+Common mistake: treating nominal data as numbers (e.g. averaging jersey numbers).
+
+In ML we usually one-hot encode or use embeddings for nominal features.
+#### grok
+#####
+
+
+## What is ordinal data?
+###
+Ordinal data has a natural order or ranking, but the differences between ranks are not necessarily equal or meaningful.
+
+Examples:
+- Olympic medals (gold > silver > bronze)
+- Education level (high school < bachelor's < master's < PhD)
+- Customer satisfaction (1-5 stars)
+- Movie ratings
+
+You can say "higher is better" and compute median or percentiles, but you should not treat the numeric difference between 1 and 2 as the same as between 4 and 5.
+
+In decision trees you can often use ordinal data directly; in linear models or neural nets you usually need to decide between treating it as numeric or as nominal (one-hot).
+#### grok
+#####
+
+
+## What is interval data?
+###
+Interval data has equal intervals between values and you can add/subtract meaningfully, but there is no true absolute zero.
+
+Classic example: temperature in Celsius or Fahrenheit.
+
+- The difference between 10°C and 20°C is the same as between 20°C and 30°C (equal intervals).
+- But you cannot say "20°C is twice as hot as 10°C" because 0°C does not mean "no temperature".
+
+You can compute mean, standard deviation, and use many parametric statistics, but ratios are meaningless.
+
+In ML you can usually treat interval data as numeric (after possible scaling).
+#### grok
+#####
+
+
+## What is ratio data?
+###
+Ratio data is the highest level: it has a true absolute zero, equal intervals, and meaningful ratios.
+
+Examples:
+- Height, weight, age, income, counts, length, time durations
+- Monetary value (as in the Q8 question)
+- Accuracy as a proportion (0 to 1)
+
+Because of the true zero:
+- You can say "twice as tall", "three times the income", "zero income means no money".
+- All arithmetic operations (+, -, *, /) are valid.
+- You can compute geometric means, coefficients of variation, etc.
+
+In ML ratio data is usually the easiest to work with directly as numeric features.
+#### grok
+#####
+
+
+## What is one-hot encoding?
+###
+One-hot encoding is the standard way to turn a nominal (or sometimes ordinal) categorical variable into numeric features that most ML algorithms can use.
+
+For a feature with k categories, you create k new binary (0/1) columns.
+
+Example: Color with values {red, blue, green}
+- red   → [1, 0, 0]
+- blue  → [0, 1, 0]
+- green → [0, 0, 1]
+
+This avoids the model assuming any order or numeric distance between categories (which would be wrong for nominal data).
+
+Downsides: can explode the number of features if a column has hundreds of categories (high cardinality). In that case we often use embeddings or target encoding instead.
+#### grok
+#####
+
+
+## What is ordinal encoding?
+###
+Ordinal encoding turns an ordinal categorical variable into a single integer column that respects the natural order.
+
+Example: Education = {high school, bachelor's, master's, PhD} → 0,1,2,3
+
+This is more compact than one-hot and tells the model that higher numbers are "greater" than lower ones.
+
+It is only appropriate when the ordering is meaningful and the numeric steps are roughly comparable (which is rarely perfectly true).
+
+Many tree-based models handle ordinal encoding well; linear models and neural nets may still benefit from one-hot or learned embeddings depending on the situation.
+#### grok
+#####
 
 
 ## 9. Why do we want generalized models rather than perfectly fit models?
@@ -653,6 +836,53 @@ Always investigate possible confounding factors and alternative explanations bef
 
 
 
+## What is a confounding variable?
+###
+A confounder is a hidden third variable that affects both the variable you think is the cause and the one you think is the effect.
+
+Classic example from the answer: ice cream sales and drowning incidents are both caused by hot weather (the confounder). Ice cream does not cause drowning.
+
+If you don't measure or control for the confounder, you will see a strong correlation and may wrongly conclude causation.
+
+In ML this is dangerous when you use observational data (not from randomized experiments) to make decisions or claims about "what causes what".
+
+Techniques to handle it: randomized controlled trials, instrumental variables, causal graphical models (DAGs), matching, or at minimum careful domain knowledge and sensitivity analysis.
+#### grok
+#####
+
+
+## What is a spurious correlation?
+###
+A spurious correlation is a statistical association between two variables that is not causal — it appears by chance, because of a confounder, or because both are driven by a common trend (e.g. time).
+
+With large data sets it is very easy to find impressive-looking correlations that are completely meaningless.
+
+Famous examples:
+- Number of people who drowned by falling into a pool correlates with films Nicolas Cage appeared in.
+- Per capita cheese consumption correlates with number of people who die by becoming tangled in their bedsheets.
+
+The Q13 answer emphasizes that you need more than correlation (controlled experiments, ruling out confounders, temporal precedence, etc.) before claiming causation.
+#### grok
+#####
+
+
+## What is causal inference (or causal graphical models)?
+###
+Causal inference is the field that tries to answer "what happens if we intervene and change X?" rather than just "what is associated with X?"
+
+It goes beyond traditional ML prediction.
+
+Tools include:
+- Randomized controlled trials (the gold standard)
+- Instrumental variables
+- Propensity score matching
+- Causal graphical models (directed acyclic graphs / DAGs) that explicitly model which variables cause which others and help identify which variables you must control for.
+
+In modern ML there is growing interest in "causal ML" because pure predictive models can fail badly when the world changes (distribution shift) or when you want to know the effect of an action (e.g. "what if we show this ad?").
+#### grok
+#####
+
+
 ## 14. When would you use a Random Forest model rather than a deep neural network?
 ###
 Random Forests are preferable when the data set is small to medium and tabular with mixed feature types.
@@ -715,6 +945,52 @@ In short, difficult discrete or black-box optimization problems with no obvious 
 #### henrik
 #####
 
+
+
+## What is combinatorial optimization?
+###
+Combinatorial optimization is the problem of finding the best combination or arrangement from a (usually huge) discrete set of possibilities.
+
+Classic examples:
+- Traveling Salesman Problem (best order to visit cities)
+- Job-shop scheduling (best assignment of jobs to machines over time)
+- Feature selection (which subset of features to use)
+- Designing neural network architectures (which layers, connections, hyperparameters)
+
+The search space is discrete and combinatorial, so you cannot just follow a gradient downhill — there is no smooth "direction".
+
+This is exactly why genetic algorithms, simulated annealing, and other metaheuristics are often used: they are good at exploring huge discrete spaces without gradients.
+#### grok
+#####
+
+
+## What is black-box optimization?
+###
+Black-box optimization means you can evaluate how good a candidate solution is (the "objective" or "fitness"), but you have no access to the internal workings, gradients, or mathematical structure of the problem.
+
+You can only ask "what is the score for this input?" and get a number back.
+
+Many real-world problems are black-box:
+- Tuning a complex simulator
+- Optimizing a neural network architecture when you can only train and test it
+- Engineering design where each candidate requires an expensive physical test or simulation
+
+Genetic algorithms, Bayesian optimization, and evolutionary strategies are popular for black-box problems because they only need the ability to evaluate candidates, not derivatives.
+#### grok
+#####
+
+
+## What does 'multimodal' mean for an objective function?
+###
+A multimodal function has multiple local optima (peaks or valleys).
+
+In a multimodal landscape a simple gradient-based method can easily get stuck in a good-but-not-best local optimum.
+
+Genetic algorithms and other population-based methods are attractive for multimodal problems because the population can explore several different basins at the same time, and crossover/mutation can help jump between them.
+
+The Q15 answer lists "multimodal" as one of the characteristics that makes a problem suitable for GAs.
+#### grok
+#####
 
 
 ## 16. What is Gradient Descent, and how does it work?
@@ -819,6 +1095,50 @@ The architecture is symmetric: the decoder is often a mirror image of the encode
 
 
 
+## What is the bottleneck layer in an autoencoder?
+###
+The bottleneck (or latent layer) is the narrow middle layer in the autoencoder architecture.
+
+It has far fewer units than the input and output layers.
+
+Because the network must squeeze all the information through this small layer to reconstruct the input, the bottleneck forces the model to discover and keep only the most important, compressed representation of the data (the "essence").
+
+This is what gives autoencoders their power for dimensionality reduction, feature learning, and anomaly detection (anomalies usually cannot be reconstructed well through the bottleneck).
+#### grok
+#####
+
+
+## What is a denoising autoencoder?
+###
+A denoising autoencoder is trained to reconstruct the original clean input from a corrupted/noisy version of it.
+
+During training you artificially add noise (masking, Gaussian noise, etc.) to the input, but the target is still the original clean data.
+
+This forces the model to learn robust, useful features instead of just memorizing the exact input.
+
+It is a popular variant for learning features from images, text, or sensor data that are naturally noisy.
+#### grok
+#####
+
+
+## What is a Variational Autoencoder (VAE)?
+###
+A VAE is a probabilistic version of an autoencoder.
+
+Instead of learning a single point in latent space for each input, the encoder outputs the parameters of a probability distribution (usually mean and variance of a Gaussian).
+
+You then sample a latent vector from that distribution and decode it.
+
+Key advantages over a normal autoencoder:
+- The latent space is continuous and structured (you can sample new realistic points and interpolate smoothly).
+- It has a nice regularization term (KL divergence) that prevents the latent space from being arbitrary.
+- It can be used as a generative model.
+
+VAEs are one of the foundational models in deep generative modeling (alongside GANs and later diffusion models).
+#### grok
+#####
+
+
 ## 18. What kind of nodes can we find in a Decision Tree model?
 ###
 A decision tree contains internal (split) nodes and leaf (terminal) nodes.
@@ -903,6 +1223,51 @@ Domain-specific costs should guide which metric is optimized and reported as the
 
 
 
+## What is true positive rate (TPR) vs false positive rate (FPR)?
+###
+True Positive Rate (also called recall or sensitivity) = TP / (TP + FN)
+   How many of the actual positives did we catch?
+
+False Positive Rate = FP / (FP + TN)
+   How many of the actual negatives did we wrongly flag as positive?
+
+When you vary the decision threshold of a classifier you trace out the ROC curve by plotting TPR against FPR.
+
+A good model reaches high TPR while keeping FPR low.
+
+The area under that curve is ROC-AUC.
+#### grok
+#####
+
+
+## What is specificity?
+###
+Specificity (true negative rate) = TN / (TN + FP)
+
+It is the recall but for the negative class: of all the true negatives, what fraction did the model correctly identify as negative?
+
+It is especially important in domains where false positives are costly (e.g. medical tests that lead to unnecessary invasive procedures, spam filters that delete important mail).
+
+Youden's index = sensitivity + specificity - 1 is one way to summarize both.
+#### grok
+#####
+
+
+## What are macro and weighted averages for multi-class metrics?
+###
+When you have more than two classes, you usually compute precision, recall, F1 etc. per class, then aggregate.
+
+Macro average: treat every class equally — compute the metric for each class, then take the simple arithmetic mean.
+
+Weighted average: weight each class by its support (number of true examples of that class). This is better when classes are imbalanced and you care more about performance on frequent classes.
+
+Micro average is another option (aggregate the counts globally before computing the metric).
+
+The Q20 answer recommends reporting these, plus looking at the confusion matrix, and letting domain costs decide the primary metric.
+#### grok
+#####
+
+
 ## 21. What performance metrics are relevant when working with regression problems?
 ###
 Mean Absolute Error (MAE) is the average absolute deviation between predictions and true values.
@@ -963,6 +1328,17 @@ However, their main practical advantage appears when the target function is inde
 #### henrik
 #####
 
+
+
+## What does 'universal approximation theorem' say again in this context?
+###
+It guarantees that sufficiently large neural networks (with non-linear activations) can represent essentially any continuous function.
+
+The Q22 answer uses it to point out that deep networks are *general* function approximators — they can do linear things too when that is optimal, but their real strength is the ability to also capture highly non-linear relationships.
+
+Linear models are special cases that the network can learn (e.g. by using linear activations or skip connections), but in practice we use DNNs when the target function is complex and non-linear.
+#### grok
+#####
 
 
 ## 23. What is the purpose of mutation in Genetic Algorithms?
@@ -1140,6 +1516,35 @@ It is the most fundamental diagnostic tool before any scalar metric is computed 
 
 
 
+## What does 'support' mean in a confusion matrix or classification report?
+###
+Support = the number of true examples of each class in the data set you are evaluating on.
+
+In the rows of a multi-class confusion matrix, the row sums are the supports.
+
+It is important because:
+- It tells you how much each class contributes to the overall numbers.
+- It is used to compute weighted averages.
+- Classes with very low support are hard to estimate reliably.
+
+Most classification reports print support next to precision/recall/F1 for each class.
+#### grok
+#####
+
+
+## What is a normalized confusion matrix?
+###
+A raw confusion matrix shows counts.
+
+A normalized version divides each row (or sometimes column) by the total so that the numbers become proportions (0 to 1) or percentages.
+
+Row-normalized: shows, for each true class, what fraction of its examples were predicted as each possible class. This is very useful when class sizes differ a lot.
+
+It makes the error patterns easier to see visually (often shown as a heatmap).
+#### grok
+#####
+
+
 ## 28. True or false: When doing correlational analysis on parametric data, we should use Pearson’s r rather than Spearman’s rho?
 ###
 True, provided the data satisfy the assumptions required by Pearson's correlation.
@@ -1222,6 +1627,23 @@ Understanding the category prevents nonsensical operations such as averaging jer
 
 
 
+## What is the difference between qualitative and quantitative data?
+###
+Qualitative (categorical) data describes qualities or categories. You can count and group, but arithmetic usually doesn't make sense.
+
+Quantitative (numerical) data describes quantities that have numeric meaning. You can do math on them.
+
+The four classic levels (nominal, ordinal, interval, ratio) split into these two big groups:
+- Qualitative: nominal + ordinal
+- Quantitative: interval + ratio
+
+In ML:
+- Qualitative data usually needs encoding (one-hot, ordinal, embeddings, etc.).
+- Quantitative data can often be used more directly but still often benefits from scaling.
+#### grok
+#####
+
+
 ## 31. In an article, what is the purpose of the method section?
 ###
 The method section describes exactly how the study was conducted so that others can evaluate and replicate it.
@@ -1237,6 +1659,23 @@ It bridges the introduction (why) and the results (what was found) by explaining
 #### henrik
 #####
 
+
+
+## What is reproducibility in machine learning research?
+###
+Reproducibility means that someone else (or you in the future) can take the description in the paper and obtain the same (or very similar) results.
+
+In the method section you must give enough detail on:
+- Data collection and preprocessing
+- Exact model architecture
+- Hyper-parameter values and how they were chosen
+- Optimization details, random seeds if used
+- Hardware and software versions
+- Evaluation protocol
+
+Without this, papers are often impossible to replicate. The Q31 answer notes that insufficient methodological detail is a top reason for rejection or failed replications.
+#### grok
+#####
 
 
 ## 32. What makes good references for an article?
@@ -1701,6 +2140,33 @@ Good modeling is therefore the art of being wrong in ways that are still useful 
 
 
 
+## What does 'out-of-distribution' (OOD) mean?
+###
+Out-of-distribution data is input that comes from a different distribution than the training data.
+
+The model never saw anything like it during training.
+
+Even the best models can fail dramatically on OOD inputs (e.g. a self-driving car model trained on clear daytime roads suddenly seeing heavy snow or a weird new vehicle type).
+
+This is why "even the best deep networks are still wrong in subtle ways on out-of-distribution or edge-case inputs" (from the Q40 answer). Good modeling includes thinking about what the model will see in deployment and whether it will be OOD.
+#### grok
+#####
+
+
+## What is an edge case?
+###
+An edge case is a rare or extreme situation at the boundary of what the system is designed for.
+
+In ML:
+- Very unusual images (adversarial examples, weird lighting, rare objects)
+- Patients with extremely rare combinations of conditions
+- Financial market crashes or black-swan events
+
+The Q40 aphorism ("all good models are wrong") reminds us that even excellent models will still make mistakes on edge cases and OOD data, so we should remain humble and design for that reality.
+#### grok
+#####
+
+
 ## 41. What is the difference between descriptive and inferential statistics?
 ###
 Descriptive statistics summarize and describe the main features of a collected data set.
@@ -1747,6 +2213,83 @@ Core tools:
 Because you only see a sample, every inferential claim carries uncertainty. You have to make assumptions about how the sample was drawn and what the population looks like.
 
 In ML, when you report "we expect 87% accuracy on future customers", you are doing inferential statistics (using your test set as the sample).
+#### grok
+#####
+
+
+## What is exploratory data analysis (EDA)?
+###
+EDA is the process of looking at your data with summary statistics, visualizations, and simple queries *before* you start heavy modeling.
+
+Goals:
+- Understand distributions, outliers, missing values, correlations
+- Spot data quality problems
+- Generate hypotheses
+- Decide on preprocessing and feature engineering
+- Choose appropriate models and metrics
+
+In the Q41 answer it is listed as one of the main uses of descriptive statistics in machine learning.
+#### grok
+#####
+
+
+## What is feature engineering?
+###
+Feature engineering is the art of creating new input features from the raw data that make the learning problem easier for the model.
+
+Examples:
+- Extracting day-of-week, is-weekend, time-since-last-purchase from a timestamp
+- Creating interaction terms (age × income)
+- Text → TF-IDF, embeddings, or counts of specific patterns
+- Image → edges, textures, or pre-trained CNN features
+
+Good features can be more important than the choice of algorithm. Modern deep learning does a lot of this automatically, but for tabular data and many production systems, manual or domain-specific feature engineering is still crucial.
+#### grok
+#####
+
+
+## What is a p-value?
+###
+A p-value is the probability of seeing data at least as extreme as what you observed, *assuming the null hypothesis is true*.
+
+It is **not** the probability that the null hypothesis is true, and it is **not** the probability that your result is due to chance.
+
+Small p-value (conventionally < 0.05) is evidence against the null hypothesis.
+
+In machine learning you see p-values when comparing two models, testing whether a feature is useful, or in A/B test analysis.
+
+The Q41 answer lists hypothesis testing, confidence intervals, and p-values as core tools of inferential statistics.
+#### grok
+#####
+
+
+## What is a confidence interval?
+###
+A confidence interval is a range of plausible values for an unknown population parameter (e.g. true accuracy, true difference between two models), computed from sample data.
+
+Example: "Our model's accuracy on future data is 87% with 95% confidence interval [84%, 90%]."
+
+It quantifies uncertainty.
+
+If you repeated the experiment many times, 95% of such intervals would contain the true value (frequentist interpretation).
+
+In ML we use confidence intervals or credible intervals (Bayesian) when we want to report not just a point estimate but how sure we are.
+#### grok
+#####
+
+
+## What is hypothesis testing (in the ML context)?
+###
+Hypothesis testing is the formal procedure for deciding whether the data provide enough evidence against a null hypothesis (usually "no difference" or "no effect").
+
+In ML papers and production:
+- Is model A significantly better than model B?
+- Is this feature useful?
+- Did the A/B test show a real lift?
+
+You state a null, choose a significance level (alpha), compute a test statistic or p-value, and decide whether to reject the null.
+
+The Q41 answer stresses that descriptive statistics describe what you have, while inferential statistics (including hypothesis testing) let you make claims about the future or a larger population — with uncertainty attached.
 #### grok
 #####
 
@@ -2104,6 +2647,91 @@ PCA remains one of the simplest, fastest, and most interpretable unsupervised di
 
 
 
+## What are 'loadings' in PCA?
+###
+In PCA, the loadings (or principal component loadings) are the coefficients that show how much each original feature contributes to each principal component.
+
+They are the elements of the eigenvectors.
+
+Looking at the loadings of the first few components tells you which original variables are driving the main directions of variance in your data.
+
+This is very useful for interpretation and for understanding which features are redundant or important.
+#### grok
+#####
+
+
+## What is multicollinearity?
+###
+Multicollinearity happens when two or more features are highly correlated with each other.
+
+It makes it hard for linear models to estimate the individual effect of each feature (coefficients become unstable and have high variance).
+
+PCA is one way to remove multicollinearity because the principal components are orthogonal (uncorrelated) by construction.
+
+Other remedies: remove one of the correlated features, use ridge regression (L2), or use PLS (partial least squares).
+#### grok
+#####
+
+
+## What is Kernel PCA?
+###
+Kernel PCA is a non-linear extension of normal (linear) PCA.
+
+It uses the "kernel trick" to implicitly map the data into a higher-dimensional space where the data may be linearly separable or have better structure, then performs PCA in that space.
+
+This allows it to capture non-linear manifolds that regular PCA would miss.
+
+It is more expensive (you usually need to choose a kernel and its parameters) but can give much better dimensionality reduction or visualization for data that lies on curved surfaces.
+#### grok
+#####
+
+
+## What are loadings in PCA?
+###
+The loadings are the weights/coefficients that tell you how much each original feature contributes to each principal component.
+
+They come from the eigenvectors of the covariance matrix (or from the SVD).
+
+If the first principal component has a very high loading on "income" and "age", you know those two original variables are the main drivers of the biggest direction of variance in your data.
+
+Loadings are extremely useful for interpreting what the new PCA dimensions actually mean in terms of your original variables.
+#### grok
+#####
+
+
+## What is multicollinearity?
+###
+Multicollinearity occurs when two or more of your input features are highly linearly correlated with each other.
+
+Consequences for linear models:
+- Coefficient estimates become unstable (small changes in data → big changes in coefficients)
+- It becomes hard to interpret the individual effect of each feature
+- Variance of the estimates is inflated
+
+PCA is one elegant way to remove multicollinearity because the resulting principal components are orthogonal (uncorrelated) by construction.
+
+Other common fixes: drop one of the correlated features, use ridge regression (L2 regularization), or partial least squares (PLS).
+#### grok
+#####
+
+
+## What is Kernel PCA?
+###
+Kernel PCA is the non-linear generalization of ordinary PCA.
+
+Ordinary PCA can only find linear directions of maximum variance.
+
+Kernel PCA uses a kernel function (RBF, polynomial, etc.) to implicitly map the data into a much higher-dimensional space where the structure may become linear, then runs PCA there.
+
+Result: it can discover and project onto non-linear manifolds.
+
+It is useful for visualization and dimensionality reduction when your data lies on a curved surface (e.g. a Swiss roll or a circle) rather than a flat linear subspace.
+
+Downside: you have to choose a kernel and its parameters, and it is more computationally expensive than linear PCA.
+#### grok
+#####
+
+
 ## 49. What are the data types of the target value in classification and regression problems?
 ###
 In classification problems the target value is a categorical (discrete) variable.
@@ -2119,6 +2747,23 @@ Classification targets are usually encoded as integers or one-hot vectors; regre
 #### henrik
 #####
 
+
+
+## What is ordinal regression?
+###
+Ordinal regression is used when the target variable has ordered categories but the distances between categories are not necessarily equal or known.
+
+Examples:
+- Rating: 1 star, 2 stars, ..., 5 stars
+- Education level, pain level (mild/moderate/severe), credit rating
+
+It is between classification and regression:
+- You cannot treat the labels as pure nominal (order matters)
+- You usually should not treat them as continuous numbers either (the difference between 1 and 2 may not equal 4 and 5)
+
+Specialized models (ordinal logistic regression, etc.) and losses exist that respect the ordering.
+#### grok
+#####
 
 
 ## 50. True or false: XOR is a linear problem that can be solved using linear models.
@@ -2436,6 +3081,37 @@ Everything in a GA—selection, crossover, mutation—exists to improve the popu
 
 
 
+## What is a deceptive fitness function?
+###
+A deceptive fitness function misleads the search algorithm.
+
+It makes some directions look good locally (high fitness) but following them leads away from the globally best solutions.
+
+This is very common in real problems.
+
+The Q55 answer mentions that deceptive fitness functions can make the GA converge to poor local optima.
+
+Techniques to combat deception: larger populations, higher mutation, niching, multi-objective formulations, or changing the representation.
+#### grok
+#####
+
+
+## What is a surrogate model?
+###
+When the true fitness (or objective) function is extremely expensive to evaluate (hours or days per candidate), you build a cheap approximate model (the surrogate) that predicts the expensive result.
+
+You then use the surrogate to decide which candidates are worth evaluating on the real expensive function.
+
+Common in:
+- Hyperparameter optimization (the surrogate predicts validation performance)
+- Engineering design (the surrogate predicts results from an expensive simulator)
+- Neural architecture search
+
+Bayesian optimization is a famous method that maintains a probabilistic surrogate (often a Gaussian process).
+#### grok
+#####
+
+
 ## 56. Name three centrality measures in statistics. What are their strengths and weaknesses?
 ###
 The three most common centrality measures are the mean, the median, and the mode.
@@ -2451,6 +3127,19 @@ Misuse of the mean on skewed data is one of the most frequent statistical errors
 #### henrik
 #####
 
+
+
+## What is skewness?
+###
+Skewness measures how asymmetric a distribution is.
+
+- Positive skew (right skew): long tail on the right (e.g. income, house prices) — mean > median
+- Negative skew (left skew): long tail on the left — mean < median
+- Zero skew: symmetric (e.g. normal distribution) — mean ≈ median
+
+The Q56 answer points out that the mean is sensitive to skewness and outliers, which is why the median is often preferred for skewed real-world data (income, house prices, etc.).
+#### grok
+#####
 
 
 ## 57. Most problems suited for Genetic Algorithms could also be solved using which kind of AI?
@@ -2543,6 +3232,19 @@ In short, the model is not ready for deployment until the generalization gap is 
 
 
 
+## What is the generalization gap?
+###
+The generalization gap is the difference between training performance and performance on unseen data (validation or test).
+
+A large gap (training accuracy 99.7%, validation 87.4% as in the Q58 example) is a classic symptom of overfitting.
+
+The model has memorized training-specific noise and idiosyncrasies that do not exist in new data.
+
+Reducing the generalization gap (while keeping training performance high) is one of the central goals of regularization, more data, better architectures, etc.
+#### grok
+#####
+
+
 ## 59. True or false: when training Stochastic Gradient Descent, the cost of approximation is expected to fluctuate during training?
 ###
 True. Stochastic gradient descent (SGD) updates parameters using the gradient of a single random training example.
@@ -2621,6 +3323,33 @@ DBSCAN is the most commonly cited answer when the question asks for a clustering
 #### henrik
 #####
 
+
+
+## What is HDBSCAN?
+###
+HDBSCAN (Hierarchical Density-Based Spatial Clustering of Applications with Noise) is a modern, very popular extension of DBSCAN.
+
+Advantages over plain DBSCAN:
+- It can find clusters of varying densities (DBSCAN struggles when some clusters are much denser than others).
+- It produces a hierarchy and then extracts the most stable clusters (you don't have to tune epsilon as carefully).
+- It still naturally marks noise/outliers.
+
+It is often one of the best "off-the-shelf" clustering algorithms when you don't know the number of clusters and expect clusters of different shapes and densities.
+#### grok
+#####
+
+
+## What is a non-convex cluster?
+###
+A non-convex cluster is a group of points that cannot be separated from other points by a straight line (or hyperplane) in the sense that the shape has indentations or holes.
+
+Examples: crescent moons, rings, interlocking shapes.
+
+Standard K-Means cannot find them because it produces convex (roughly spherical) Voronoi cells.
+
+Density-based methods (DBSCAN, HDBSCAN) and graph-based methods (spectral clustering) can discover non-convex clusters because they use connectivity or density rather than distance to a single center.
+#### grok
+#####
 
 
 ## 61. A model deciding by flipping a coin is used to predict the outcome of flipping a coin. What is the expected accuracy and Youden’s index of this model’s performance?
@@ -2910,6 +3639,21 @@ When designing data collection one should aim for the highest scale type that th
 #####
 
 
+
+
+## What is the difference between ratio and interval scales again?
+###
+(Reinforcement from Q8/Q30/Q66)
+
+Ratio: true absolute zero → ratios and all arithmetic are meaningful (height, weight, counts, money, accuracy as proportion).
+
+Interval: arbitrary zero → differences are meaningful but ratios are not (temperature in °C or °F, calendar dates, many psychological scales).
+
+The preference for ratio data (when possible) is because it carries more information and allows stronger statistical operations.
+
+The Q66 answer notes that many real attributes naturally have a true zero and should be measured on a ratio scale when the measurement process allows it.
+#### grok
+#####
 
 
 ## 67. You are training a Genetic Algorithm but the models does not seem to improved over generations. How would you try to solve the problem?
