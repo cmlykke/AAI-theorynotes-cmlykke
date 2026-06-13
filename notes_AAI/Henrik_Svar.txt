@@ -1,5 +1,6 @@
 
 
+
 ## 1. What would be a good choice of performance metric in a binary classification scenario with far more negative than positive samples?
 ###
 In highly imbalanced binary classification with far more negative samples, overall accuracy is a misleading metric.
@@ -13,7 +14,110 @@ You should also report the confusion matrix and per-class metrics to understand 
 Consider using class weighting or resampling techniques and evaluate with threshold tuning on the positive class.
 Domain costs of false negatives versus false positives should guide the final choice of primary metric.
 #### henrik
+#####
 
+
+
+## 1.01 What does 'precision' mean in a classification model?
+###
+Precision answers: when your model predicts the positive class, how often is it actually correct?
+
+Think of a spam filter. If it marks 100 emails as spam and 95 of them really are spam, precision is 0.95.
+
+In code (binary case):
+    precision = TP / (TP + FP)
+
+You optimize for high precision when a false positive is expensive (you delete an important email, you accuse an innocent person, you trigger a costly medical test).
+#### grok
+#####
+
+
+## 1.02 What does 'recall' (sensitivity) mean in classification?
+###
+Recall answers: of all the real positive cases that exist, how many did your model actually find?
+
+Same spam example: there were 120 real spam emails. Your filter caught 95 of them. Recall = 95/120 ≈ 0.79.
+
+In code:
+    recall = TP / (TP + FN)
+
+You care a lot about recall when missing a positive is dangerous (missed fraud, missed cancer, missed security attack).
+#### grok
+#####
+
+
+## 1.03 What is the F1-score?
+###
+F1 is a single number that balances precision and recall.
+
+It is the harmonic mean:
+    F1 = 2 * (precision * recall) / (precision + recall)
+
+If either precision or recall is low, F1 is pulled down hard. Use it when you need one easy-to-report number and both "catching the bad things" and "not crying wolf" matter.
+
+Many people still look at the precision-recall curve instead of just the F1 at one threshold.
+#### grok
+#####
+
+
+## 1.04 What is a confusion matrix?
+###
+A confusion matrix is a small table that shows exactly what mistakes (and correct answers) a classifier made.
+
+For binary classification it normally looks like:
+
+               Predicted
+             Pos      Neg
+Actual Pos   TP       FN
+       Neg   FP       TN
+
+TP = true positive, FN = false negative, etc.
+
+From these four counts you can derive accuracy, precision, recall, specificity, F1, MCC and almost every other classification metric. It is the most useful diagnostic you can print.
+#### grok
+#####
+
+
+## 1.05 What is ROC-AUC?
+###
+ROC-AUC (Area Under the ROC Curve) measures how well your model can rank positive examples higher than negative examples, no matter which threshold you later pick.
+
+You vary the decision threshold from very strict to very lenient, plot true-positive-rate vs false-positive-rate, and take the area under that curve.
+
+Interpretation:
+- 0.5 = random guessing (the two classes are not separated at all)
+- 1.0 = perfect ranking (every positive scores higher than every negative)
+- Useful when you will choose the operating threshold later or when both classes matter roughly equally.
+#### grok
+#####
+
+
+## 1.06 What is PR-AUC (precision-recall AUC)?
+###
+PR-AUC is the area under the precision-recall curve.
+
+You plot precision vs recall at many different thresholds and integrate.
+
+For problems where the positive class is rare (fraud 0.1%, disease 1%, defect 0.5%), PR-AUC is usually much more informative than ROC-AUC. ROC-AUC can look great just because there are tons of easy negatives; PR-AUC focuses on how the model behaves on the scarce positives.
+
+A random classifier on a 1% positive problem will have PR-AUC around 0.01.
+#### grok
+#####
+
+
+## 1.07 What is Matthews Correlation Coefficient (MCC)?
+###
+MCC is a single score from -1 to +1 that uses the entire confusion matrix (all four cells).
+
++1 = perfect predictions
+ 0 = no better than random / coin flip
+-1 = always wrong
+
+Because it takes true negatives into account and is not dominated by the majority class, it is one of the most trustworthy single-number metrics on imbalanced data.
+
+Many papers now report MCC in addition to (or instead of) F1 when the data is skewed.
+#### grok
+#####
 
 
 ## 2. When training an auto-encoder for anomaly detection, how should the data set be split?
@@ -29,6 +133,49 @@ Time-based or random splits of normal data are acceptable provided anomalies sta
 If labeled anomalies exist they can be used for threshold calibration or final performance reporting only.
 This unsupervised setup mimics real-world scenarios where anomalies are rare and previously unseen.
 #### henrik
+#####
+
+
+## 2.08 What is an autoencoder?
+###
+An autoencoder is a neural network trained to reconstruct its own input as output.
+
+It always has a bottleneck (a layer much smaller than the input). The network is forced to squeeze the input through this narrow "latent" representation and then expand it again.
+
+Typical structure:
+input -> encoder (down) -> small latent vector -> decoder (up) -> reconstruction
+
+After training you can use the encoder alone for dimensionality reduction or anomaly detection (high reconstruction error = weird input).
+#### grok
+#####
+
+
+## 2.09 What is reconstruction error?
+###
+Reconstruction error = how different the autoencoder's output is from its input (usually measured with MSE or binary cross-entropy).
+
+On data the autoencoder saw during training the error is normally low.
+
+On inputs that are very different from the training distribution (anomalies, defects, attacks) the error is usually high because the model never learned how to rebuild those patterns.
+
+In anomaly detection you simply threshold this scalar error value.
+#### grok
+#####
+
+
+## 2.10 What is data leakage?
+###
+Data leakage is when your model accidentally gets to see information during training that it will never have at prediction time in the real world.
+
+Common ways it happens:
+- Normalizing or scaling using mean/std computed on the whole data set (train + val + test)
+- Creating features that use future information
+- Having duplicate rows that end up in both train and test
+- Using the test set to choose features or hyper-parameters
+
+Result: your validation numbers look fantastic but the model falls apart in production. The cure is strict separation and doing all preprocessing inside cross-validation folds.
+#### grok
+#####
 
 
 ## 3. What are examples of activation functions in a deep neural network, and what are their characteristics?
@@ -43,7 +190,81 @@ Softmax is typically used in the output layer for multi-class classification to 
 Swish and GELU are modern smooth alternatives that often yield better empirical performance in deep networks.
 All activation functions must introduce non-linearity; otherwise the entire network collapses to a linear model.
 Choice depends on task, depth, and need to avoid vanishing or exploding gradients during backpropagation.
-#### henrik
+#### henrik#####
+
+
+
+## 3.11 What is an activation function in a neural network?
+###
+An activation function is a fixed non-linear function applied element-wise to the output of a linear layer (weighted sum + bias).
+
+Without any activation function, stacking 100 layers would be mathematically identical to a single matrix multiplication. The non-linearity is what gives the network its power to approximate complicated functions.
+
+Popular ones: ReLU, GELU, Swish, sigmoid, tanh, softmax (for probabilities).
+
+They are the "if this, then that" sprinkled between the linear transforms.
+#### grok
+#####
+
+
+## 3.12 What is the ReLU activation?
+###
+ReLU(x) = max(0, x)
+
+Extremely simple:
+- positive input → output = input
+- negative input → output = 0
+
+Why everyone loves it:
+- Almost zero compute cost
+- Gradient is exactly 1 for all positive inputs → no vanishing for those paths
+- Works surprisingly well in practice
+
+Downside: a neuron that always sees negative inputs stays at 0 forever ("dying ReLU"). Variants (Leaky ReLU, PReLU, GELU) try to fix that.
+#### grok
+#####
+
+
+## 3.13 What is the sigmoid activation?
+###
+sigmoid(x) = 1 / (1 + exp(-x))
+
+It maps any real number to the open range (0, 1). Historically used as the default activation.
+
+Today it is mostly only used in the very last layer of a binary classifier because the output can be read as a probability.
+
+Problem in hidden layers: when |x| is large the output is almost 0 or 1 and the derivative is almost 0. Gradients vanish and early layers stop learning. ReLU-family functions largely replaced it for hidden units.
+#### grok
+#####
+
+
+## 3.14 What is the vanishing gradient problem?
+###
+When you have many layers, the gradient signal that tells each weight how to improve can become astronomically small by the time it propagates back to the first layers.
+
+Mathematically you multiply many derivatives together (chain rule). If most of them are < 1, the product goes to zero.
+
+Early layers then receive almost no learning signal even though they contain millions of parameters.
+
+Fixes that helped: ReLU (and friends), residual/skip connections (ResNet), batch/layer norm, careful weight initialization (He, Glorot), gradient clipping.
+#### grok
+#####
+
+
+## 3.15 What is backpropagation?
+###
+Backpropagation is the algorithm that makes training deep networks feasible.
+
+It is just the chain rule applied in a clever order:
+
+1. Do a forward pass, remember all intermediate activations.
+2. Compute the loss at the output.
+3. Walk backwards through the layers, at each step multiplying by the local gradient (derivative of that layer).
+4. You end up with the exact partial derivative of the loss w.r.t. every single weight in the network.
+
+Cost is roughly 2-3× one forward pass. Before backprop people had to numerically approximate gradients by perturbing each weight, which was impossible for large nets.
+#### grok
+#####
 
 
 ## 4. What is a common use of this expression: -(1/m) Σ [hθ(X) - Y]²
@@ -59,6 +280,40 @@ Minimizing this loss leads the model parameters θ toward values that produce pr
 Variants include adding regularization terms or using it inside more complex loss combinations.
 The parenthetical note correctly identifies it as a variant of mean squared error for supervised regression.
 #### henrik
+#####
+
+
+
+## 4.16 What is mean squared error (MSE)?
+###
+MSE is the average of the squared differences between predictions and true values.
+
+loss = mean( (y_pred - y_true) ** 2 )
+
+Because of the square:
+- Large errors hurt a lot more than small ones
+- It is very sensitive to outliers
+- It is differentiable everywhere (nice for gradient descent)
+
+Still the default loss for most regression problems and for the reconstruction term in autoencoders. RMSE is just the square root of MSE so it has the same units as your target variable.
+#### grok
+#####
+
+
+## 4.17 What is a loss (or cost) function?
+###
+The loss function is the single scalar number that your optimizer is trying to drive down during training.
+
+It quantifies "how wrong" the current model is on the training examples.
+
+Different problems need different losses:
+- MSE / MAE / Huber for regression
+- Binary or categorical cross-entropy for classification
+- Custom losses when business cost is asymmetric (false negative costs 10× more than false positive)
+
+The gradient of the loss with respect to the parameters tells the optimizer which way to nudge the weights.
+#### grok
+#####
 
 
 ## 5. Why are Genetic Algorithms a viable choice for the Traveling Salesman Problem?
@@ -74,6 +329,68 @@ Parallel evaluation of many candidate tours in a population makes GA efficient o
 Elitism and diverse selection strategies help maintain solution quality across generations.
 While not guaranteed to find the absolute optimum, GA reliably produces high-quality approximate solutions quickly.
 #### henrik
+#####
+
+
+
+## 5.18 What is a genetic algorithm?
+###
+A genetic algorithm is a population-based, derivative-free optimization method inspired by evolution.
+
+You keep a population of candidate solutions. Each generation you:
+1. Evaluate a fitness score for every individual
+2. Select the better ones (with some randomness)
+3. Create children by mixing genes from parents (crossover) and adding small random changes (mutation)
+4. Replace the old population
+
+It can optimize extremely difficult, non-differentiable, noisy, or combinatorial problems (TSP, scheduling, architecture search, etc.) where gradient methods are useless.
+#### grok
+#####
+
+
+## 5.19 What is crossover in genetic algorithms?
+###
+Crossover is the operator that builds a child solution by combining pieces from two (or more) parent solutions.
+
+Good crossover tries to keep "useful building blocks" that already exist in the parents.
+
+Example with permutations (TSP cities):
+Parent A: 1 2 3 4 5 6 7
+Parent B: 4 2 6 1 3 7 5
+A simple ordered crossover might copy the segment 3 4 5 from A and then fill the remaining cities in the order they appear in B.
+
+Different problems need different crossover operators that respect the representation.
+#### grok
+#####
+
+
+## 5.20 What is mutation in genetic algorithms?
+###
+Mutation randomly changes a single individual, usually in a small way.
+
+Its main job is to keep genetic diversity alive so the population does not collapse into many identical copies of one solution.
+
+Typical mutation:
+- flip a few bits
+- add Gaussian noise to a few real numbers
+- swap two elements in a permutation
+
+Too much mutation = random search. Too little = premature convergence. Usually you tune the mutation rate (or use adaptive schemes).
+#### grok
+#####
+
+
+## 5.21 What is the fitness function?
+###
+The fitness function is the only thing that tells the genetic algorithm which solutions are better than others.
+
+It receives one complete candidate solution and returns a single number (higher = better, or you minimize the negative).
+
+For the traveling salesman problem it is usually the negative of the total tour length (or 1 / length).
+
+If your fitness function does not actually reward progress toward the real goal you want, the GA will happily optimize the wrong thing.
+#### grok
+#####
 
 
 ## 6. What are the requirements for an activation function for a deep neural network, if the network must be able to approximate any non-linear function?
@@ -89,6 +406,8 @@ Zero-centered or near zero-centered outputs (tanh, SELU) often improve convergen
 Piecewise linear activations such as ReLU have proven empirically sufficient for universal approximation power.
 Without a non-linear activation the whole deep network would mathematically reduce to a single linear transform.
 #### henrik
+#####
+
 
 
 ## 7. Can a latent space be interpreted directly? Why or why not?
@@ -104,6 +423,24 @@ Visualization techniques such as t-SNE or UMAP are often applied to make the lat
 Some models add interpretability losses or use concept vectors to align latent directions with known attributes.
 In general, latent spaces are useful for generation and interpolation but require extra work to interpret meaningfully.
 #### henrik
+#####
+
+
+
+## 7.22 What is a latent space?
+###
+The latent space is the (usually much smaller) vector space that an autoencoder, VAE, or similar model maps the raw high-dimensional input into.
+
+Each data point becomes a coordinate in this latent space. The decoder later maps points in latent space back to data space.
+
+In a useful latent space:
+- nearby points correspond to similar real examples
+- you can often do arithmetic (e.g. "king - man + woman")
+- sampling new points and decoding them gives you plausible new data
+
+Without extra constraints the individual dimensions are usually entangled (one number affects several real-world factors at once).
+#### grok
+#####
 
 
 ## 8. What is the data type of these examples: a) monetary value, b) Olympic medals, c) accuracy of a binary classification model.
@@ -119,6 +456,8 @@ Monetary value and accuracy fall into the quantitative-ratio category while meda
 Choosing the correct type guides which statistics (mean, median, mode) and visualizations are appropriate.
 Misclassifying data type can lead to invalid operations such as averaging ordinal ranks as if they were interval.
 #### henrik
+#####
+
 
 
 ## 9. Why do we want generalized models rather than perfectly fit models?
@@ -134,6 +473,37 @@ The bias-variance tradeoff shows that some bias may be acceptable to achieve muc
 In practice we prefer a model with 85% train and 83% validation accuracy over 100% train and 60% validation.
 Generalization enables reliable deployment and trustworthy performance estimates on future data.
 #### henrik
+#####
+
+
+
+## 9.23 What is overfitting?
+###
+Overfitting = the model has memorized the exact training examples (including their noise and accidental correlations) instead of learning general rules that also work on new data.
+
+Typical symptoms:
+- training accuracy / loss keeps improving
+- validation accuracy / loss stops improving or gets worse
+- huge gap between train and validation performance
+
+Common causes: too powerful model for the data size, no regularization, training for too many epochs, data leakage.
+
+Cures: more/better data, smaller model, L2, dropout, early stopping, data augmentation, simpler features.
+#### grok
+#####
+
+
+## 9.24 What does 'generalization' mean?
+###
+Generalization is the ability of a model to keep working well on data it has never seen before.
+
+It is the only thing that ultimately matters. Training performance is just a means to that end.
+
+Everything in the ML engineering discipline (held-out validation sets, cross-validation, regularization, proper test sets, monitoring for distribution shift) exists to improve or measure generalization.
+
+A model that does not generalize is just an expensive lookup table of the training data.
+#### grok
+#####
 
 
 ## 10. Explain supervised vs unsupervised learning.
@@ -149,6 +519,38 @@ Reinforcement learning sits somewhat between the two, using rewards instead of e
 Many real problems combine both: unsupervised pre-training followed by supervised fine-tuning.
 The choice depends on data availability, the nature of the task, and whether ground-truth targets exist.
 #### henrik
+#####
+
+
+
+## 10.25 What is supervised learning?
+###
+Supervised learning = learning from labeled examples.
+
+Every training item has both the input (features, image, text, …) and the desired output (label, number, sequence, …).
+
+The algorithm adjusts the model so that its predictions on the inputs become close to the provided targets.
+
+Classic examples: image classification, spam detection, house price regression, machine translation when you have parallel text.
+
+The labels are usually the expensive part (human annotation, sensors, historical outcomes, etc.).
+#### grok
+#####
+
+
+## 10.26 What is unsupervised learning?
+###
+Unsupervised learning = finding structure in data that has no labels.
+
+Typical goals:
+- discover groups (clustering)
+- compress or visualize (PCA, autoencoders, t-SNE, UMAP)
+- learn the probability distribution of the data
+- detect anomalies
+
+Self-supervised learning (BERT, GPT pre-training, SimCLR, etc.) is a very successful modern variant: you automatically create the "labels" from the data itself (next token, masked patch, rotation prediction, …) and then train a big supervised model on those fake labels. The resulting representations are useful for later real tasks.
+#### grok
+#####
 
 
 ## 11. Explain the concepts of bias and variance.
@@ -164,6 +566,25 @@ We visualize the concepts with learning curves that plot training and validation
 Regularization techniques primarily reduce variance while flexible models like deep nets can reduce bias.
 The goal is to find the sweet spot of model complexity that minimizes total expected error on new data.
 #### henrik
+#####
+
+
+
+## 11.27 What is the bias-variance tradeoff?
+###
+When you evaluate a model on unseen data you can decompose the expected error into three parts:
+
+- Bias² : error caused by the model being too simple / having the wrong assumptions (underfitting)
+- Variance : error caused by the model being too sensitive to the exact training sample (overfitting)
+- Irreducible noise : the part you can never remove
+
+Making the model more flexible (deeper net, more trees, higher degree polynomial) usually lowers bias but raises variance.
+
+Making it more rigid does the opposite.
+
+Your job as a practitioner is to navigate this tradeoff (regularization strength, model size, amount of data, etc.) so that total error on future data is as small as possible.
+#### grok
+#####
 
 
 ## 12. What is a common use of this expression: (λ / 2m) Σ θ²
@@ -179,6 +600,43 @@ Unlike L1 it does not produce exact zeros and therefore keeps all features in th
 The hyper-parameter λ is usually tuned via cross-validation to balance fit against model simplicity.
 The parenthetical note correctly describes it as the Ridge regularization penalty for preventing overfitting.
 #### henrik
+#####
+
+
+
+## 12.28 What is regularization?
+###
+Regularization = any trick that makes the model slightly worse on the training data on purpose, so that it becomes better on unseen data.
+
+It fights overfitting.
+
+Common techniques:
+- L1 / L2 penalties on the weights
+- Dropout (randomly zeroing activations while training)
+- Early stopping
+- Data augmentation
+- Smaller architectures
+- Label smoothing
+
+Almost every high-performing deep learning model you see in production uses several of these at the same time.
+#### grok
+#####
+
+
+## 12.29 What is L2 regularization (also called weight decay or Ridge)?
+###
+L2 regularization adds the term (λ / 2) * sum(w_i²) to the loss you are minimizing.
+
+Because the penalty is quadratic, the optimizer is encouraged to keep every weight small but rarely exactly zero.
+
+Effects:
+- smoother decision surfaces
+- less reliance on any single feature
+- usually better generalization
+
+In neural nets you implement it either by adding the penalty to the loss or (equivalently in AdamW etc.) by decaying the weights directly toward zero each step. λ is a hyperparameter you tune.
+#### grok
+#####
 
 
 ## 13. True or false: correlation implies causation?
@@ -194,6 +652,8 @@ Correlation is still useful for prediction even when causation is absent or unkn
 Mistaking correlation for causation leads to ineffective or harmful policy and business decisions.
 Always investigate possible confounding factors and alternative explanations before claiming causality.
 #### henrik
+#####
+
 
 
 ## 14. When would you use a Random Forest model rather than a deep neural network?
@@ -209,6 +669,38 @@ If the problem involves raw pixels, sequences, or graphs, a deep network is usua
 Random Forests are also attractive when model interpretability and regulatory auditability are required.
 Many production systems start with Random Forest and only move to deep learning if clear accuracy gains justify the cost.
 #### henrik
+#####
+
+
+
+## 14.30 What is a Random Forest?
+###
+A Random Forest is an ensemble of decision trees trained with bagging + random feature selection at each split.
+
+How to build one:
+- Draw many bootstrap samples of the training data
+- For each sample grow a full decision tree, but at every node only consider a random subset of the features when choosing the best split
+- To predict, average the trees (regression) or take a vote (classification)
+
+Benefits: much higher accuracy than one tree, resistant to overfitting, gives you feature importances, works on tabular data with mixed types and missing values, almost no preprocessing required, embarrassingly parallel.
+#### grok
+#####
+
+
+## 14.31 What is an ensemble method?
+###
+An ensemble method combines several models to produce one stronger predictor.
+
+The core idea: if the base models are diverse (different algorithms, different data subsets, different random seeds), their errors are often uncorrelated and averaging (or voting, or stacking) cancels a lot of the noise.
+
+Three big families:
+- Bagging (Random Forest): parallel, reduce variance
+- Boosting (XGBoost, LightGBM, CatBoost, AdaBoost): sequential, reduce bias
+- Stacking / blending: train a meta-learner on the outputs of several models
+
+In practice the winning entry in most Kaggle competitions is some form of ensemble.
+#### grok
+#####
 
 
 ## 15. What kind of problem are Genetic Algorithms well suited for?
@@ -224,6 +716,8 @@ They are less appropriate when a smooth gradient exists and can be exploited by 
 When the search space is enormous and exhaustive or greedy search fails, evolutionary methods become attractive.
 In short, difficult discrete or black-box optimization problems with no obvious polynomial algorithm are ideal.
 #### henrik
+#####
+
 
 
 ## 16. What is Gradient Descent, and how does it work?
@@ -239,6 +733,76 @@ Learning rate, momentum, and adaptive methods (Adam, RMSprop) are used to improv
 Gradient descent can get stuck in local minima or saddle points, motivating more advanced optimizers.
 It is the foundation of training virtually all modern neural networks via backpropagation of gradients.
 #### henrik
+#####
+
+
+
+## 16.32 What is gradient descent?
+###
+Gradient descent is the fundamental optimization algorithm behind almost all modern neural network training.
+
+The recipe:
+1. Start with random weights
+2. Compute how the loss changes when you wiggle each weight a tiny bit (the gradient)
+3. Move every weight a small step in the direction that makes the loss smaller
+4. Repeat
+
+The "small step" size is controlled by the learning rate.
+
+Pure gradient descent on the full data set (batch GD) is rarely used; variants that use one example (SGD) or a small random subset (mini-batch) are much more practical and often find better solutions.
+#### grok
+#####
+
+
+## 16.33 What is Stochastic Gradient Descent (SGD)?
+###
+SGD updates the weights using the gradient computed from only one training example (or a very small mini-batch) at a time, instead of the whole data set.
+
+Advantages:
+- Each update is extremely fast
+- The noise in the gradient estimates can help the optimizer escape sharp local minima and saddle points
+- For huge data sets you can make progress long before you have even seen every example once
+
+Disadvantages: the loss curve becomes very noisy; you usually need learning-rate schedules, momentum, or adaptive methods (Adam, RMSprop, etc.) to make it stable and fast.
+
+In 2025 "SGD" in deep learning almost always means mini-batch SGD.
+#### grok
+#####
+
+
+## 16.34 What is a mini-batch?
+###
+A mini-batch is a small random subset of the training data used for one gradient computation and weight update.
+
+Typical sizes in 2025: 32, 64, 128, 256, 512. Sometimes larger on big GPU clusters.
+
+Why mini-batches?
+- Small enough that the gradient is still noisy (good for generalization and escaping bad points)
+- Large enough that matrix multiplies are efficient on GPUs and the gradient direction is not pure noise
+- Fits comfortably in GPU memory
+
+The batch size is an important hyperparameter that interacts strongly with learning rate.
+#### grok
+#####
+
+
+## 16.35 What is the learning rate?
+###
+The learning rate (lr) is the hyperparameter that controls how big a step you take when you apply the gradient to the weights:
+
+    weight = weight - learning_rate * gradient
+
+Too large → loss explodes or oscillates wildly.
+Too small → training crawls; may get stuck in a poor local minimum or saddle.
+
+In practice nobody uses a fixed learning rate for the whole training run anymore. Common patterns:
+- start relatively high, then decay (step, cosine, exponential)
+- warm-up for the first few thousand steps
+- use different rates per layer or per parameter (via Adam-style adaptivity)
+
+Finding a good learning rate (or schedule) is often the single biggest lever for fast, stable training.
+#### grok
+#####
 
 
 ## 17. Explain the structure of an auto-encoder.
@@ -254,6 +818,8 @@ Variational auto-encoders add a probabilistic latent space with a regularization
 Auto-encoders can be used for anomaly detection, pre-training, data compression, and image denoising.
 The architecture is symmetric: the decoder is often a mirror image of the encoder in terms of layer sizes.
 #### henrik
+#####
+
 
 
 ## 18. What kind of nodes can we find in a Decision Tree model?
@@ -269,6 +835,23 @@ Pruning techniques remove branches after growth to reduce overfitting and improv
 Nodes may also contain metadata such as the number of training examples that reached that node.
 In ensemble methods such as Random Forest many such trees are trained and their predictions aggregated.
 #### henrik
+#####
+
+
+
+## 18.36 What is a decision tree in machine learning?
+###
+A decision tree is a model that predicts by asking a series of simple "is feature X <= threshold?" questions and following the branches until it reaches a leaf.
+
+Each leaf contains either a class (classification) or a numeric value (regression).
+
+Training grows the tree greedily: at every node it tries all possible features and thresholds and picks the split that most improves a purity criterion (Gini, entropy, or reduction in MSE).
+
+Strengths: extremely interpretable (you can print the rules), handles numeric + categorical + missing data, no feature scaling needed, very fast at inference.
+
+Weakness: high variance — small changes in the training data can produce completely different trees. Ensembles (Random Forest, gradient boosting) fix this.
+#### grok
+#####
 
 
 ## 19. What is a common use of this expression: -(1/m) Σ [Y log(hθ(X)) + (1 - Y) log(1 - hθ(X))]
@@ -284,6 +867,26 @@ For multi-class problems the generalization is categorical cross-entropy using s
 Binary cross-entropy is usually paired with a sigmoid output activation to produce valid probabilities.
 The parenthetical note in the file correctly identifies it as the standard loss for logistic regression.
 #### henrik
+#####
+
+
+
+## 19.37 What is binary cross-entropy (log loss)?
+###
+Binary cross-entropy is the standard loss function when you train a model that outputs a probability for a binary label.
+
+loss = -mean( y * log(p) + (1-y) * log(1-p) )
+
+where p is the model's predicted probability for the positive class and y is 0 or 1.
+
+Properties that make it great:
+- When the model is confident and correct the contribution is near zero
+- When it is confident and wrong the loss becomes huge (strongly discourages over-confident mistakes)
+- The gradient with respect to the logit simplifies to (p - y) — very convenient
+
+Always pair it with a sigmoid output activation so p is guaranteed to be in (0,1).
+#### grok
+#####
 
 
 ## 20. What performance metrics are relevant when working with classification problems?
@@ -299,6 +902,8 @@ Specificity (true negative rate) and Youden's index are useful when both classes
 For multi-class problems one can report macro or weighted averages of per-class precision, recall and F1.
 Domain-specific costs should guide which metric is optimized and reported as the primary performance measure.
 #### henrik
+#####
+
 
 
 ## 21. What performance metrics are relevant when working with regression problems?
@@ -314,6 +919,36 @@ When outliers are common or costly, robust metrics such as MAE or Huber loss are
 For time-series regression one may also track metrics that respect temporal ordering and autocorrelation.
 Always report several complementary metrics because no single number fully describes regression performance.
 #### henrik
+#####
+
+
+
+## 21.38 What is RMSE?
+###
+RMSE (Root Mean Squared Error) = sqrt( mean( (prediction - true)^2 ) )
+
+It is the most common regression metric that has the same physical unit as the target variable (unlike raw MSE).
+
+Because of the square, a single huge error (outlier) can dominate the whole score.
+
+Compare RMSE and MAE on the same data set: if RMSE is much larger than MAE you know a few large mistakes are driving the error.
+#### grok
+#####
+
+
+## 21.39 What is R-squared (R²)?
+###
+R² measures the proportion of the variance in the target that is "explained" by your model.
+
+R² = 1 - (sum of squared residuals) / (sum of squared deviations from the mean)
+
+- 1.0 = perfect
+- 0.0 = your predictions are no better than always guessing the mean of the training targets
+- negative = you are doing worse than the mean predictor (possible, and embarrassing)
+
+It is unitless and therefore easy to compare across different data sets, but it can be misleading if the data has strong temporal structure or if you are comparing models on different test sets.
+#### grok
+#####
 
 
 ## 22. True or false: Deep Neural Networks can only solve non-linear problems.
@@ -329,6 +964,8 @@ One can always add a linear "skip" connection or use a final linear layer to ret
 The statement is therefore too strong; DNNs are general function approximators, not restricted to non-linearity.
 However, their main practical advantage appears when the target function is indeed highly non-linear.
 #### henrik
+#####
+
 
 
 ## 23. What is the purpose of mutation in Genetic Algorithms?
@@ -344,6 +981,8 @@ Mutation complements crossover by providing the "innovation" that crossover alon
 In some problems mutation alone (evolutionary strategies) can be surprisingly effective.
 Proper mutation is essential for escaping plateaus and saddle regions in the fitness landscape.
 #### henrik
+#####
+
 
 
 ## 24. Explain why we need a complex model like a deep neural network to solve the XOR problem.
@@ -359,6 +998,36 @@ Historically the inability of single-layer perceptrons to solve XOR led to the f
 Modern deep networks routinely solve far more complex versions of the same non-linear separability challenge.
 The XOR example remains the minimal pedagogical case showing the necessity of hidden layers and non-linearities.
 #### henrik
+#####
+
+
+
+## 24.40 What is the XOR problem?
+###
+XOR is the logical function that is true exactly when the two inputs differ.
+
+The four points in 2D:
+(0,0) → 0
+(0,1) → 1
+(1,0) → 1
+(1,1) → 0
+
+No straight line can separate the 1s from the 0s. A linear model (logistic regression, single perceptron) can never get 100% accuracy no matter what weights you choose.
+
+A network with one hidden layer and non-linear activations can solve it easily. This tiny example was historically very important: it showed why you need hidden layers + non-linearities and why the early single-layer perceptrons were fundamentally limited.
+#### grok
+#####
+
+
+## 24.41 What does 'linearly separable' mean?
+###
+Two classes are linearly separable if there exists at least one straight line (2D) or hyperplane (higher dimensions) such that all points of class A lie on one side and all points of class B lie on the other side.
+
+If your data is linearly separable, a simple linear classifier can (in theory) achieve perfect accuracy.
+
+Many interesting problems are not linearly separable in the original feature space (XOR, most image and text tasks). That is exactly why we use kernels, decision trees, or deep networks with hidden non-linear layers — they can create non-linear decision boundaries.
+#### grok
+#####
 
 
 ## 25. Explain why the decision boundary of K-Means always result in a Voronoi tessellation.
@@ -374,6 +1043,38 @@ The tessellation property holds only for Euclidean distance; other metrics produ
 Understanding this helps visualize why K-Means produces convex, roughly spherical clusters.
 Algorithms such as DBSCAN or spectral clustering can produce non-convex regions precisely because they violate this Voronoi assumption.
 #### henrik
+#####
+
+
+
+## 25.42 What is K-Means clustering?
+###
+K-Means is the classic "partition into k spherical clusters" algorithm.
+
+You must choose k in advance.
+
+Simple loop:
+1. Place k random centroids
+2. Assign every data point to the closest centroid (Euclidean distance)
+3. Move each centroid to the average location of the points assigned to it
+4. Repeat until the centroids stop moving much
+
+The final assignment creates a Voronoi diagram. The algorithm is fast, easy to understand, and scales well, but it assumes clusters are roughly round and of similar size and density. It also hates outliers.
+#### grok
+#####
+
+
+## 25.43 What is a Voronoi diagram (tessellation)?
+###
+Given a set of sites (points), a Voronoi diagram divides the whole space into cells such that every location inside a cell is closer to its own site than to any other site.
+
+The edges of the cells are the perpendicular bisectors between neighboring sites.
+
+Because K-Means assigns every point to the nearest centroid, the regions it produces are exactly the Voronoi cells of the final centroids.
+
+This geometric fact is why K-Means clusters are always convex and why it struggles with concave or interlocking shapes.
+#### grok
+#####
 
 
 ## 26. How to turn a 100 dimensional data set into 8 dimensions with minimal loss of variance.
@@ -389,6 +1090,40 @@ Kernel PCA or auto-encoders can be used when the relationship between dimensions
 t-SNE or UMAP are alternatives for visualization but do not preserve global variance as PCA does.
 After projection one should verify that the retained variance is acceptable for the downstream task.
 #### henrik
+#####
+
+
+
+## 26.44 What is Principal Component Analysis (PCA)?
+###
+PCA is the standard linear method for dimensionality reduction, compression, noise removal, and visualization.
+
+Rough steps:
+1. Center every feature (subtract its mean)
+2. (Usually) divide by its standard deviation
+3. Find the directions (eigenvectors of the covariance matrix) in which the data varies the most
+4. Project the original points onto the first k of those directions
+
+You keep the axes that contain most of the "spread" in the data and throw away the low-variance directions (often mostly noise).
+#### grok
+#####
+
+
+## 26.45 What is dimensionality reduction?
+###
+Dimensionality reduction = taking data that lives in hundreds or thousands of dimensions and mapping it into a much smaller number of dimensions while preserving as much of the useful information as possible.
+
+Reasons people do it:
+- Visualization (2D or 3D)
+- Speed up other algorithms
+- Remove redundant or noisy features (sometimes improves generalization)
+- Data compression
+- Discover latent factors
+
+Linear: PCA, SVD, ICA
+Non-linear / manifold learning: autoencoders, UMAP, t-SNE (mostly for viz), Isomap, diffusion maps, etc.
+#### grok
+#####
 
 
 ## 27. What is a confusion matrix?
@@ -404,6 +1139,8 @@ Normalized versions (by row or by column) help when class sizes differ greatly.
 Visual heat-map renderings of the confusion matrix are standard in model evaluation reports.
 It is the most fundamental diagnostic tool before any scalar metric is computed or reported.
 #### henrik
+#####
+
 
 
 ## 28. True or false: When doing correlational analysis on parametric data, we should use Pearson’s r rather than Spearman’s rho?
@@ -419,6 +1156,8 @@ In practice one often computes both and reports the more conservative or better 
 The statement is therefore generally correct for truly parametric, linear, normally distributed data.
 Always inspect a scatter plot before deciding which coefficient to trust.
 #### henrik
+#####
+
 
 
 ## 29. Explain the difference between Gini and Entropy.
@@ -434,6 +1173,39 @@ Some implementations default to Gini for speed while others prefer entropy for t
 Neither criterion is universally superior; the choice rarely changes final tree performance dramatically.
 Both are impurity measures that reach zero when a node contains only one class.
 #### henrik
+#####
+
+
+
+## 29.46 What is Gini impurity?
+###
+Gini impurity is a measure of how mixed the classes are inside one node of a decision tree.
+
+For a node the Gini is:
+    1 - sum_over_classes (proportion_of_class_c ** 2)
+
+Interpretation: the probability that you would mis-classify a randomly picked element from the node if you labeled it according to the class distribution in that node.
+
+A node that contains only one class has Gini = 0 (pure).
+
+When growing a tree the algorithm tries every possible split and chooses the one that produces the largest drop in Gini (weighted by the number of samples going left and right).
+#### grok
+#####
+
+
+## 29.47 What is information gain?
+###
+Information gain is the reduction in entropy (uncertainty) you get by splitting a node.
+
+Entropy = - sum (p_c * log2(p_c))
+
+information_gain = entropy(parent) - (weighted average of entropy of the two children)
+
+A split that creates two very pure child nodes from a messy parent has high information gain.
+
+Classic ID3 and C4.5 decision tree algorithms used information gain to choose splits. Modern CART implementations often use Gini instead because it is faster (no log) and usually gives very similar trees.
+#### grok
+#####
 
 
 ## 30. What two categories do the four data types fall into?
@@ -449,6 +1221,8 @@ Qualitative data support mode and frequency counts; quantitative data support me
 Some algorithms (tree-based) handle both types natively while others require numeric inputs only.
 Understanding the category prevents nonsensical operations such as averaging jersey numbers (nominal).
 #### henrik
+#####
+
 
 
 ## 31. In an article, what is the purpose of the method section?
@@ -464,6 +1238,8 @@ Insufficient methodological detail is one of the most common reasons for paper r
 The method section is usually written in past tense because it reports what was actually done.
 It bridges the introduction (why) and the results (what was found) by explaining how the findings were obtained.
 #### henrik
+#####
+
 
 
 ## 32. What makes good references for an article?
@@ -479,6 +1255,8 @@ Avoid citing predatory journals, blog posts, or preprints unless the source is c
 Consistent citation style (APA, IEEE, ACM, etc.) throughout the manuscript is mandatory.
 Over-citing one's own work or citing only papers from the same research group raises red flags.
 #### henrik
+#####
+
 
 
 ## 33. Explain SIMD makes machine learning faster.
@@ -494,6 +1272,23 @@ Writing explicit SIMD intrinsics or using compiler auto-vectorization both impro
 Without SIMD exploitation, training large neural networks would be impractically slow on conventional hardware.
 SIMD is one of the fundamental reasons why deep learning became computationally feasible at scale.
 #### henrik
+#####
+
+
+
+## 33.48 What is SIMD and why does it make machine learning fast?
+###
+SIMD = Single Instruction, Multiple Data.
+
+Modern CPUs and GPUs have special hardware that can execute the same arithmetic operation on many numbers simultaneously (wide vector registers on CPU, thousands of lightweight cores on GPU).
+
+Matrix multiplies, convolutions, and most of the heavy lifting in neural nets are embarrassingly data-parallel.
+
+Highly optimized libraries (NumPy, PyTorch, TensorFlow, cuDNN, MKL, etc.) are written to use these instructions (AVX-512, NEON, CUDA warps, tensor cores, …).
+
+A plain Python loop doing the same math is often 10-100× slower because it cannot exploit this hardware.
+#### grok
+#####
 
 
 ## 34. Explain convolutions and pooling layers in a CNN.
@@ -509,6 +1304,54 @@ Global average pooling at the end often replaces fully-connected layers to reduc
 Together, convolutions and pooling allow the network to build hierarchical representations from local to global.
 These two operations are the defining building blocks that make CNNs so successful on grid-like data such as images.
 #### henrik
+#####
+
+
+
+## 34.49 What is a convolution (in CNNs)?
+###
+A convolution layer slides small learnable filters (kernels, typically 1x1, 3x3 or 5x5) across the input.
+
+At every position the filter computes a weighted sum of the small local patch under it (plus bias) and writes the result to the output feature map.
+
+Each filter learns to respond to one particular local pattern (horizontal edge, green blob, fur texture, wheel, eye, …).
+
+Because the same filter weights are reused at every spatial location you get:
+- translation equivariance
+- far fewer parameters than a fully-connected layer on the same input size
+
+Stacking many conv layers lets the network build hierarchical features from simple to complex.
+#### grok
+#####
+
+
+## 34.50 What is a pooling layer?
+###
+A pooling layer downsamples a feature map, most commonly by taking the maximum (max-pool) or the average inside small non-overlapping (or overlapping) windows.
+
+Typical window 2x2 with stride 2 → halves height and width.
+
+Effects:
+- Reduces memory and compute for all later layers
+- Gives the network a little bit of translation invariance (exact pixel position matters less)
+- Increases the receptive field of neurons in deeper layers (they "see" more of the original image)
+
+In many modern architectures strided convolutions have largely replaced explicit pooling layers.
+#### grok
+#####
+
+
+## 34.51 What is a Convolutional Neural Network (CNN)?
+###
+A CNN is a neural net architecture designed for data that has grid structure (images, spectrograms, some time-series, …).
+
+The defining building blocks are convolution layers and (sometimes) pooling layers.
+
+Typical pattern: repeat [conv + activation + norm] several times, occasionally downsample with pool or strided conv, until you have a high-level representation, then classify or regress.
+
+Because of local connectivity and weight sharing, CNNs need dramatically fewer parameters than a fully-connected net on raw pixels and they are much better at exploiting the 2D (or 3D) spatial structure of the data.
+#### grok
+#####
 
 
 ## 35. What is the output range of sigmoid, and why is this important?
@@ -524,6 +1367,8 @@ The derivative of sigmoid is σ(x)(1-σ(x)), which reaches a maximum of 0.25 at 
 Tanh is often preferred over sigmoid for hidden units because it is zero-centered and has a steeper slope.
 The (0,1) range is therefore both the main advantage for output interpretation and the main drawback for hidden layers.
 #### henrik
+#####
+
 
 
 ## 36. What is the purpose of an activation function in a deep neural network?
@@ -539,6 +1384,8 @@ Modern activations are designed to keep gradients in a healthy range across many
 Activation functions are applied element-wise after each linear transformation (weighted sum plus bias).
 In short, they are what give neural networks their expressive power beyond linear regression.
 #### henrik
+#####
+
 
 
 ## 37. True or false: erroneously classifying a pregnant woman as not pregnant is a Type 1 error.
@@ -554,6 +1401,8 @@ The cost of a false negative here (missed pregnancy) is usually considered more 
 Careful definition of the positive class and error types is essential before applying Type I/II terminology.
 In any case the described mistake is not a Type I error under the standard medical screening convention.
 #### henrik
+#####
+
 
 
 ## 38. True or false: to establish a baseline for the performance of machine learning models, it is a good idea to compare with human performance?
@@ -569,6 +1418,8 @@ However, for some problems (e.g., protein folding at scale) human performance is
 In those cases other references such as previous state-of-the-art algorithms or theoretical limits are used.
 Overall, human comparison is a recommended practice whenever the ultimate user of the model is a human.
 #### henrik
+#####
+
 
 
 ## 39. How can we use Monte Carlo simulations in machine learning?
@@ -584,6 +1435,24 @@ In Bayesian neural networks Monte Carlo sampling approximates the posterior pred
 When analytical solutions are impossible, Monte Carlo provides a general and flexible numerical approach.
 The main trade-off is computational cost: more samples yield better estimates but require more runtime.
 #### henrik
+#####
+
+
+
+## 39.52 What are Monte Carlo methods in machine learning?
+###
+Monte Carlo = using many random samples to estimate something you cannot compute analytically.
+
+In ML you see it in:
+- Reinforcement learning: estimate the value of a state or action by averaging the return of thousands of simulated episodes
+- Bayesian neural nets and uncertainty: sample from the posterior
+- Monte Carlo dropout at test time for uncertainty estimates
+- Estimating expectations inside variational inference
+- Generating synthetic data that matches a distribution
+
+More samples → better estimate, at linear cost. The law of large numbers guarantees convergence.
+#### grok
+#####
 
 
 ## 40. True or false: All good models are wrong.
@@ -599,6 +1468,8 @@ It also encourages focus on utility and generalization rather than on achieving 
 Even the best deep networks are still wrong in subtle ways on out-of-distribution or edge-case inputs.
 Good modeling is therefore the art of being wrong in ways that are still useful for the intended purpose.
 #### henrik
+#####
+
 
 
 ## 41. What is the difference between descriptive and inferential statistics?
@@ -614,6 +1485,8 @@ In machine learning we use descriptive statistics for exploratory data analysis 
 We use inferential statistics when we want to claim that a model will work on future unseen data.
 Both are essential: good description precedes and informs any valid inference.
 #### henrik
+#####
+
 
 
 ## 42. When using an auto-encoder for anomaly detection, how can we establish a baseline to discriminate between positive and negative samples?
@@ -629,6 +1502,8 @@ Because the auto-encoder never saw anomalies during training, their reconstructi
 Always validate the chosen threshold on held-out normal data to ensure the false-positive rate is tolerable.
 This reconstruction-error baseline is the most direct and widely used method for auto-encoder anomaly detection.
 #### henrik
+#####
+
 
 
 ## 43. Explain the use of training, validation, and test sets in supervised learning.
@@ -644,6 +1519,23 @@ Temporal or grouped splits are required when data points are not independent (ti
 Proper separation of the three sets is one of the most important disciplines in applied machine learning.
 The test set performance is the number you are allowed to report as the model's expected future performance.
 #### henrik
+#####
+
+
+
+## 43.53 Why split data into training, validation, and test sets?
+###
+Three sets, three different jobs, strict discipline:
+
+- Training set: the data you actually use to change the model's weights. The optimizer sees this.
+
+- Validation set: the data you use to make modeling decisions — hyper-parameter choices, architecture search, early stopping, feature selection, etc. You are allowed to look at validation performance many times.
+
+- Test set: data you touch exactly once, after you have completely finished tuning and training. It gives you an unbiased estimate of how well the model will do on truly future data.
+
+If you tune on the test set you have leaked information and your reported numbers are optimistically biased. In real life that model will disappoint.
+#### grok
+#####
 
 
 ## 44. Explain the structure of a deep neural network.
@@ -659,6 +1551,24 @@ The depth (number of hidden layers) is what distinguishes "deep" learning from s
 The overall architecture (width, depth, connectivity) is a hyper-parameter chosen for the problem at hand.
 Training adjusts millions or billions of parameters so that the network maps inputs to desired outputs accurately.
 #### henrik
+#####
+
+
+
+## 44.54 What is a 'deep' neural network?
+###
+A neural network is called deep when it has several (often many) hidden layers between the raw input and the final output.
+
+"Shallow" usually means 0 or 1 hidden layer.
+
+Depth lets the network compose features hierarchically:
+- layer 1: edges, gradients, simple textures
+- layer 2-3: corners, textures, object parts
+- layer 4+: object identities, scenes, high-level concepts
+
+Making networks deep (and wide) only became practical after we solved the vanishing gradient problem (ReLU, residuals, batch norm, better optimizers, lots of compute and data).
+#### grok
+#####
 
 
 ## 45. Explain the procedure of training a model in supervised learning using a training set, validation set, and test set.
@@ -674,6 +1584,9 @@ Never go back and adjust the model after seeing the test set results; that would
 Report test-set metrics together with validation curves to demonstrate that overfitting was controlled.
 This disciplined procedure yields a reliable estimate of how well the model will perform on truly unseen data.
 #### henrik
+#####
+
+
 
 
 ## 46. What is an ensemble algorithm?
@@ -689,7 +1602,43 @@ They are especially effective when the individual models have uncorrelated error
 Modern practice also includes snapshot ensembles from a single training run and deep ensembles of neural nets.
 The core principle is that a committee of weak but diverse experts usually outperforms any one expert.
 #### henrik
+#####
 
+
+
+
+## 46.55 What is bagging?
+###
+Bagging (Bootstrap Aggregating) is an ensemble technique whose main goal is to reduce variance.
+
+The recipe:
+1. Draw many bootstrap samples (random subsets of the original training data, drawn with replacement, same size)
+2. Train one model (classically an unpruned decision tree) on each bootstrap sample independently
+3. To predict, average the outputs of all the models (regression) or take a majority vote (classification)
+
+Because each tree sees a slightly different view of the data, their errors are only partially correlated. Averaging them produces a much more stable predictor.
+
+Random Forest is the most famous bagging method (plus extra randomness in feature selection).
+#### grok
+#####
+
+
+## 46.56 What is boosting?
+###
+Boosting is a sequential ensemble technique that primarily reduces bias (underfitting).
+
+Core loop (Gradient Boosting family):
+- Start with a very weak model (often a shallow tree)
+- Compute the residuals (or re-weight the examples the current ensemble gets wrong)
+- Train a new weak model that tries to correct those errors
+- Add it to the ensemble with a small learning rate (shrinkage)
+- Repeat hundreds or thousands of times
+
+Each new model focuses on the examples the previous ones still struggle with.
+
+Modern implementations (XGBoost, LightGBM, CatBoost) are among the strongest algorithms on tabular data. They can overfit if you let them run too long without regularization.
+#### grok
+#####
 
 
 ## 47. In Genetic Algorithms, how does the phenotype relate to the genotype?
@@ -705,6 +1654,23 @@ The fitness function always operates on the phenotype, never directly on the raw
 Poorly designed mappings can create a disconnect where genetic operators fail to produce useful offspring.
 Understanding this relationship is crucial when designing the representation for any evolutionary algorithm.
 #### henrik
+#####
+
+
+
+## 47.57 What are genotype and phenotype in a genetic algorithm?
+###
+In evolutionary algorithms we borrow language from biology:
+
+- Genotype: the raw representation that the genetic operators (crossover and mutation) manipulate. Could be a bit string, a list of real numbers, a permutation, an expression tree, etc.
+
+- Phenotype: the actual candidate solution that gets evaluated by the fitness function. Could be "the neural net with these weights", "the TSP tour", "the schedule".
+
+The mapping from genotype to phenotype can be trivial (they are the same object) or extremely complex (a sophisticated developmental process that "grows" a solution from the genome).
+
+Fitness is always computed on the phenotype, never directly on the genotype bits.
+#### grok
+#####
 
 
 ## 48. What are two common use cases of principal component analysis?
@@ -720,6 +1686,8 @@ When features are highly correlated, PCA can mitigate multicollinearity before l
 Kernel PCA extends the idea to non-linear manifolds while still using the same linear algebra in feature space.
 PCA remains one of the simplest, fastest, and most interpretable unsupervised dimensionality reduction techniques.
 #### henrik
+#####
+
 
 
 ## 49. What are the data types of the target value in classification and regression problems?
@@ -735,6 +1703,8 @@ Mis-specifying the target type (treating ordered classes as nominal, or continuo
 Understanding the target type also tells you whether accuracy, RMSE, or ranking metrics are appropriate.
 Classification targets are usually encoded as integers or one-hot vectors; regression targets are used as raw numbers.
 #### henrik
+#####
+
 
 
 ## 50. True or false: XOR is a linear problem that can be solved using linear models.
@@ -750,6 +1720,8 @@ Kernel methods or feature expansion can also make XOR linearly separable in a hi
 The statement is therefore exactly backwards: XOR is the textbook counter-example to linear separability.
 Any claim that a linear model solves XOR should be treated with immediate skepticism.
 #### henrik
+#####
+
 
 
 ## 51. Explain hyper-parameters vs learning coefficients in a machine learning model.
@@ -765,6 +1737,25 @@ Confusing the two leads to incorrect experimental design, e.g., tuning on the te
 The number of learned parameters often determines model capacity while hyper-parameters determine how that capacity is used.
 Good hyper-parameter choices can make the difference between a model that learns and one that does not converge at all.
 #### henrik
+#####
+
+
+
+## 51.58 What is a hyperparameter?
+###
+Hyperparameters are all the knobs you (the human) set before or during training that are not directly optimized by the learning algorithm.
+
+Examples:
+- Model architecture: number of layers, hidden size, activation type, number of trees
+- Optimization: learning rate, batch size, momentum, which optimizer
+- Regularization: dropout rate, L2 coefficient, early-stopping patience
+- Data pipeline: which features, encoding method, augmentation strength
+
+In contrast, the actual weights and biases inside the model are the parameters that gradient descent (or the tree splitting algorithm) learns from the data.
+
+You choose or search for good hyperparameter values using the validation set.
+#### grok
+#####
 
 
 ## 52. True or false: when training Batch Gradient Descent, the cost of approximation is expected to fluctuate during training?
@@ -780,6 +1771,8 @@ In practice pure batch gradient descent is rarely used for deep learning precise
 The statement confuses batch behavior with the stochastic variants that dominate modern training.
 A steadily decreasing full-batch loss curve is the expected and desired behavior.
 #### henrik
+#####
+
 
 
 ## 53. What are two ways of doing regularization in a deep neural network?
@@ -795,6 +1788,40 @@ Label smoothing and mixup are modern techniques that regularize the output distr
 Choosing two complementary methods (e.g., weight decay plus dropout) often yields the best results.
 Regularization is essential for deep networks because their high capacity makes overfitting easy.
 #### henrik
+#####
+
+
+
+
+## 53.59 What is dropout?
+###
+Dropout is a regularization technique for neural networks.
+
+During training, on every forward pass you randomly set a fraction p (commonly 0.2–0.5) of the activations in one or more layers to exactly zero.
+
+This prevents the network from relying too heavily on any particular neuron or co-adapting in fragile ways. It is like training an exponential number of different thinned sub-networks and then averaging them at test time.
+
+At inference you use the full network (sometimes the weights are scaled by 1-p so the expected activation magnitude stays the same).
+
+Extremely cheap to implement and surprisingly effective, especially in fully-connected layers.
+#### grok
+#####
+
+
+## 53.60 What is early stopping?
+###
+Early stopping is one of the simplest and most reliable regularization methods.
+
+While you train:
+- Periodically (every epoch or every N steps) evaluate the model on a held-out validation set
+- Remember the best validation score seen so far and the weights that produced it
+- If validation has not improved for "patience" consecutive evaluations, stop training and restore the best weights
+
+It stops the model from continuing to chase training-set noise after it has already extracted the generalizable signal.
+
+You still need a proper validation set that the model does not train on.
+#### grok
+#####
 
 
 ## 54. Which variation of K-Means is appropriate for non-parametric data?
@@ -810,6 +1837,27 @@ Gaussian mixture models are parametric (they assume Gaussian components) and the
 The question likely expects either DBSCAN or K-Medoids as the answer among K-Means variants.
 In short, any method that does not force spherical Voronoi partitions and makes fewer distributional assumptions.
 #### henrik
+#####
+
+
+
+
+## 54.61 What is DBSCAN?
+###
+DBSCAN is a density-based clustering algorithm that does not require you to specify the number of clusters upfront and can find clusters of arbitrary shape.
+
+You give it two parameters:
+- ε (epsilon): neighborhood radius
+- MinPts: minimum number of points required to form a dense region
+
+Core idea:
+- A core point has at least MinPts neighbors inside its ε-ball
+- Points that are density-reachable from core points belong to the same cluster
+- Points that are not reachable from any core point are labeled as noise
+
+Result: clusters can be concave, rings, interlocking shapes, etc. Outliers are explicitly marked instead of being forced into a cluster. K-Means cannot do any of that.
+#### grok
+#####
 
 
 ## 55. In Genetic Algorithms, what is the purpose of the fitness function?
@@ -825,6 +1873,8 @@ When the true objective is expensive, surrogate models are sometimes used to app
 Fitness may be scaled, ranked, or shared to maintain selection pressure and population diversity.
 Everything in a GA—selection, crossover, mutation—exists to improve the population according to this function.
 #### henrik
+#####
+
 
 
 ## 56. Name three centrality measures in statistics. What are their strengths and weaknesses?
@@ -840,6 +1890,8 @@ For any given data set one should examine the distribution and choose the measur
 Reporting all three together often gives a more complete picture than any single number.
 Misuse of the mean on skewed data is one of the most frequent statistical errors in public discourse.
 #### henrik
+#####
+
 
 
 ## 57. Most problems suited for Genetic Algorithms could also be solved using which kind of AI?
@@ -855,6 +1907,8 @@ The question probably expects "search algorithms" or "heuristic search / optimiz
 In modern terms many such problems are also addressed by learned heuristics or neural combinatorial optimization.
 GA are one powerful tool among a family of search and optimization methods in AI.
 #### henrik
+#####
+
 
 
 ## 58. What can we say about a model with 0.997 accuracy on the training set and 0.874 accuracy on the validation set?
@@ -870,6 +1924,8 @@ The training accuracy is suspiciously close to 1.0, suggesting the model may be 
 One should also check whether the validation set is drawn from the same distribution as the training set.
 In short, the model is not ready for deployment until the generalization gap is substantially reduced.
 #### henrik
+#####
+
 
 
 ## 59. True or false: when training Stochastic Gradient Descent, the cost of approximation is expected to fluctuate during training?
@@ -885,6 +1941,8 @@ Monitoring a smoothed version of the loss or validation metrics helps see the un
 Excessive fluctuation late in training can indicate that the learning rate is still too high.
 Fluctuating cost is normal, healthy behavior when using stochastic or mini-batch gradient descent.
 #### henrik
+#####
+
 
 
 ## 60. Name a clustering algorithm that is able to work with concave data sets.
@@ -900,6 +1958,8 @@ Any density-based or graph-based method generally succeeds where centroid-based 
 The key is to use connectivity or density rather than distance to the nearest centroid.
 DBSCAN is the most commonly cited answer when the question asks for a clustering algorithm for concave sets.
 #### henrik
+#####
+
 
 
 ## 61. A model deciding by flipping a coin is used to predict the outcome of flipping a coin. What is the expected accuracy and Youden’s index of this model’s performance?
@@ -915,6 +1975,8 @@ This random baseline is important when evaluating models on balanced binary prob
 On imbalanced data the accuracy of a random coin-flip model would still be close to the majority class frequency.
 The numbers 0.5 accuracy and 0 Youden's index are the null-model references for a fair coin prediction task.
 #### henrik
+#####
+
 
 
 ## 62. What is a decision boundary?
@@ -930,6 +1992,28 @@ The complexity of the learned boundary is directly related to the model's capaci
 In two dimensions the boundary is a curve; in higher dimensions it is a hyper-surface.
 Understanding the geometry of the decision boundary is fundamental to understanding what the classifier has learned.
 #### henrik
+#####
+
+
+
+## 62.62 What is a decision boundary?
+###
+The decision boundary is the surface (line in 2D, plane or curved surface in higher D) that separates the regions the classifier assigns to different classes.
+
+For a binary model that outputs probabilities:
+- one side of the surface → predicted positive
+- other side → predicted negative
+- exactly on the surface the model usually outputs ~0.5
+
+The geometry of the boundary tells you a lot about the model family:
+- straight line / flat hyperplane → linear model
+- axis-aligned boxes → decision tree
+- smooth curved manifold → neural net or RBF SVM
+- very fragmented / wiggly → probably overfitting
+
+Plotting the decision boundary (when you have only two features) is one of the best ways to develop intuition about what a classifier has actually learned.
+#### grok
+#####
 
 
 ## 63. What is the purpose of grid-search? Name an alternative approach.
@@ -945,6 +2029,37 @@ Other alternatives include evolutionary search, successive halving, and Hyperban
 The choice depends on the dimensionality of the hyper-parameter space and the cost of each evaluation.
 In modern practice random search or Bayesian optimization have largely replaced naïve grid search.
 #### henrik
+#####
+
+
+
+## 63.63 What is grid search?
+###
+Grid search is the brute-force approach to hyperparameter tuning.
+
+You define a small finite set of values for each hyperparameter you want to tune, then you try every possible combination (the Cartesian product).
+
+Example: learning_rate ∈ {0.001, 0.01, 0.1}, depth ∈ {3,5,7} → 9 models.
+
+Pros: trivial to implement and perfectly parallel.
+Cons: number of trials grows exponentially with the number of hyperparameters; you waste a lot of evaluations on combinations that are obviously bad.
+
+In practice random search or more intelligent methods (Bayesian optimization, successive halving, Hyperband, population-based training) almost always find better settings with the same or fewer trials.
+#### grok
+#####
+
+
+## 63.64 What is random search for hyper-parameters?
+###
+Random search samples random combinations from the ranges or distributions you specify for each hyperparameter, instead of evaluating a full grid.
+
+Even though it sounds naive, it is often dramatically more efficient than grid search for the same number of trials.
+
+Reason: in high-dimensional hyperparameter spaces most of the volume is in the "corners". Grid search spends a lot of effort on fine-grained combinations along axes that do not matter much. Random search explores a much wider variety of values for the actually important hyperparameters.
+
+You simply decide "I will try 100 random combinations" and keep the best one according to validation performance. Modern tools layer even smarter search strategies on top of it.
+#### grok
+#####
 
 
 ## 64. What operation must always be performed on a data set before applying principal component analysis?
@@ -960,6 +2075,8 @@ After centering the data matrix has columns that each sum to zero.
 Only after this preprocessing step should the covariance matrix or SVD be computed.
 Skipping centering is one of the most common beginner mistakes when applying PCA.
 #### henrik
+#####
+
 
 
 
@@ -976,6 +2093,8 @@ Both metrics are minimized by different point estimators (mean for MSE/RMSE, med
 Reporting both together gives a fuller picture of error distribution and outlier influence.
 Huber loss and other robust losses attempt to combine the best properties of squared and absolute errors.
 #### henrik
+#####
+
 
 
 ## 66. True or false: ratio data is preferable over interval data?
@@ -991,6 +2110,9 @@ For some attributes (temperature, calendar dates) an interval scale is the only 
 The statement is therefore broadly correct as a general principle of measurement theory.
 When designing data collection one should aim for the highest scale type that the attribute logically supports.
 #### henrik
+#####
+
+
 
 
 ## 67. You are training a Genetic Algorithm but the models does not seem to improved over generations. How would you try to solve the problem?
@@ -1006,6 +2128,8 @@ Consider niching or fitness sharing techniques that explicitly maintain diversit
 If the problem is deceptive, try a multi-objective formulation or a different representation altogether.
 Systematic diagnosis of the fitness landscape and population statistics is the first step before random tweaking.
 #### henrik
+#####
+
 
 
 
@@ -1022,6 +2146,42 @@ In continuous spaces one often learns a policy directly rather than a value func
 The correct answer is therefore false; a Q-table cannot be used for continuous state/action reinforcement learning.
 Tabular methods are mainly of pedagogical and historical interest for small grid-world problems.
 #### henrik
+#####
+
+
+
+## 68.65 What is Q-learning?
+###
+Q-learning is a foundational reinforcement-learning algorithm that learns the optimal action-value function Q(s, a).
+
+Q(s, a) = expected total future discounted reward if you are in state s, take action a, and from then on always act optimally.
+
+The famous update (tabular version):
+    Q(s,a) ← Q(s,a) + α * ( r + γ * max Q(s', a') - Q(s,a) )
+
+It is off-policy: the behavior policy (how you choose actions while learning) can be anything (e.g. epsilon-greedy) while you still learn the optimal Q.
+
+Classic tabular Q-learning only works for tiny discrete state/action spaces. For anything realistic you need function approximation (Deep Q-Networks) or you move to actor-critic / policy gradient methods.
+#### grok
+#####
+
+
+## 68.66 What is reinforcement learning?
+###
+Reinforcement learning (RL) is the area of machine learning that studies how an agent should choose actions over time to maximize cumulative reward while interacting with an environment.
+
+Instead of labeled (input, target) pairs you have:
+- observations of the current state
+- a reward signal (scalar, can be positive or negative, delayed)
+- a set of possible actions
+
+The agent tries things, receives rewards, and gradually learns a policy that produces high long-term reward.
+
+Famous successes: AlphaGo / AlphaZero, Atari games from pixels, robotic manipulation, data-center cooling, trading strategies, recommendation systems.
+
+It is neither fully supervised (you don't have the "correct" action for each state) nor unsupervised (you do get a learning signal — the reward).
+#### grok
+#####
 
 
 ## 69. True or false: a problem must be falsifiable to be a scientific question.
@@ -1037,6 +2197,9 @@ Nevertheless, the requirement remains a useful heuristic for identifying scienti
 Machine learning research questions are scientific only when they make testable predictions about model behavior or data.
 The statement is a direct expression of Popper's demarcation criterion between science and non-science.
 #### henrik
+#####
+
+
 
 
 ## 70. Explain how the null-hypothesis relates to a hypothesis.
@@ -1052,6 +2215,8 @@ The relationship is asymmetric: we can only ever reject the null, never accept i
 Misunderstanding this asymmetry is the source of many common errors in interpreting p-values.
 Every inferential test therefore begins by clearly stating both the null and the substantive hypothesis under investigation.
 #### henrik
+#####
+
 
 
 ## 71. Which of these are more sensitive to outliers: MSE or MAE.
@@ -1067,6 +2232,9 @@ One can examine the difference between RMSE and MAE to diagnose the influence of
 If RMSE >> MAE the errors are likely dominated by a few large deviations.
 The answer is therefore MSE (or equivalently RMSE) is the more outlier-sensitive of the two.
 #### henrik
+#####
+
+
 
 
 ## 72. Explain the softmax function.
@@ -1082,6 +2250,27 @@ The derivative of softmax is simple and can be expressed in terms of the softmax
 When combined with cross-entropy loss the gradient simplifies nicely, yielding the familiar "prediction minus target" form.
 Softmax is what allows neural networks to output calibrated class probabilities for mutually exclusive categories.
 #### henrik
+#####
+
+
+
+
+## 72.67 What does the softmax function do?
+###
+Softmax converts a vector of raw scores (called logits) into a valid probability distribution over multiple mutually exclusive classes.
+
+For a vector z of length C:
+    softmax(z)_i = exp(z_i) / sum_{j=1 to C} exp(z_j)
+
+Guarantees:
+- every output > 0
+- all outputs sum to exactly 1
+
+It is the standard final activation for multi-class classification networks. It is almost always paired with categorical cross-entropy loss; the combination gives a very convenient gradient: (predicted_probabilities - one_hot_target).
+
+You can divide the logits by a "temperature" T before applying softmax to make the distribution softer (T>1) or sharper (T<1).
+#### grok
+#####
 
 
 ## 73. You want to design a deep neural network for a Genetic Algorithm to play the classic 8-bit game Lunar Lander. The State space is defined as follows: S = {x, y, vx, vy} for x-position, y-position, x-velocity, and y-velocity, respectively. All state space variables are relative to the center of the landing platform. The Action space is defined as follows: A = {tmain, tleft, tright} for main-thruster, left-thruster, and right-thruster, respectively. How would you design the deep neural network?
@@ -1097,6 +2286,11 @@ If the GA is used inside a reinforcement learning loop, the output can be Q-valu
 Because the state space is tiny, even a modest feed-forward network can represent a good policy.
 The overall design is a small multi-layer perceptron whose weights are the genome optimized by the genetic algorithm.
 #### henrik
+#####
+
+
 
 
 //// henrik
+officiell spoergsmaal fra henrik
+
