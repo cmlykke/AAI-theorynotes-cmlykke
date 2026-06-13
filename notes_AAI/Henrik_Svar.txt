@@ -407,7 +407,7 @@ Without a non-linear activation the whole deep network would mathematically redu
 
 
 
-## What is the universal approximation theorem?
+## 6.22 What is the universal approximation theorem?
 ###
 The universal approximation theorem is a fundamental result in neural network theory.
 
@@ -425,7 +425,7 @@ This is why "non-linear activation" is non-negotiable: without it the whole netw
 #####
 
 
-## What is a bounded vs unbounded activation function?
+## 6.23 What is a bounded vs unbounded activation function?
 ###
 A bounded activation squashes its output into a fixed limited range, no matter how large the input.
 
@@ -446,7 +446,7 @@ Why it matters:
 #####
 
 
-## What does 'zero-centered' mean for an activation function?
+## 6.24 What does 'zero-centered' mean for an activation function?
 ###
 An activation is zero-centered (or approximately zero-centered) if its outputs are balanced around zero — roughly half positive, half negative on average, or the mean output is near 0.
 
@@ -463,7 +463,7 @@ Why practitioners care:
 #####
 
 
-## What is a piecewise linear activation function?
+## 6.25  What is a piecewise linear activation function?
 ###
 A piecewise linear function is defined by different linear pieces in different regions.
 
@@ -502,7 +502,7 @@ In general, latent spaces are useful for generation and interpolation but requir
 
 
 
-## 7.22 What is a latent space?
+## 7.26 What is a latent space?
 ###
 The latent space is the (usually much smaller) vector space that an autoencoder, VAE, or similar model maps the raw high-dimensional input into.
 
@@ -535,7 +535,7 @@ Misclassifying data type can lead to invalid operations such as averaging ordina
 
 
 
-## What is nominal data?
+## 8.27 What is nominal data?
 ###
 Nominal data is the most basic categorical type.
 
@@ -555,7 +555,7 @@ In ML we usually one-hot encode or use embeddings for nominal features.
 #####
 
 
-## What is ordinal data?
+## 8.28 What is ordinal data?
 ###
 Ordinal data has a natural order or ranking, but the differences between ranks are not necessarily equal or meaningful.
 
@@ -572,7 +572,7 @@ In decision trees you can often use ordinal data directly; in linear models or n
 #####
 
 
-## What is interval data?
+## 8.29 What is interval data?
 ###
 Interval data has equal intervals between values and you can add/subtract meaningfully, but there is no true absolute zero.
 
@@ -588,7 +588,7 @@ In ML you can usually treat interval data as numeric (after possible scaling).
 #####
 
 
-## What is ratio data?
+## 8.30 What is ratio data?
 ###
 Ratio data is the highest level: it has a true absolute zero, equal intervals, and meaningful ratios.
 
@@ -607,7 +607,7 @@ In ML ratio data is usually the easiest to work with directly as numeric feature
 #####
 
 
-## What is one-hot encoding?
+## 8.31 What is one-hot encoding?
 ###
 One-hot encoding is the standard way to turn a nominal (or sometimes ordinal) categorical variable into numeric features that most ML algorithms can use.
 
@@ -625,7 +625,7 @@ Downsides: can explode the number of features if a column has hundreds of catego
 #####
 
 
-## What is ordinal encoding?
+## 8.32 What is ordinal encoding?
 ###
 Ordinal encoding turns an ordinal categorical variable into a single integer column that respects the natural order.
 
@@ -657,7 +657,7 @@ Generalization enables reliable deployment and trustworthy performance estimates
 
 
 
-## 9.23 What is overfitting?
+## 9.33 What is overfitting?
 ###
 Overfitting = the model has memorized the exact training examples (including their noise and accidental correlations) instead of learning general rules that also work on new data.
 
@@ -673,7 +673,7 @@ Cures: more/better data, smaller model, L2, dropout, early stopping, data augmen
 #####
 
 
-## 9.24 What does 'generalization' mean?
+## 9.34 What does 'generalization' mean?
 ###
 Generalization is the ability of a model to keep working well on data it has never seen before.
 
@@ -703,7 +703,7 @@ The choice depends on data availability, the nature of the task, and whether gro
 
 
 
-## 10.25 What is supervised learning?
+## 10.35 What is supervised learning?
 ###
 Supervised learning = learning from labeled examples.
 
@@ -718,7 +718,7 @@ The labels are usually the expensive part (human annotation, sensors, historical
 #####
 
 
-## 10.26 What is unsupervised learning?
+## 10.36 What is unsupervised learning?
 ###
 Unsupervised learning = finding structure in data that has no labels.
 
@@ -750,7 +750,7 @@ The goal is to find the sweet spot of model complexity that minimizes total expe
 
 
 
-## 11.27 What is the bias-variance tradeoff?
+## 11.37 What is the bias-variance tradeoff?
 ###
 When you evaluate a model on unseen data you can decompose the expected error into three parts:
 
@@ -784,7 +784,7 @@ The parenthetical note correctly describes it as the Ridge regularization penalt
 
 
 
-## 12.28 What is regularization?
+## 12.38 What is regularization?
 ###
 Regularization = any trick that makes the model slightly worse on the training data on purpose, so that it becomes better on unseen data.
 
@@ -803,7 +803,7 @@ Almost every high-performing deep learning model you see in production uses seve
 #####
 
 
-## 12.29 What is L2 regularization (also called weight decay or Ridge)?
+## 12.39 What is L2 regularization (also called weight decay or Ridge)?
 ###
 L2 regularization adds the term (λ / 2) * sum(w_i²) to the loss you are minimizing.
 
@@ -836,7 +836,7 @@ Always investigate possible confounding factors and alternative explanations bef
 
 
 
-## What is a confounding variable?
+## 13.40 What is a confounding variable?
 ###
 A confounder is a hidden third variable that affects both the variable you think is the cause and the one you think is the effect.
 
@@ -851,7 +851,7 @@ Techniques to handle it: randomized controlled trials, instrumental variables, c
 #####
 
 
-## What is a spurious correlation?
+## 13.41 What is a spurious correlation?
 ###
 A spurious correlation is a statistical association between two variables that is not causal — it appears by chance, because of a confounder, or because both are driven by a common trend (e.g. time).
 
@@ -866,7 +866,7 @@ The Q13 answer emphasizes that you need more than correlation (controlled experi
 #####
 
 
-## What is causal inference (or causal graphical models)?
+## 13.42 What is causal inference (or causal graphical models)?
 ###
 Causal inference is the field that tries to answer "what happens if we intervene and change X?" rather than just "what is associated with X?"
 
@@ -900,7 +900,7 @@ Many production systems start with Random Forest and only move to deep learning 
 
 
 
-## 14.30 What is a Random Forest?
+## 14.43 What is a Random Forest?
 ###
 A Random Forest is an ensemble of decision trees trained with bagging + random feature selection at each split.
 
@@ -914,7 +914,7 @@ Benefits: much higher accuracy than one tree, resistant to overfitting, gives yo
 #####
 
 
-## 14.31 What is an ensemble method?
+## 14.44 What is an ensemble method?
 ###
 An ensemble method combines several models to produce one stronger predictor.
 
@@ -947,7 +947,7 @@ In short, difficult discrete or black-box optimization problems with no obvious 
 
 
 
-## What is combinatorial optimization?
+## 15.45 What is combinatorial optimization?
 ###
 Combinatorial optimization is the problem of finding the best combination or arrangement from a (usually huge) discrete set of possibilities.
 
@@ -964,7 +964,7 @@ This is exactly why genetic algorithms, simulated annealing, and other metaheuri
 #####
 
 
-## What is black-box optimization?
+## 15.46 What is black-box optimization?
 ###
 Black-box optimization means you can evaluate how good a candidate solution is (the "objective" or "fitness"), but you have no access to the internal workings, gradients, or mathematical structure of the problem.
 
@@ -980,7 +980,7 @@ Genetic algorithms, Bayesian optimization, and evolutionary strategies are popul
 #####
 
 
-## What does 'multimodal' mean for an objective function?
+## 15.47 What does 'multimodal' mean for an objective function?
 ###
 A multimodal function has multiple local optima (peaks or valleys).
 
@@ -1010,7 +1010,7 @@ It is the foundation of training virtually all modern neural networks via backpr
 
 
 
-## 16.32 What is gradient descent?
+## 16.48 What is gradient descent?
 ###
 Gradient descent is the fundamental optimization algorithm behind almost all modern neural network training.
 
@@ -1027,7 +1027,7 @@ Pure gradient descent on the full data set (batch GD) is rarely used; variants t
 #####
 
 
-## 16.33 What is Stochastic Gradient Descent (SGD)?
+## 16.49 What is Stochastic Gradient Descent (SGD)?
 ###
 SGD updates the weights using the gradient computed from only one training example (or a very small mini-batch) at a time, instead of the whole data set.
 
@@ -1043,7 +1043,7 @@ In 2025 "SGD" in deep learning almost always means mini-batch SGD.
 #####
 
 
-## 16.34 What is a mini-batch?
+## 16.50 What is a mini-batch?
 ###
 A mini-batch is a small random subset of the training data used for one gradient computation and weight update.
 
@@ -1059,7 +1059,7 @@ The batch size is an important hyperparameter that interacts strongly with learn
 #####
 
 
-## 16.35 What is the learning rate?
+## 16.51 What is the learning rate?
 ###
 The learning rate (lr) is the hyperparameter that controls how big a step you take when you apply the gradient to the weights:
 
@@ -1095,7 +1095,7 @@ The architecture is symmetric: the decoder is often a mirror image of the encode
 
 
 
-## What is the bottleneck layer in an autoencoder?
+## 17.52 What is the bottleneck layer in an autoencoder?
 ###
 The bottleneck (or latent layer) is the narrow middle layer in the autoencoder architecture.
 
@@ -1108,7 +1108,7 @@ This is what gives autoencoders their power for dimensionality reduction, featur
 #####
 
 
-## What is a denoising autoencoder?
+## 17.53 What is a denoising autoencoder?
 ###
 A denoising autoencoder is trained to reconstruct the original clean input from a corrupted/noisy version of it.
 
@@ -1121,7 +1121,7 @@ It is a popular variant for learning features from images, text, or sensor data 
 #####
 
 
-## What is a Variational Autoencoder (VAE)?
+## 17.54 What is a Variational Autoencoder (VAE)?
 ###
 A VAE is a probabilistic version of an autoencoder.
 
@@ -1156,7 +1156,7 @@ In ensemble methods such as Random Forest many such trees are trained and their 
 
 
 
-## 18.36 What is a decision tree in machine learning?
+## 18.55 What is a decision tree in machine learning?
 ###
 A decision tree is a model that predicts by asking a series of simple "is feature X <= threshold?" questions and following the branches until it reaches a leaf.
 
@@ -1188,7 +1188,7 @@ The parenthetical note in the file correctly identifies it as the standard loss 
 
 
 
-## 19.37 What is binary cross-entropy (log loss)?
+## 19.56 What is binary cross-entropy (log loss)?
 ###
 Binary cross-entropy is the standard loss function when you train a model that outputs a probability for a binary label.
 
@@ -1223,7 +1223,7 @@ Domain-specific costs should guide which metric is optimized and reported as the
 
 
 
-## What is true positive rate (TPR) vs false positive rate (FPR)?
+## 20.57 What is true positive rate (TPR) vs false positive rate (FPR)?
 ###
 True Positive Rate (also called recall or sensitivity) = TP / (TP + FN)
    How many of the actual positives did we catch?
@@ -1240,7 +1240,7 @@ The area under that curve is ROC-AUC.
 #####
 
 
-## What is specificity?
+## 20.58 What is specificity?
 ###
 Specificity (true negative rate) = TN / (TN + FP)
 
@@ -1253,7 +1253,7 @@ Youden's index = sensitivity + specificity - 1 is one way to summarize both.
 #####
 
 
-## What are macro and weighted averages for multi-class metrics?
+## 20.59 What are macro and weighted averages for multi-class metrics?
 ###
 When you have more than two classes, you usually compute precision, recall, F1 etc. per class, then aggregate.
 
@@ -1285,7 +1285,7 @@ Always report several complementary metrics because no single number fully descr
 
 
 
-## 21.38 What is RMSE?
+## 21.60 What is RMSE?
 ###
 RMSE (Root Mean Squared Error) = sqrt( mean( (prediction - true)^2 ) )
 
@@ -1298,7 +1298,7 @@ Compare RMSE and MAE on the same data set: if RMSE is much larger than MAE you k
 #####
 
 
-## 21.39 What is R-squared (R²)?
+## 21.61 What is R-squared (R²)?
 ###
 R² measures the proportion of the variance in the target that is "explained" by your model.
 
@@ -1330,7 +1330,7 @@ However, their main practical advantage appears when the target function is inde
 
 
 
-## What does 'universal approximation theorem' say again in this context?
+## 22.62 What does 'universal approximation theorem' say again in this context?
 ###
 It guarantees that sufficiently large neural networks (with non-linear activations) can represent essentially any continuous function.
 
@@ -1375,7 +1375,7 @@ The XOR example remains the minimal pedagogical case showing the necessity of hi
 
 
 
-## 24.40 What is the XOR problem?
+## 24.63 What is the XOR problem?
 ###
 XOR is the logical function that is true exactly when the two inputs differ.
 
@@ -1392,7 +1392,7 @@ A network with one hidden layer and non-linear activations can solve it easily. 
 #####
 
 
-## 24.41 What does 'linearly separable' mean?
+## 24.64 What does 'linearly separable' mean?
 ###
 Two classes are linearly separable if there exists at least one straight line (2D) or hyperplane (higher dimensions) such that all points of class A lie on one side and all points of class B lie on the other side.
 
@@ -1420,7 +1420,7 @@ Algorithms such as DBSCAN or spectral clustering can produce non-convex regions 
 
 
 
-## 25.42 What is K-Means clustering?
+## 25.65 What is K-Means clustering?
 ###
 K-Means is the classic "partition into k spherical clusters" algorithm.
 
@@ -1437,7 +1437,7 @@ The final assignment creates a Voronoi diagram. The algorithm is fast, easy to u
 #####
 
 
-## 25.43 What is a Voronoi diagram (tessellation)?
+## 25.66 What is a Voronoi diagram (tessellation)?
 ###
 Given a set of sites (points), a Voronoi diagram divides the whole space into cells such that every location inside a cell is closer to its own site than to any other site.
 
@@ -1467,7 +1467,7 @@ After projection one should verify that the retained variance is acceptable for 
 
 
 
-## 26.44 What is Principal Component Analysis (PCA)?
+## 26.67 What is Principal Component Analysis (PCA)?
 ###
 PCA is the standard linear method for dimensionality reduction, compression, noise removal, and visualization.
 
@@ -1482,7 +1482,7 @@ You keep the axes that contain most of the "spread" in the data and throw away t
 #####
 
 
-## 26.45 What is dimensionality reduction?
+## 26.68 What is dimensionality reduction?
 ###
 Dimensionality reduction = taking data that lives in hundreds or thousands of dimensions and mapping it into a much smaller number of dimensions while preserving as much of the useful information as possible.
 
@@ -1516,7 +1516,7 @@ It is the most fundamental diagnostic tool before any scalar metric is computed 
 
 
 
-## What does 'support' mean in a confusion matrix or classification report?
+## 27.69 What does 'support' mean in a confusion matrix or classification report?
 ###
 Support = the number of true examples of each class in the data set you are evaluating on.
 
@@ -1532,7 +1532,7 @@ Most classification reports print support next to precision/recall/F1 for each c
 #####
 
 
-## What is a normalized confusion matrix?
+## 27.70 What is a normalized confusion matrix?
 ###
 A raw confusion matrix shows counts.
 
@@ -1579,7 +1579,7 @@ Both are impurity measures that reach zero when a node contains only one class.
 
 
 
-## 29.46 What is Gini impurity?
+## 29.71 What is Gini impurity?
 ###
 Gini impurity is a measure of how mixed the classes are inside one node of a decision tree.
 
@@ -1595,7 +1595,7 @@ When growing a tree the algorithm tries every possible split and chooses the one
 #####
 
 
-## 29.47 What is information gain?
+## 29.72 What is information gain?
 ###
 Information gain is the reduction in entropy (uncertainty) you get by splitting a node.
 
@@ -1627,7 +1627,7 @@ Understanding the category prevents nonsensical operations such as averaging jer
 
 
 
-## What is the difference between qualitative and quantitative data?
+## 30.73 What is the difference between qualitative and quantitative data?
 ###
 Qualitative (categorical) data describes qualities or categories. You can count and group, but arithmetic usually doesn't make sense.
 
@@ -1661,7 +1661,7 @@ It bridges the introduction (why) and the results (what was found) by explaining
 
 
 
-## What is reproducibility in machine learning research?
+## 31.74 What is reproducibility in machine learning research?
 ###
 Reproducibility means that someone else (or you in the future) can take the description in the paper and obtain the same (or very similar) results.
 
@@ -1712,7 +1712,7 @@ SIMD is one of the fundamental reasons why deep learning became computationally 
 
 
 
-## 33.48 What is SIMD and why does it make machine learning fast?
+## 33.75 What is SIMD and why does it make machine learning fast?
 ###
 SIMD = Single Instruction, Multiple Data.
 
@@ -1744,7 +1744,7 @@ These two operations are the defining building blocks that make CNNs so successf
 
 
 
-## 34.49 What is a convolution (in CNNs)?
+## 34.76 What is a convolution (in CNNs)?
 ###
 A convolution layer slides small learnable filters (kernels, typically 1x1, 3x3 or 5x5) across the input.
 
@@ -1761,7 +1761,7 @@ Stacking many conv layers lets the network build hierarchical features from simp
 #####
 
 
-## 34.50 What is a pooling layer?
+## 34.77 What is a pooling layer?
 ###
 A pooling layer downsamples a feature map, most commonly by taking the maximum (max-pool) or the average inside small non-overlapping (or overlapping) windows.
 
@@ -1777,7 +1777,7 @@ In many modern architectures strided convolutions have largely replaced explicit
 #####
 
 
-## 34.51 What is a Convolutional Neural Network (CNN)?
+## 34.78 What is a Convolutional Neural Network (CNN)?
 ###
 A CNN is a neural net architecture designed for data that has grid structure (images, spectrograms, some time-series, …).
 
@@ -1807,7 +1807,7 @@ The (0,1) range is therefore both the main advantage for output interpretation a
 
 
 
-## What is the sigmoid activation function (and why its output range matters)?
+## 35.79 What is the sigmoid activation function (and why its output range matters)?
 ###
 Sigmoid is the classic S-shaped function:
 
@@ -1833,7 +1833,7 @@ Tanh is similar but maps to (-1, +1) and is zero-centered, which often helps a b
 #####
 
 
-## What does 'well-calibrated probabilities' mean?
+## 35.80 What does 'well-calibrated probabilities' mean?
 ###
 A model that outputs probabilities is well-calibrated when the number it gives actually matches reality.
 
@@ -1848,7 +1848,7 @@ In the Q35 answer, the point is that the (0,1) range from sigmoid makes the numb
 #####
 
 
-## What is multi-label classification?
+## 35.81 What is multi-label classification?
 ###
 In multi-label classification each example can have multiple correct labels at the same time (unlike normal multi-class where labels are mutually exclusive).
 
@@ -1883,7 +1883,7 @@ In short, they are what give neural networks their expressive power beyond linea
 
 
 
-## What does 'non-linearity' mean in neural networks?
+## 36.82 What does 'non-linearity' mean in neural networks?
 ###
 A non-linear function is anything that is not a straight line (in math: f(ax + b) ≠ a*f(x) + b for all a,b).
 
@@ -1896,7 +1896,7 @@ That is why the universal approximation theorem requires non-linear activations.
 #####
 
 
-## What are width and depth in a neural network?
+## 36.83 What are width and depth in a neural network?
 ###
 Depth = number of layers (how many times we apply a linear transform + activation).
 
@@ -1910,7 +1910,7 @@ Modern successful networks are both deep (dozens or hundreds of layers) and wide
 #####
 
 
-## What are exploding gradients?
+## 36.84 What are exploding gradients?
 ###
 The opposite problem of vanishing gradients.
 
@@ -1928,7 +1928,7 @@ Common fixes:
 #####
 
 
-## What is a decision boundary?
+## 36.85 What is a decision boundary?
 ###
 The decision boundary is the surface (line in 2D, curved surface or hyper-surface in higher dimensions) that separates the regions where the model predicts different classes.
 
@@ -1962,7 +1962,7 @@ In any case the described mistake is not a Type I error under the standard medic
 
 
 
-## What is a Type I error?
+## 37.86 What is a Type I error?
 ###
 A Type I error (false positive) happens when you reject the null hypothesis even though it is actually true.
 
@@ -1977,7 +1977,7 @@ The probability of making a Type I error is often called alpha (α) or the signi
 #####
 
 
-## What is a Type II error?
+## 37.87 What is a Type II error?
 ###
 A Type II error (false negative) happens when you fail to reject the null hypothesis even though it is actually false.
 
@@ -2011,7 +2011,7 @@ Overall, human comparison is a recommended practice whenever the ultimate user o
 
 
 
-## What is a baseline (in machine learning)?
+## 38.88 What is a baseline (in machine learning)?
 ###
 A baseline is a simple reference model or number that you compare your fancy model against.
 
@@ -2045,7 +2045,7 @@ The main trade-off is computational cost: more samples yield better estimates bu
 
 
 
-## 39.52 What are Monte Carlo methods in machine learning?
+## 39.89 What are Monte Carlo methods in machine learning?
 ###
 Monte Carlo = using many random samples to estimate something you cannot compute analytically.
 
@@ -2061,7 +2061,7 @@ More samples → better estimate, at linear cost. The law of large numbers guara
 #####
 
 
-## What is Bayesian inference?
+## 39.90 What is Bayesian inference?
 ###
 Bayesian inference is a way of updating beliefs about unknown quantities as you see more data, using probability theory (Bayes' rule).
 
@@ -2075,7 +2075,7 @@ In machine learning:
 #####
 
 
-## What is an 'episode' in reinforcement learning?
+## 39.91 What is an 'episode' in reinforcement learning?
 ###
 In RL, an episode is one complete sequence of interaction with the environment from a starting state until a terminal state (or a fixed time limit).
 
@@ -2090,7 +2090,7 @@ This is in contrast to temporal-difference (TD) methods that learn from incomple
 #####
 
 
-## What is Monte Carlo dropout?
+## 39.92 What is Monte Carlo dropout?
 ###
 A simple trick to get uncertainty estimates from a normal neural network at inference time.
 
@@ -2105,7 +2105,7 @@ It is surprisingly effective and cheap compared with full Bayesian neural nets.
 #####
 
 
-## What are bootstrap methods?
+## 39.93 What are bootstrap methods?
 ###
 Bootstrap = a statistical resampling technique.
 
@@ -2140,7 +2140,7 @@ Good modeling is therefore the art of being wrong in ways that are still useful 
 
 
 
-## What does 'out-of-distribution' (OOD) mean?
+## 40.94 What does 'out-of-distribution' (OOD) mean?
 ###
 Out-of-distribution data is input that comes from a different distribution than the training data.
 
@@ -2153,7 +2153,7 @@ This is why "even the best deep networks are still wrong in subtle ways on out-o
 #####
 
 
-## What is an edge case?
+## 40.95 What is an edge case?
 ###
 An edge case is a rare or extreme situation at the boundary of what the system is designed for.
 
@@ -2184,7 +2184,7 @@ Both are essential: good description precedes and informs any valid inference.
 
 
 
-## What are descriptive statistics?
+## 41.96 What are descriptive statistics?
 ###
 Descriptive statistics just summarize and describe the data you actually have in front of you.
 
@@ -2200,7 +2200,7 @@ In ML we use them heavily during EDA (exploratory data analysis) and to understa
 #####
 
 
-## What are inferential statistics?
+## 41.97 What are inferential statistics?
 ###
 Inferential statistics use the sample you have to draw conclusions about a larger population or future data-generating process.
 
@@ -2217,7 +2217,7 @@ In ML, when you report "we expect 87% accuracy on future customers", you are doi
 #####
 
 
-## What is exploratory data analysis (EDA)?
+## 41.98 What is exploratory data analysis (EDA)?
 ###
 EDA is the process of looking at your data with summary statistics, visualizations, and simple queries *before* you start heavy modeling.
 
@@ -2233,7 +2233,7 @@ In the Q41 answer it is listed as one of the main uses of descriptive statistics
 #####
 
 
-## What is feature engineering?
+## 41.99 What is feature engineering?
 ###
 Feature engineering is the art of creating new input features from the raw data that make the learning problem easier for the model.
 
@@ -2248,7 +2248,7 @@ Good features can be more important than the choice of algorithm. Modern deep le
 #####
 
 
-## What is a p-value?
+## 41.100 What is a p-value?
 ###
 A p-value is the probability of seeing data at least as extreme as what you observed, *assuming the null hypothesis is true*.
 
@@ -2263,7 +2263,7 @@ The Q41 answer lists hypothesis testing, confidence intervals, and p-values as c
 #####
 
 
-## What is a confidence interval?
+## 41.101 What is a confidence interval?
 ###
 A confidence interval is a range of plausible values for an unknown population parameter (e.g. true accuracy, true difference between two models), computed from sample data.
 
@@ -2278,7 +2278,7 @@ In ML we use confidence intervals or credible intervals (Bayesian) when we want 
 #####
 
 
-## What is hypothesis testing (in the ML context)?
+## 41.102 What is hypothesis testing (in the ML context)?
 ###
 Hypothesis testing is the formal procedure for deciding whether the data provide enough evidence against a null hypothesis (usually "no difference" or "no effect").
 
@@ -2311,7 +2311,7 @@ This reconstruction-error baseline is the most direct and widely used method for
 
 
 
-## What does '3 sigma' (or 2σ, 4σ) threshold mean for anomaly detection?
+## 42.103 What does '3 sigma' (or 2σ, 4σ) threshold mean for anomaly detection?
 ###
 In a normal distribution, roughly:
 - 68% of data lies within 1 standard deviation (σ) of the mean
@@ -2327,7 +2327,7 @@ This is a very common simple baseline for autoencoder anomaly detection when you
 #####
 
 
-## What is a percentile cutoff?
+## 42.104  What is a percentile cutoff?
 ###
 Instead of using standard deviations, you can directly take a high percentile of the reconstruction errors seen on normal data.
 
@@ -2340,7 +2340,7 @@ Fitting a gamma or other distribution and taking a theoretical percentile is a m
 #####
 
 
-## What is a secondary classifier in anomaly detection?
+## 42.105 What is a secondary classifier in anomaly detection?
 ###
 Instead of (or in addition to) a simple threshold on reconstruction error, you can treat the reconstruction error (and perhaps other features derived from the autoencoder) as input features to a second, normal supervised classifier.
 
@@ -2368,7 +2368,7 @@ The test set performance is the number you are allowed to report as the model's 
 
 
 
-## 43.53 Why split data into training, validation, and test sets?
+## 43.106 Why split data into training, validation, and test sets?
 ###
 Three sets, three different jobs, strict discipline:
 
@@ -2400,7 +2400,7 @@ Training adjusts millions or billions of parameters so that the network maps inp
 
 
 
-## 44.54 What is a 'deep' neural network?
+## 44.107 What is a 'deep' neural network?
 ###
 A neural network is called deep when it has several (often many) hidden layers between the raw input and the final output.
 
@@ -2416,7 +2416,7 @@ Making networks deep (and wide) only became practical after we solved the vanish
 #####
 
 
-## What is a tensor in machine learning?
+## 44.108 What is a tensor in machine learning?
 ###
 In modern ML frameworks (PyTorch, TensorFlow, JAX, NumPy), a tensor is a multi-dimensional array — a generalization of vectors (1D) and matrices (2D) to any number of dimensions.
 
@@ -2430,7 +2430,7 @@ Tensors support the same math operations as arrays but are heavily optimized for
 #####
 
 
-## What are skip connections and residual blocks?
+## 44.109 What are skip connections and residual blocks?
 ###
 A skip connection (or residual connection) adds the input of a block directly to its output, bypassing one or more layers:
 
@@ -2445,7 +2445,7 @@ They were a key innovation that allowed training networks with hundreds of layer
 #####
 
 
-## What are logits?
+## 44.110 What are logits?
 ###
 Logits are the raw, unnormalized scores that come out of the last linear layer of a classifier, before any activation (sigmoid or softmax) is applied.
 
@@ -2460,7 +2460,7 @@ Many loss functions (cross-entropy) are mathematically nicer when expressed in t
 #####
 
 
-## What are recurrent and attention layers?
+## 44.111 What are recurrent and attention layers?
 ###
 Recurrent layers (RNN, LSTM, GRU) process sequences step by step while maintaining a hidden state that carries information from previous time steps. Good for variable-length sequences but hard to train on long sequences (vanishing gradients).
 
@@ -2489,7 +2489,7 @@ This disciplined procedure yields a reliable estimate of how well the model will
 
 
 
-## What is an epoch in neural network training?
+## 45.112 What is an epoch in neural network training?
 ###
 One epoch = one complete pass through the entire training set.
 
@@ -2504,7 +2504,7 @@ Monitoring training and validation curves vs. epoch is the standard way to diagn
 #####
 
 
-## What is a pre-training scheme?
+## 45.113 What is a pre-training scheme?
 ###
 Pre-training = first training a model on a large, cheap, or related data set (often with a self-supervised objective) before fine-tuning it on the actual smaller labeled task you care about.
 
@@ -2517,7 +2517,7 @@ A "sensible pre-training scheme" in the Q45 answer means using a reasonable init
 #####
 
 
-## What are forward and backward passes?
+## 45.114 What are forward and backward passes?
 ###
 Forward pass: run the input through the network layer by layer to compute the predictions (and the loss).
 
@@ -2533,7 +2533,7 @@ The Q45 answer emphasizes that during training you only run these on the trainin
 #####
 
 
-## What is the 'patience' period in early stopping?
+## 45.115 What is the 'patience' period in early stopping?
 ###
 When using early stopping, you monitor validation performance after every epoch (or every N steps).
 
@@ -2564,7 +2564,7 @@ The core principle is that a committee of weak but diverse experts usually outpe
 
 
 
-## 46.55 What is bagging?
+## 46.116 What is bagging?
 ###
 Bagging (Bootstrap Aggregating) is an ensemble technique whose main goal is to reduce variance.
 
@@ -2580,7 +2580,7 @@ Random Forest is the most famous bagging method (plus extra randomness in featur
 #####
 
 
-## 46.56 What is boosting?
+## 46.117 What is boosting?
 ###
 Boosting is a sequential ensemble technique that primarily reduces bias (underfitting).
 
@@ -2615,7 +2615,7 @@ Understanding this relationship is crucial when designing the representation for
 
 
 
-## 47.57 What are genotype and phenotype in a genetic algorithm?
+## 47.118 What are genotype and phenotype in a genetic algorithm?
 ###
 In evolutionary algorithms we borrow language from biology:
 
@@ -2647,7 +2647,7 @@ PCA remains one of the simplest, fastest, and most interpretable unsupervised di
 
 
 
-## What are 'loadings' in PCA?
+## 48.119 What are 'loadings' in PCA?
 ###
 In PCA, the loadings (or principal component loadings) are the coefficients that show how much each original feature contributes to each principal component.
 
@@ -2660,7 +2660,7 @@ This is very useful for interpretation and for understanding which features are 
 #####
 
 
-## What is multicollinearity?
+## 48.120 What is multicollinearity?
 ###
 Multicollinearity happens when two or more features are highly correlated with each other.
 
@@ -2673,7 +2673,7 @@ Other remedies: remove one of the correlated features, use ridge regression (L2)
 #####
 
 
-## What is Kernel PCA?
+## 48.121  What is Kernel PCA?
 ###
 Kernel PCA is a non-linear extension of normal (linear) PCA.
 
@@ -2686,7 +2686,7 @@ It is more expensive (you usually need to choose a kernel and its parameters) bu
 #####
 
 
-## What are loadings in PCA?
+## 48.122 What are loadings in PCA?
 ###
 The loadings are the weights/coefficients that tell you how much each original feature contributes to each principal component.
 
@@ -2699,7 +2699,7 @@ Loadings are extremely useful for interpreting what the new PCA dimensions actua
 #####
 
 
-## What is multicollinearity?
+## 48.123 What is multicollinearity?
 ###
 Multicollinearity occurs when two or more of your input features are highly linearly correlated with each other.
 
@@ -2715,7 +2715,7 @@ Other common fixes: drop one of the correlated features, use ridge regression (L
 #####
 
 
-## What is Kernel PCA?
+## 48.124 What is Kernel PCA?
 ###
 Kernel PCA is the non-linear generalization of ordinary PCA.
 
@@ -2749,7 +2749,7 @@ Classification targets are usually encoded as integers or one-hot vectors; regre
 
 
 
-## What is ordinal regression?
+## 49.125 What is ordinal regression?
 ###
 Ordinal regression is used when the target variable has ordered categories but the distances between categories are not necessarily equal or known.
 
@@ -2800,7 +2800,7 @@ Good hyper-parameter choices can make the difference between a model that learns
 
 
 
-## 51.58 What is a hyperparameter?
+## 51.126 What is a hyperparameter?
 ###
 Hyperparameters are all the knobs you (the human) set before or during training that are not directly optimized by the learning algorithm.
 
@@ -2817,7 +2817,7 @@ You choose or search for good hyperparameter values using the validation set.
 #####
 
 
-## What are 'learning coefficients'?
+## 51.127 What are 'learning coefficients'?
 ###
 In the Q51 answer this is just another name for the actual learned parameters of the model (the weights and biases in a neural net, the split thresholds in a tree, the coefficients in linear regression, etc.).
 
@@ -2845,7 +2845,7 @@ A steadily decreasing full-batch loss curve is the expected and desired behavior
 
 
 
-## What is batch gradient descent (full-batch GD)?
+## 52.128 What is batch gradient descent (full-batch GD)?
 ###
 Batch gradient descent computes the gradient using the entire training set for every single update.
 
@@ -2880,7 +2880,7 @@ Regularization is essential for deep networks because their high capacity makes 
 
 
 
-## 53.59 What is dropout?
+## 53.129 What is dropout?
 ###
 Dropout is a regularization technique for neural networks.
 
@@ -2895,7 +2895,7 @@ Extremely cheap to implement and surprisingly effective, especially in fully-con
 #####
 
 
-## 53.60 What is early stopping?
+## 53.130 What is early stopping?
 ###
 Early stopping is one of the simplest and most reliable regularization methods.
 
@@ -2911,7 +2911,7 @@ You still need a proper validation set that the model does not train on.
 #####
 
 
-## What is data augmentation?
+## 53.131 What is data augmentation?
 ###
 Data augmentation artificially enlarges your training set by creating new, slightly modified versions of the existing examples while keeping the label the same.
 
@@ -2926,7 +2926,7 @@ Almost every strong vision or speech model uses aggressive data augmentation dur
 #####
 
 
-## What is batch normalization?
+## 53.132 What is batch normalization?
 ###
 Batch normalization (BatchNorm) is a layer that normalizes the activations of the previous layer for each mini-batch.
 
@@ -2945,7 +2945,7 @@ It is one of the most important practical innovations that made very deep networ
 #####
 
 
-## What is label smoothing?
+## 53.133 What is label smoothing?
 ###
 Label smoothing is a regularization technique for classification.
 
@@ -2960,7 +2960,7 @@ Mixup is a related idea that creates new training examples by linearly interpola
 #####
 
 
-## What is mixup?
+## 53.134 What is mixup?
 ###
 Mixup is a data augmentation / regularization technique.
 
@@ -2996,7 +2996,7 @@ In short, any method that does not force spherical Voronoi partitions and makes 
 
 
 
-## 54.61 What is DBSCAN?
+## 54.135 What is DBSCAN?
 ###
 DBSCAN is a density-based clustering algorithm that does not require you to specify the number of clusters upfront and can find clusters of arbitrary shape.
 
@@ -3014,7 +3014,7 @@ Result: clusters can be concave, rings, interlocking shapes, etc. Outliers are e
 #####
 
 
-## What are non-parametric vs parametric models / data?
+## 54.136 What are non-parametric vs parametric models / data?
 ###
 Parametric models assume the data comes from a specific family of distributions with a fixed number of parameters (e.g. Gaussian mixture models assume each cluster is Gaussian).
 
@@ -3025,7 +3025,7 @@ For clustering, "non-parametric data" in the Q54 answer means data that may have
 #####
 
 
-## What is K-Medoids (PAM)?
+## 54.137 What is K-Medoids (PAM)?
 ###
 K-Medoids is a variant of K-Means that is more robust to outliers and works with arbitrary dissimilarity measures (not just Euclidean distance).
 
@@ -3038,7 +3038,7 @@ Because it uses real points as centers and can use any distance, it is more suit
 #####
 
 
-## What is spectral clustering?
+## 54.138 What is spectral clustering?
 ###
 Spectral clustering treats the data points as nodes in a graph, with edges weighted by similarity.
 
@@ -3051,7 +3051,7 @@ It is more expensive than K-Means but very powerful for complex manifold data.
 #####
 
 
-## What is mean-shift clustering?
+## 54.139 What is mean-shift clustering?
 ###
 Mean-shift is a non-parametric, mode-seeking clustering algorithm.
 
@@ -3081,7 +3081,7 @@ Everything in a GA—selection, crossover, mutation—exists to improve the popu
 
 
 
-## What is a deceptive fitness function?
+## 55.140 What is a deceptive fitness function?
 ###
 A deceptive fitness function misleads the search algorithm.
 
@@ -3096,7 +3096,7 @@ Techniques to combat deception: larger populations, higher mutation, niching, mu
 #####
 
 
-## What is a surrogate model?
+## 55.141 What is a surrogate model?
 ###
 When the true fitness (or objective) function is extremely expensive to evaluate (hours or days per candidate), you build a cheap approximate model (the surrogate) that predicts the expensive result.
 
@@ -3129,7 +3129,7 @@ Misuse of the mean on skewed data is one of the most frequent statistical errors
 
 
 
-## What is skewness?
+## 56.142 What is skewness?
 ###
 Skewness measures how asymmetric a distribution is.
 
@@ -3159,7 +3159,7 @@ GA are one powerful tool among a family of search and optimization methods in AI
 
 
 
-## What is simulated annealing?
+## 57.143 What is simulated annealing?
 ###
 Simulated annealing is a probabilistic metaheuristic inspired by annealing in metallurgy (heating metal then slowly cooling it).
 
@@ -3173,7 +3173,7 @@ It is simpler than genetic algorithms (no population, no crossover) and often wo
 #####
 
 
-## What is a metaheuristic?
+## 57.144 What is a metaheuristic?
 ###
 A metaheuristic is a high-level strategy for finding good (not necessarily optimal) solutions to hard optimization problems when exact methods are too slow or impossible.
 
@@ -3189,7 +3189,7 @@ They sit between exact solvers (ILP, CP, dynamic programming) and problem-specif
 #####
 
 
-## What is tabu search?
+## 57.145 What is tabu search?
 ###
 Tabu search is a metaheuristic that extends local search.
 
@@ -3202,7 +3202,7 @@ It is a classic alternative (or complement) to genetic algorithms and simulated 
 #####
 
 
-## What are particle swarm optimization and ant colony optimization?
+## 57.146  What are particle swarm optimization and ant colony optimization?
 ###
 Both are population-based metaheuristics like genetic algorithms.
 
@@ -3232,7 +3232,7 @@ In short, the model is not ready for deployment until the generalization gap is 
 
 
 
-## What is the generalization gap?
+## 58.147 What is the generalization gap?
 ###
 The generalization gap is the difference between training performance and performance on unseen data (validation or test).
 
@@ -3262,7 +3262,7 @@ Fluctuating cost is normal, healthy behavior when using stochastic or mini-batch
 
 
 
-## What is momentum in gradient descent?
+## 59.148 What is momentum in gradient descent?
 ###
 Momentum is a technique that makes the optimizer remember the previous update direction and continue moving in that general direction, like a ball rolling down a hill with inertia.
 
@@ -3280,7 +3280,7 @@ Most modern optimizers (Adam, RMSprop, etc.) include some form of momentum or ad
 #####
 
 
-## What are learning rate schedules?
+## 59.149 What are learning rate schedules?
 ###
 Instead of using a fixed learning rate for the entire training run, you change it according to a schedule.
 
@@ -3295,7 +3295,7 @@ The right schedule often matters as much as the initial learning rate value. Man
 #####
 
 
-## What are adaptive methods like Adam?
+## 59.150 What are adaptive methods like Adam?
 ###
 Adam (Adaptive Moment Estimation) and similar optimizers (RMSprop, Adagrad, etc.) maintain per-parameter learning rates.
 
@@ -3325,7 +3325,7 @@ DBSCAN is the most commonly cited answer when the question asks for a clustering
 
 
 
-## What is HDBSCAN?
+## 60.151 What is HDBSCAN?
 ###
 HDBSCAN (Hierarchical Density-Based Spatial Clustering of Applications with Noise) is a modern, very popular extension of DBSCAN.
 
@@ -3339,7 +3339,7 @@ It is often one of the best "off-the-shelf" clustering algorithms when you don't
 #####
 
 
-## What is a non-convex cluster?
+## 60.152 What is a non-convex cluster?
 ###
 A non-convex cluster is a group of points that cannot be separated from other points by a straight line (or hyperplane) in the sense that the shape has indentations or holes.
 
@@ -3369,7 +3369,7 @@ The numbers 0.5 accuracy and 0 Youden's index are the null-model references for 
 
 
 
-## What is Youden's index?
+## 61.153 What is Youden's index?
 ###
 Youden's index (or Youden's J statistic) is a single-number summary of a binary classifier's performance across thresholds.
 
@@ -3384,7 +3384,7 @@ It is useful because it explicitly rewards both good detection of positives and 
 #####
 
 
-## What is specificity (true negative rate)?
+## 61.154 What is specificity (true negative rate)?
 ###
 Specificity = TN / (TN + FP)
 
@@ -3418,7 +3418,7 @@ Understanding the geometry of the decision boundary is fundamental to understand
 
 
 
-## 62.62 What is a decision boundary?
+## 62.155  What is a decision boundary?
 ###
 The decision boundary is the surface (line in 2D, plane or curved surface in higher D) that separates the regions the classifier assigns to different classes.
 
@@ -3455,7 +3455,7 @@ In modern practice random search or Bayesian optimization have largely replaced 
 
 
 
-## 63.63 What is grid search?
+## 63.156 What is grid search?
 ###
 Grid search is the brute-force approach to hyperparameter tuning.
 
@@ -3471,7 +3471,7 @@ In practice random search or more intelligent methods (Bayesian optimization, su
 #####
 
 
-## 63.64 What is random search for hyper-parameters?
+## 63.157 What is random search for hyper-parameters?
 ###
 Random search samples random combinations from the ranges or distributions you specify for each hyperparameter, instead of evaluating a full grid.
 
@@ -3484,7 +3484,7 @@ You simply decide "I will try 100 random combinations" and keep the best one acc
 #####
 
 
-## What is Bayesian optimization?
+## 63.158  What is Bayesian optimization?
 ###
 Bayesian optimization is a smart way to tune hyperparameters (or optimize any expensive black-box function).
 
@@ -3499,7 +3499,7 @@ After each expensive training run it updates the surrogate and picks the next tr
 #####
 
 
-## What is an acquisition function in Bayesian optimization?
+## 63.159 What is an acquisition function in Bayesian optimization?
 ###
 In Bayesian optimization the acquisition function is the cheap-to-evaluate function that decides which hyperparameter combination to try next.
 
@@ -3514,7 +3514,7 @@ The acquisition function is what turns the probabilistic surrogate into an actua
 #####
 
 
-## What are successive halving and Hyperband?
+## 63.160 What are successive halving and Hyperband?
 ###
 Successive halving is a bandit-style hyperparameter search method.
 
@@ -3549,7 +3549,7 @@ Skipping centering is one of the most common beginner mistakes when applying PCA
 
 
 
-## What is standardization (feature scaling)?
+## 64.161 What is standardization (feature scaling)?
 ###
 Standardization transforms a feature so that it has mean 0 and standard deviation 1:
 
@@ -3565,7 +3565,7 @@ You compute mean and std on the training set only, then apply the same transform
 #####
 
 
-## What does 'centering' the data mean (for PCA etc.)?
+## 64.162 What does 'centering' the data mean (for PCA etc.)?
 ###
 Centering = subtracting the mean of each feature so that every column has mean exactly zero.
 
@@ -3580,7 +3580,7 @@ In code you usually do both centering and scaling (standardization) together as 
 #####
 
 
-## What is the covariance matrix and SVD in the context of PCA?
+## 64.163 What is the covariance matrix and SVD in the context of PCA?
 ###
 After centering (and usually standardizing) the data, the covariance matrix captures how every pair of features varies together.
 
@@ -3610,7 +3610,7 @@ Huber loss and other robust losses attempt to combine the best properties of squ
 
 
 
-## What is Huber loss?
+## 65.164 What is Huber loss?
 ###
 Huber loss is a robust regression loss that is quadratic (like MSE) for small errors and linear (like MAE) for large errors.
 
@@ -3641,7 +3641,7 @@ When designing data collection one should aim for the highest scale type that th
 
 
 
-## What is the difference between ratio and interval scales again?
+## 66.165 What is the difference between ratio and interval scales again?
 ###
 (Reinforcement from Q8/Q30/Q66)
 
@@ -3674,7 +3674,7 @@ Systematic diagnosis of the fitness landscape and population statistics is the f
 
 
 
-## What is a fitness landscape?
+## 67.166 What is a fitness landscape?
 ###
 The fitness landscape is the (usually imaginary) surface you get when you plot fitness value for every possible candidate solution.
 
@@ -3690,7 +3690,7 @@ When people say a GA is "stuck", they usually mean the population has climbed a 
 #####
 
 
-## What is niching (in genetic algorithms)?
+## 67.167 What is niching (in genetic algorithms)?
 ###
 Niching techniques try to maintain multiple different good solutions in the population instead of letting the whole population converge to one winner.
 
@@ -3705,7 +3705,7 @@ Useful when the problem has multiple distinct good solutions (multimodal landsca
 #####
 
 
-## What is selection pressure in evolutionary algorithms?
+## 67.168 What is selection pressure in evolutionary algorithms?
 ###
 Selection pressure describes how strongly the algorithm favors the current best individuals when choosing parents.
 
@@ -3741,7 +3741,7 @@ Tabular methods are mainly of pedagogical and historical interest for small grid
 
 
 
-## 68.65 What is Q-learning?
+## 68.169 What is Q-learning?
 ###
 Q-learning is a foundational reinforcement-learning algorithm that learns the optimal action-value function Q(s, a).
 
@@ -3757,7 +3757,7 @@ Classic tabular Q-learning only works for tiny discrete state/action spaces. For
 #####
 
 
-## 68.66 What is reinforcement learning?
+## 68.170 What is reinforcement learning?
 ###
 Reinforcement learning (RL) is the area of machine learning that studies how an agent should choose actions over time to maximize cumulative reward while interacting with an environment.
 
@@ -3775,7 +3775,7 @@ It is neither fully supervised (you don't have the "correct" action for each sta
 #####
 
 
-## What is an actor-critic method?
+## 68.171 What is an actor-critic method?
 ###
 Actor-critic is a family of reinforcement learning algorithms that combine two components:
 
@@ -3789,7 +3789,7 @@ Modern algorithms such as A2C, A3C, PPO, SAC, DDPG, TD3 are all actor-critic met
 #####
 
 
-## What are policy gradient methods?
+## 68.172 What are policy gradient methods?
 ###
 Policy gradient methods directly optimize the policy (the mapping from states to action probabilities or actions) by following the gradient of expected reward.
 
@@ -3802,7 +3802,7 @@ They are "on-policy" by nature (you need fresh samples from the current policy) 
 #####
 
 
-## What is function approximation in reinforcement learning?
+## 68.173 What is function approximation in reinforcement learning?
 ###
 Function approximation means using a model (almost always a neural network today) to represent the value function or policy instead of a giant lookup table.
 
@@ -3819,7 +3819,7 @@ It introduces all the usual headaches of deep learning (non-stationarity, deadly
 #####
 
 
-## What is a Deep Q-Network (DQN)?
+## 68.174 What is a Deep Q-Network (DQN)?
 ###
 DQN = Deep Q-Network = using a neural network to approximate the Q-function in Q-learning, plus several tricks that made it stable:
 
@@ -3834,7 +3834,7 @@ For continuous action spaces pure DQN doesn't work (you can't do argmax over a c
 #####
 
 
-## What does 'discretization' mean in the context of continuous RL?
+## 68.175 What does 'discretization' mean in the context of continuous RL?
 ###
 When you have continuous state or action spaces but want to use a method that only works with discrete spaces (like classic tabular Q-learning), you have to discretize: chop the continuous range into a finite number of bins.
 
@@ -3865,7 +3865,7 @@ The statement is a direct expression of Popper's demarcation criterion between s
 
 
 
-## What does 'falsifiability' mean (in science / ML research)?
+## 69.176 What does 'falsifiability' mean (in science / ML research)?
 ###
 A claim or hypothesis is falsifiable if there exists some conceivable observation or experiment that could prove it wrong.
 
@@ -3897,7 +3897,7 @@ Every inferential test therefore begins by clearly stating both the null and the
 
 
 
-## What is the null hypothesis?
+## 70.177 What is the null hypothesis?
 ###
 The null hypothesis (H0) is the "no effect / status quo / nothing interesting" statement that you try to disprove with data.
 
@@ -3914,7 +3914,7 @@ This asymmetry is the source of endless confusion with p-values.
 #####
 
 
-## What is a p-value?
+## 70.178 What is a p-value?
 ###
 A p-value is the probability, under the assumption that the null hypothesis is true, of obtaining results at least as extreme as the ones you actually observed (or more extreme).
 
@@ -3931,7 +3931,7 @@ In ML papers you will see p-values when comparing models, feature importance, ab
 #####
 
 
-## What is hypothesis testing?
+## 70.179 What is hypothesis testing?
 ###
 Hypothesis testing is the formal procedure for deciding whether the data provide enough evidence to reject a null hypothesis.
 
@@ -3985,7 +3985,7 @@ Softmax is what allows neural networks to output calibrated class probabilities 
 
 
 
-## 72.67 What does the softmax function do?
+## 72.180 What does the softmax function do?
 ###
 Softmax converts a vector of raw scores (called logits) into a valid probability distribution over multiple mutually exclusive classes.
 
@@ -4003,7 +4003,7 @@ You can divide the logits by a "temperature" T before applying softmax to make t
 #####
 
 
-## What are logits (again, in multi-class context)?
+## 72.181 What are logits (again, in multi-class context)?
 ###
 Same idea as before: the raw scores coming out of the last linear layer.
 
@@ -4016,7 +4016,7 @@ Many implementations compute cross-entropy loss directly on the logits (numerica
 #####
 
 
-## What is the temperature parameter in softmax?
+## 72.182 What is the temperature parameter in softmax?
 ###
 You can divide the logits by a temperature T before applying softmax:
 
@@ -4034,7 +4034,7 @@ It is used for:
 #####
 
 
-## What is the 'winner-take-most' effect?
+## 72.183 What is the 'winner-take-most' effect?
 ###
 Because softmax uses exp(), a logit that is only a little bit higher than the others gets exponentially more probability mass.
 
@@ -4064,11 +4064,7 @@ The overall design is a small multi-layer perceptron whose weights are the genom
 
 
 
-
-//// henrik
-officiell spoergsmaal fra henrik
-
-## What is a policy network?
+## 73.184 What is a policy network?
 ###
 A policy network is a neural network that directly outputs actions (or a probability distribution over actions) given the current state.
 
@@ -4085,7 +4081,7 @@ This is in contrast to value-based methods that learn "how good is this state/ac
 #####
 
 
-## What is the state space (in RL / control)?
+## 73.185 What is the state space (in RL / control)?
 ###
 The state space is the set of all possible states the environment can be in.
 
@@ -4102,7 +4098,7 @@ The size and structure of the state space largely determine which RL algorithms 
 #####
 
 
-## What is the action space?
+## 73.186 What is the action space?
 ###
 The action space is the set of all possible actions the agent can take.
 
@@ -4124,7 +4120,7 @@ In the policy network you design the output layer to match the action space (sof
 #####
 
 
-## What is a feed-forward network / multi-layer perceptron (MLP)?
+## 73.187 What is a feed-forward network / multi-layer perceptron (MLP)?
 ###
 A feed-forward network (also called a multi-layer perceptron or MLP) is the simplest kind of neural network: information flows in one direction only, from input layer through hidden layers to the output. No loops or recurrence.
 
@@ -4140,7 +4136,7 @@ Even this tiny network can represent a good policy for the game when its weights
 #####
 
 
-## What does it mean that 'the weights are the genome'?
+## 73.188 What does it mean that 'the weights are the genome'?
 ###
 In neuroevolution (using a genetic algorithm to train a neural net), the "individual" in the population is usually the set of all the network's weights (and biases).
 
@@ -4153,5 +4149,17 @@ Fitness = how well that network plays the game (average reward over episodes).
 This is exactly what the Q73 question is asking you to design: a small MLP whose weights will be evolved by the GA.
 #### grok
 #####
+
+
+
+
+
+
+
+//// henrik
+officiell spoergsmaal fra henrik
+
+//// grok
+forklaringer til de enkelte spoergsmaal
 
 
