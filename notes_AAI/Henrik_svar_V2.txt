@@ -4499,4 +4499,5 @@ officiell spoergsmaal fra henrik
 //// grok
 forklaringer til de enkelte spoergsmaal
 
-
+//// datatypes
+forklaringer til de 4 datatyper
