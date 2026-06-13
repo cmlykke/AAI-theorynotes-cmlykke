@@ -14,6 +14,7 @@ Understanding measurement levels guides feature engineering, encoding choices, m
 #### grok datatypes
 #####
 
+
 ## 0.02 What is nominal data?
 ###
 **Nominal** (also called categorical or qualitative) data consists of labels or categories that have **no intrinsic order** or numeric meaning.
@@ -166,6 +167,8 @@ Always ask: "Does my similarity or loss function make sense given the measuremen
 #### grok datatypes
 #####
 
+
+
 ## 0.10 What are common pitfalls when programmers ignore measurement levels?
 ###
 1. Treating nominal IDs or categories as numeric features (model learns that higher ID number is "better").
@@ -190,6 +193,8 @@ Even when doing classification, the underlying measurement level of the features
 ---------------------------------------
 #### grok datatypes
 #####
+
+
 
 ## 0.12 What should an experienced programmer remember when designing data collection or feature stores with measurement levels in mind?
 ###
@@ -267,6 +272,190 @@ For introductory ML/AI: Start with understanding data types first, then choose p
 ---------------------------------------
 #### grok datatypes
 #####
+
+
+
+
+
+## 0.17 What are measures of central tendency?
+###
+Central tendency measures summarize the "center" or typical value of a distribution. The three main ones are:
+---------------------------------------
+- **Mean** (arithmetic average)
+- **Median** (middle value when sorted)
+- **Mode** (most frequent value)
+---------------------------------------
+In machine learning these appear constantly:
+- Feature imputation (mean/median imputation)
+- Scaling and normalization decisions
+- Error metrics and model evaluation
+- Initialization of clustering algorithms
+- Understanding data distributions before modeling
+---------------------------------------
+Choosing the wrong one (especially on skewed or outlier-heavy data) can bias your entire pipeline.
+---------------------------------------
+#### grok datatypes
+#####
+
+## 0.18 When should you use the mean as a measure of central tendency?
+###
+Use the **mean** when:
+- Your data is (approximately) symmetric / normally distributed
+- There are few or no extreme outliers
+- The data is on an interval or ratio scale (you can meaningfully add and divide)
+- You need a measure that is sensitive to every data point (e.g., total sum / n is useful for aggregates)
+---------------------------------------
+In ML:
+- Good default for imputing missing values in roughly symmetric numeric features
+- Used inside many algorithms (k-means centroids, linear regression coefficients, neural net weight averages during training)
+- Basis for many loss functions (MSE)
+---------------------------------------
+Downside: extremely sensitive to outliers and skewness. One extreme value can pull the mean far away from where "most" of the data actually is.
+---------------------------------------
+#### grok datatypes
+#####
+
+## 0.19 When should you use the median?
+###
+Use the **median** when:
+- The distribution is skewed (long tail)
+- There are outliers or heavy tails
+- You want a robust measure that represents the "typical" observation rather than being pulled by extremes
+- The data is ordinal, interval or ratio (but especially powerful on ratio data with outliers)
+---------------------------------------
+In ML practice:
+- Preferred imputation strategy for skewed features or when outliers are present (median imputation is far more robust than mean imputation)
+- Used in robust scaling (RobustScaler in scikit-learn uses median + IQR)
+- Better representation of "typical customer value", "typical house price", "typical error", etc. in reporting and business metrics
+- k-medoids (PAM) uses actual data points as centers instead of means
+---------------------------------------
+The median is the value that minimizes the sum of absolute deviations (L1), while the mean minimizes sum of squared deviations (L2).
+---------------------------------------
+#### grok datatypes
+#####
+
+## 0.20 What is the mode and when is it the right choice?
+###
+The **mode** is the most frequently occurring value.
+---------------------------------------
+It is the only central tendency measure that makes sense for nominal (categorical) data.
+---------------------------------------
+Use the mode when:
+- You have nominal or low-cardinality ordinal data
+- You want the single most common category
+- You are dealing with discrete counts or multimodal distributions (there can be multiple modes)
+---------------------------------------
+In ML:
+- Most common category imputation for categorical features
+- Useful baseline in classification ("always predict the majority class")
+- Can indicate the most popular choice in recommendation systems or market basket analysis
+---------------------------------------
+Limitation: the mode can be unstable with small samples or continuous data (you often need to bin continuous data first).
+---------------------------------------
+#### grok datatypes
+#####
+
+## 0.21 How do the four levels of measurement affect choice of central tendency measure?
+###
+- **Nominal**: Only the mode is valid.
+- **Ordinal**: Median is usually preferred (and mode). Mean is generally inappropriate because intervals are not equal.
+- **Interval**: Mean and median are both valid; mean is often preferred when the distribution is symmetric.
+- **Ratio**: All three can be used. Mean is usually best when data is symmetric and there are no outliers; median when the data is skewed or contains outliers.
+---------------------------------------
+This is why you should always inspect the distribution (histograms, boxplots, skewness) and know the measurement level of a feature before choosing an imputation strategy or summary statistic.
+---------------------------------------
+#### grok datatypes
+#####
+
+## 0.22 Mean vs median imputation — which one should you use in practice?
+###
+**Mean imputation**:
+- Simple and fast
+- Preserves the overall mean of the feature
+- Can distort variance and covariance
+- Dangerous with outliers or skewed data (pulls the distribution toward the outlier)
+---------------------------------------
+**Median imputation**:
+- Much more robust to outliers and skewness
+- Preserves the central tendency of the bulk of the data
+- Slightly more work to compute, but negligible
+---------------------------------------
+Rule of thumb used in real ML projects:
+- If the feature is roughly symmetric and has few outliers → mean imputation is acceptable.
+- Otherwise (most real-world cases) → use median imputation.
+---------------------------------------
+Many production pipelines default to median for numeric features and mode for categoricals. Scikit-learn's SimpleImputer makes this easy.
+---------------------------------------
+Always remember: imputation introduces bias. Better approaches (KNN imputation, iterative imputation, or model-based imputation) are often worth the extra complexity.
+---------------------------------------
+#### grok datatypes
+#####
+
+
+
+## 0.23 What is robust scaling and why does it use the median?
+###
+Standard scaling (z-score) uses mean and standard deviation:
+    (x - mean) / std
+---------------------------------------
+This is badly affected by outliers (both mean and std get pulled).
+---------------------------------------
+**Robust scaling** uses:
+    (x - median) / IQR
+---------------------------------------
+Where IQR = Q3 - Q1 (interquartile range).
+---------------------------------------
+Advantages:
+- The median and IQR are resistant to outliers (they ignore the extreme 25% on each end)
+- The resulting features are much more stable when there are heavy tails or extreme values
+- Very useful before distance-based algorithms or gradient-based models when your data contains outliers
+---------------------------------------
+In scikit-learn:
+```python
+from sklearn.preprocessing import RobustScaler
+scaler = RobustScaler()
+X_scaled = scaler.fit_transform(X)
+```
+---------------------------------------
+Use RobustScaler when you have outliers and still want something roughly on a comparable scale. Use StandardScaler when your data is clean and close to normal.
+---------------------------------------
+#### grok datatypes
+#####
+
+
+
+## 0.24 How does skewness affect your choice of central tendency and scaling?
+###
+Skewness tells you how asymmetric the distribution is.
+---------------------------------------
+- Positive skew (right tail): mean > median > mode (e.g. income, house prices, number of purchases)
+- Negative skew: mean < median < mode
+- Symmetric: mean ≈ median ≈ mode
+---------------------------------------
+Practical consequences in ML:
+- On positively skewed features, the mean is pulled toward the long tail → median is usually the better "typical value".
+- Many models and loss functions assume roughly symmetric or normal distributions. Severe skew often motivates log transforms, Box-Cox, or Yeo-Johnson transforms before modeling.
+- When reporting metrics or doing feature engineering, always check skewness (pandas .skew() or seaborn distplot) and decide whether mean or median (or transformed version) is more appropriate.
+---------------------------------------
+#### grok datatypes
+#####
+
+
+## 0.25 How do centrality measures appear inside common ML algorithms?
+###
+- **k-means**: Uses the mean (centroid) of points in a cluster. Very sensitive to outliers.
+- **k-medoids (PAM)**: Chooses actual data points as centers (medoids). Much more robust — equivalent to using the median in 1D.
+- **Linear regression / neural nets**: The mean is implicitly very important (minimizing MSE is equivalent to matching conditional means).
+- **Decision trees / boosting**: Less directly affected by centrality measures because they are based on splits, but feature distributions still influence split quality.
+- **Imputation inside pipelines**: Almost always uses mean/median/mode as a first baseline.
+- **Anomaly detection**: Points far from the median (or mean) in robust distance are often flagged.
+---------------------------------------
+Understanding these connections helps you debug why a model behaves strangely on skewed or outlier-heavy data and choose more robust alternatives (median-based methods, robust scalers, tree models, etc.).
+---------------------------------------
+#### grok datatypes
+#####
+
+
 
 ## 1.01 What does 'precision' mean in a classification model?
 ###
